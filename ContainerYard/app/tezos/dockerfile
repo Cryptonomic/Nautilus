@@ -1,0 +1,7 @@
+FROM tezos/tezos:betanet
+
+EXPOSE 8732
+
+RUN tezos-node identity generate
+
+CMD ["tezos-node" "run"]

@@ -1,0 +1,44 @@
+version: "3"
+services:
+  tezos-node:
+    image: ./conseil/dockerfile
+    ports:
+      - 9732:9732
+    command: "tezos-node run"
+    volumes:
+      - tznode_data:/var/run/tezos/node
+      - tzclient_data:/var/run/tezos/client
+    networks:
+      - nautilus
+  database:
+    image: ./postgres/dockerfile
+    ports:
+      - 5432:5432
+    volumes:
+      - "./pgdata:/var/lib/postgresql/data"
+    networks:
+      - nautilus
+  conseil:
+    image: ./conseil/dockerfile
+    ports:
+      - 1337:1337
+    command: "/conseil/runconseil.sh"
+    networks:
+      - nautilus
+    depends_on:
+      - database
+      - tezos-node
+  arronax:
+    image: ./arronax/dockerfile
+    ports:
+      - 80:80
+    networks:
+      - nautilus
+    depends_on:
+      - "conseil"
+  networks:
+    nautilus:
+  volumes:
+    pgdata:
+    znode_data:
+    tzclient_data:

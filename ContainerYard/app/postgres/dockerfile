@@ -1,0 +1,9 @@
+FROM postgres:10.3-alpine
+
+ENV POSTGRES_USER="conseiluser"
+ENV POSTGRES_PASSWORD="p@ssw0rd"
+ENV POSTGRES_DB="conseil-local"
+
+COPY ./conseil.sql /docker-entrypoint-initdb.d/conseil.sql
+
+EXPOSE 5432
