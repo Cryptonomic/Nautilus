@@ -1,0 +1,12 @@
+FROM tezos/tezos:alphanet
+
+# RPC
+EXPOSE 8732
+# P2P
+EXPOSE 9732
+# P2P Mainnet
+EXPOSE 19732
+
+RUN tezos-node identity generate
+
+CMD ["tezos-node"]

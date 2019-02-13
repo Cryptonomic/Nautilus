@@ -1,0 +1,16 @@
+FROM openjdk:8-jre-alpine
+
+#RUN apt-get -y update
+#RUN apt-get clean && \
+#RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+WORKDIR /conseil
+COPY ./build/conseil.jar /conseil/
+COPY ./build/conseil.conf /conseil/
+COPY ./build/logback.xml /conseil/
+COPY ./build/runconseil-lorre.sh /conseil/
+RUN chmod +x /conseil/runconseil-lorre.sh
+
+EXPOSE 1337
+
+CMD ["/conseil/runconseil-lorre.sh"]
