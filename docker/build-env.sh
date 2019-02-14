@@ -52,15 +52,15 @@ else
  docker volume rm tzclient_data-$1
 
  cd ./app/conseil
- . ./build.sh $1
+ . ./build.sh $1 $2
  cd ../..
 
  cd ./app/tezos
- . ./build.sh $1
+ . ./build.sh $1 $2
  cd ../..
 
  cd ./app/postgres
- . ./build.sh $1
+ . ./build.sh $1 $2
  cd ../..
 
  docker network create nautilus
