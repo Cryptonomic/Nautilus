@@ -28,7 +28,7 @@ if [ $1 = local ]; then
 
 else
  echo 'Building Conseil-'$1
- cd $2
+ cd $2/app/conseil/
  mkdir $1-temp && cd $1-temp
 
  git clone https://github.com/Cryptonomic/Conseil.git
