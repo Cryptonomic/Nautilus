@@ -1,8 +1,5 @@
 FROM openjdk:8-jre-alpine
 
-#RUN apt-get -y update
-#RUN apt-get clean && \
-#RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 WORKDIR /conseil
 COPY ./build/conseil.jar /conseil/

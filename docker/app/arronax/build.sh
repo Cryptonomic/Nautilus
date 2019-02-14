@@ -1,4 +1,5 @@
 #!/bin/bash
+
 mkdir $1-temp && cd $1-temp
 
 git clone https://github.com/Cryptonomic/Arronax.git
