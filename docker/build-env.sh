@@ -51,15 +51,15 @@ else
  docker volume rm tznode_data-$1
  docker volume rm tzclient_data-$1
 
- cd ./$2/app/conseil
+ cd $2./app/conseil
  . ./build.sh $1 $2
  cd ../..
 
- cd ./$2/app/tezos
+ cd $2./app/tezos
  . ./build.sh $1 $2
  cd ../..
 
- cd ./$2/$2/app/postgres
+ cd $2./app/postgres
  . ./build.sh $1 $2
  cd ../..
 
