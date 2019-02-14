@@ -45,8 +45,8 @@ else
  cp ./$1-temp/Conseil/src/main/resources/logback.xml ./build/
 
  mv /tmp/conseil.jar ./build/conseil.jar
- cp ./env/$1/conseil.conf ./build/
- cp ./env/$1/runconseil-lorre.sh ./build/
+ cp $2/app/conseil/env/$1/conseil.conf ./build/
+ cp $2/app/conseil/env/$1/runconseil-lorre.sh ./build/
 
  docker build -f dockerfile -t conseil-$1 .
 
