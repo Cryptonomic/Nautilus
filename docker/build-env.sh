@@ -51,24 +51,24 @@ else
  docker volume rm tznode_data-$1
  docker volume rm tzclient_data-$1
 
- cd $2./app/conseil
+ cd $2/app/conseil
  . ./build.sh $1 $2
  cd ../..
 
- cd $2./app/tezos
+ cd $2/app/tezos
  . ./build.sh $1 $2
  cd ../..
 
- cd $2./app/postgres
+ cd $2/app/postgres
  . ./build.sh $1 $2
  cd ../..
 
  docker network create nautilus
 
- mkdir ./volumes
- mkdir ./volumes/pgdata-$1
- mkdir ./volumes/tznode_data-$1
- mkdir ./volumes/tzclient_data-$1
+ mkdir $2/volumes
+ mkdir $2/volumes/pgdata-$1
+ mkdir $2/volumes/tznode_data-$1
+ mkdir $2/volumes/tzclient_data-$1
  docker volume create --driver local --opt type=none --opt o=bind --opt device=/$2/volumes/pgdata-$1 pgdata-$1
  docker volume create --driver local --opt type=none --opt o=bind --opt device=/$2/volumes/tznode_data-$1 tznode_data-$1
  docker volume create --driver local --opt type=none --opt o=bind --opt device=/$2/volumes/tzclient_data-$1 tzclient_data-$1
