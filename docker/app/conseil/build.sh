@@ -27,7 +27,7 @@ if [ $1 = local ]; then
  rm ./build
 
 else
- echo 'Building Conseil-'$1
+ echo 'Building Conseil'
  cd $2/app/conseil/
  mkdir $1-temp && cd $1-temp
 
