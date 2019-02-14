@@ -48,7 +48,7 @@ else
  cp ./env/$1/conseil.conf ./build/
  cp ./env/$1/runconseil-lorre.sh ./build/
 
- docker build -f dockerfile -t conseil-$1 $2
+ docker build -f dockerfile -t conseil-$1 .
 
 
  rm ./build
