@@ -5,6 +5,7 @@ WORKDIR /conseil
 COPY ./build/conseil.jar /conseil/
 COPY ./build/conseil.conf /conseil/
 COPY ./build/logback.xml /conseil/
+COPY ./build/application.conf /conseil/
 COPY ./build/runconseil-lorre.sh /conseil/
 RUN chmod +x /conseil/runconseil-lorre.sh
 

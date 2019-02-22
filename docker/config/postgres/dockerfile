@@ -1,0 +1,11 @@
+FROM postgres:10.3-alpine
+
+ENV POSTGRES_USER="databaseusername"
+ENV POSTGRES_PASSWORD="databasepassword"
+ENV POSTGRES_DB="conseil-local"
+ENV POSTGRES_INITDB_ARGS="--nosync --lc-collate=C"
+
+
+COPY ./conseil.sql /docker-entrypoint-initdb.d/conseil.sql
+
+EXPOSE 5432
