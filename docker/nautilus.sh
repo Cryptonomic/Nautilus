@@ -164,6 +164,7 @@ build_postgres () {
     mkdir "$POSTGRES_WORK_DIR"
 
     cp ./app/postgres/dockerfile "$POSTGRES_WORK_DIR"/dockerfile
+    postgres_dockerfile="$POSTGRES_WORK_DIR"/dockerfile
     #change postgres databasename, username, and password
     {
     read line1
@@ -173,10 +174,10 @@ build_postgres () {
     line1=`echo $line1`
     line2=`echo $line2`
     line3=`echo $line3`
-    postgres_dockerfile="$POSTGRES_WORK_DIR"/dockerfile
-    sed -i "s/ENV POSTGRES_USER=*/$line1/g" "$postgres_dockerfile"
-    sed -i "s/*user*/$line2/g" "$postgres_dockerfile"
-    sed -i "s/*password*/$line3/g" "$postgres_dockerfile"
+
+    sed -i "s/ENV POSTGRES_USER=.*/$line1/g" "$postgres_dockerfile"
+    sed -i "s/ENV POSTGRES_PASSWORD=.*/$line2/g" "$postgres_dockerfile"
+    sed -i "s/ENV POSTGRES_DB=.*/$line3/g" "$postgres_dockerfile"
 
 
 
