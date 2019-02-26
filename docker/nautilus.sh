@@ -132,7 +132,7 @@ build_conseil () {
 
     cp "$conseil_conf_file" ./build/
     cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./build/
-    
+
 
 
     cp ./Conseil/src/main/resources/logback.xml ./build/
@@ -187,7 +187,8 @@ build_postgres () {
 
     #place schema into working directory for auditability
     ln -s "$PATH_TO_CONFIG"/postgres/conseil.sql ./conseil.sql
-    docker build -f "$POSTGRES_WORK_DIR"/dockerfile -t postgres-"$DEPLOYMENT_ENV" .
+    cd "$POSTGRES_WORK_DIR"
+    docker build -f dockerfile -t postgres-"$DEPLOYMENT_ENV" .
 
 	docker run --name=postgres-"$DEPLOYMENT_ENV" --network=nautilus -v pgdata-"$DEPLOYMENT_ENV":/var/lib/postgresql/data -d -p 5432:5432 postgres-"$DEPLOYMENT_ENV"
 }
@@ -210,7 +211,7 @@ build_tezos () {
     mkdir "$TEZOS_WORK_DIR"
 
     #copy dockerfile from nautilus
-    cp ./app/tezos/dockerfile "$TEZOS_WORK_DIR"/dockerfile
+    cp "$DIR"/app/tezos/dockerfile "$TEZOS_WORK_DIR"/dockerfile
 
     #replace tezos network in dockerfile
     tz_dockerfile="$TEZOS_WORK_DIR"/dockerfile
@@ -218,7 +219,7 @@ build_tezos () {
     cd "$TEZOS_WORK_DIR"
 
     #build and run docker container
-    docker build -f dockerfile -t tezos-node-"$DEPLOYMENT_ENV" . &&
+    docker build -f dockerfile -t tezos-node-"$DEPLOYMENT_ENV" .
     docker run --name=tezos-node-"$DEPLOYMENT_ENV" --network=nautilus -v tznode_data:/var/run/tezos/node-"$DEPLOYMENT_ENV" -v tzclient_data:/var/run/tezos/client-"$DEPLOYMENT_ENV" -d -p 8732:8732 -p 9732:9732 tezos-node-"$DEPLOYMENT_ENV"
 }
 
