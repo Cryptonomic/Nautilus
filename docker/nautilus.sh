@@ -73,7 +73,7 @@ eval set -- "$ARGS"
 # set execution flags and/or execute functions for each option
 while true ; do
     case "$1" in
-        -a|--all) CONSEIL=1; POSTGRES=1; TEZOS=1 ; shift ;;
+        -a|--all) CONSEIL=1 ; POSTGRES=1 ; TEZOS=1 ; shift ;;
         -b|--build-name) build_name="$2" ; shift 2 ;;
 	    -c|--conseil) CONSEIL=1 ; shift ;;
         -d|--database) POSTGRES=1 ; shift ;;
