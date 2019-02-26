@@ -28,8 +28,8 @@ Usage: $CMD [OPTIONS] -p [/PATH/TO/CONFIG_FOLDER]]
 Options:
     -a, --all                      builds, links, and starts tezos, postgres, and conseil docker
                                    containers and their respective volumes
-    -b, --build-name               if specified, creates a name for current build, otherwise
-                                   defaults to current time
+    -b, --build-name               creates a working directory within home to use for the build instance, defaults to
+                                   nautilus_build_current-date-time
     -c, --conseil                  stops and removes existing conseil container if it exists
                                    and rebuilds and starts a new instance of the conseil container
     -d, --database                 stops and removes existing postgres database container if it exists
@@ -91,7 +91,8 @@ default_network="alphanet"
 build_time=$(date "+%Y.%m.%d-%H.%M.%S")
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 PATH_TO_CONFIG="${path_to_config:-$DIR/config/local}"
-BUILD_NAME="${build_name:-$build_time}"
+BUILD_NAME="${build_name:-nautilus_build_"$build_time"}"
+WORKING_DIR=$HOME/"$BUILD_NAME"
 DEPLOYMENT_ENV="$(basename "$PATH_TO_CONFIG")"
 tezosprotocol="${default_network:-$protocol}"
 
@@ -137,11 +138,16 @@ build_tezos () {
     docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV" tzclient_data-"$DEPLOYMENT_ENV"
 	docker container stop tezos-node-"$DEPLOYMENT_ENV"
 	docker container rm tezos-node-"$DEPLOYMENT_ENV"
-	cd ./app/tezos
+    [[ -d "$WORKING_DIR" ]] || mkdir "$WORKING_DIR"
+    TEZOS_WORK_DIR="$WORKING_DIR"/tezos
+    mkdir "$TEZOS_WORK_DIR"
+    cp ./app/tezos/dockerfile "$TEZOS_WORK_DIR"/dockerfile
+    cat ./PATH_TO_CONFIG/$DEPLOYMENT_ENV/tezos/tezos-network > tezos-network
+    cd "$TEZOS_WORK_DIR"
 
-	bash ./build.sh -p "$PATH_TO_CONFIG" -n "$build_name"
+    sed 's/protocol/"$tezos-network"/g' ./dockerfile
 
-	cd ../..
+    docker build -f dockerfile -t tezos-node-"$DEPLOYMENT_ENV" .
     docker run --name=tezos-node-"$DEPLOYMENT_ENV" --network=nautilus -v tznode_data:/var/run/tezos/node-"$DEPLOYMENT_ENV" -v tzclient_data:/var/run/tezos/client-"$DEPLOYMENT_ENV" -d -p 8732:8732 -p 9732:9732 tezos-node-"$DEPLOYMENT_ENV"
 }
 
