@@ -90,7 +90,7 @@ done
 default_network="alphanet"
 build_time=$(date "+%Y.%m.%d-%H.%M.%S")
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-PATH_TO_CONFIG="${path_to_config:-$DIR/docker/config/local}"
+PATH_TO_CONFIG="${path_to_config:-$DIR/config/local}"
 BUILD_NAME="${build_name:-nautilus_build_"$build_time"}"
 WORKING_DIR=$HOME/"$BUILD_NAME"
 DEPLOYMENT_ENV="$(basename "$PATH_TO_CONFIG")"
@@ -142,7 +142,7 @@ build_tezos () {
     TEZOS_WORK_DIR="$WORKING_DIR"/tezos
     mkdir "$TEZOS_WORK_DIR"
     cp ./app/tezos/dockerfile "$TEZOS_WORK_DIR"/dockerfile
-    tezosnetwork=`cat "$PATH_TO_CONFIG"/tezos/tezos-network`
+    tezosnetwork=`cat "$PATH_TO_CONFIG"/tezos/tezos_network`
     cd "$TEZOS_WORK_DIR"
 
     sed "s/protocol/$tezosnetwork/g" dockerfile
