@@ -61,8 +61,8 @@ EOF
 }
 
 # parse command line arguments
-SHORT_OPTS='ab:cd:hn:ptv'
-LONG_OPTS='all,build-name:,conseil,database,help,path-to-config:,protocol:,tezos,volume'
+SHORT_OPTS='ab:cdh:p:tv'
+LONG_OPTS='all,build-name:,conseil,database,help,path-to-config:,tezos,volume'
 ARGS=$(getopt -o $SHORT_OPTS -l $LONG_OPTS -n "$CMD" -- "$@" 2>/dev/null)
 #check getopt command failure
 (( $? != 0 )) && fatal "invalid options"
@@ -75,7 +75,6 @@ while true ; do
 	    -c|--conseil) CONSEIL=1 ; shift ;;
         -d|--database) POSTGRES=1 ; shift ;;
         -h|--help) display_usage && exit 0 ; shift ;;
-        -n|--protocol) protocol="$2" ; shift 2 ;;
         -p|--path-to-config) path_to_config="$2" ; shift 2 ;;
         -t|--tezos) TEZOS=1 ; shift ;;
         -v|--volume) VOLUME=1 ; shift ;;
