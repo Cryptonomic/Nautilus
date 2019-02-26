@@ -159,7 +159,7 @@ build_postgres () {
     #check out schema and put it in the right place
 
 
-    POSTGRES_WORK_DIR="$WORKING_DIR"/postgres/
+    POSTGRES_WORK_DIR="$WORKING_DIR"/postgres
     mkdir "$POSTGRES_WORK_DIR"
 
     cp ./app/postgres/dockerfile "$POSTGRES_WORK_DIR"/dockerfile
@@ -181,14 +181,14 @@ build_postgres () {
 
 
     #check out schema and put it in the right place
-    mv $PATH_TO_CONFIG/postgres/conseil.sql $PATH_TO_CONFIG/postgres/conseil.sql.bak
-    wget https://raw.githubusercontent.com/Cryptonomic/Conseil/master/doc/conseil.sql > $PATH_TO_CONFIG/postgres/conseil.sql
+    mv "$PATH_TO_CONFIG"/postgres/conseil.sql "$PATH_TO_CONFIG"/postgres/conseil.sql.bak
+    wget https://raw.githubusercontent.com/Cryptonomic/Conseil/master/doc/conseil.sql > "$PATH_TO_CONFIG"/postgres/conseil.sql
 
     #place schema into working directory for auditability
-    ln -s $PATH_TO_CONFIG/postgres/conseil.sql ./conseil.sql
+    ln -s "$PATH_TO_CONFIG"/postgres/conseil.sql ./conseil.sql
     docker build -f "$POSTGRES_WORK_DIR"/dockerfile -t postgres-"$DEPLOYMENT_ENV" .
 
-	docker run --name=postgres-"$DEPLOYMENT_ENV" --network=nautilus -v pgdata-$DEPLOYMENT_ENV:/var/lib/postgresql/data -d -p 5432:5432 postgres-"$DEPLOYMENT_ENV"
+	docker run --name=postgres-"$DEPLOYMENT_ENV" --network=nautilus -v pgdata-"$DEPLOYMENT_ENV":/var/lib/postgresql/data -d -p 5432:5432 postgres-"$DEPLOYMENT_ENV"
 }
 
 build_tezos () {
