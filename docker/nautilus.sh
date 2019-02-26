@@ -140,14 +140,12 @@ build_conseil () {
     line1=`echo $line1`
     line2=`echo $line2`
     line3=`echo $line3`
-    cp "$PATH_TO_CONFIG"/conseil/conseil.conf ./build/
-    conseil_conf_file=./build/conseil.conf
+    conseil_conf_file=./conseil.conf
     sed -i "s/*databaseName*/$line1/g" "$conseil_conf_file"
     sed -i "s/*user*/$line2/g" "$conseil_conf_file"
     sed -i "s/*password*/$line3/g" "$conseil_conf_file"
 
-
-    cp /$PATH_TO_CONFIG/conseil/runconseil-lorre.sh ./build/
+    cp ./conseil.conf ./build/
 
     docker build -f "$DIR"/app/conseil/dockerfile -t conseil-"$DEPLOYMENT_ENV" .
     rm ./build
