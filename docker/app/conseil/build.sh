@@ -16,6 +16,8 @@ fi
 sbt 'set logLevel in compile := Level.Error' compile
 sbt 'set test in assembly := {}' assembly
 
+cd ..
 
-
-
+ln -s ./Conseil ./build
+(( $? == 0 )) || fatal "Unable to create symlink to build directory"
+mv /tmp/conseil.jar ./build/conseil.jar

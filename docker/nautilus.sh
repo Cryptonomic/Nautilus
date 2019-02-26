@@ -115,23 +115,7 @@ build_conseil () {
 
     . "$DIR"/app/conseil/build.sh
 
-    cp "$PATH_TO_CONFIG"/conseil/* "$CONSEIL_WORK_DIR"
-    ln -s ./Conseil ./build
-    mv /tmp/conseil.jar ./build/conseil.jar
-
-
-    #cd "$CONSEIL_WORK_DIR"
-
-    #cp "$PATH_TO_CONFIG"/conseil/* "$CONSEIL_WORK_DIR"/
-    #cp "$HOME"/Conseil/* "$CONSEIL_WORK_DIR"/
-
-
-    (( $? == 0 )) || fatal "Unable to create symlink to build directory"
-
-    cp ./Conseil/src/main/resources/logback.xml ./build/
-    cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./build/
-
-
+    cp "$PATH_TO_CONFIG"/conseil/conseil.conf ./conseil.conf
     {
     read line1
     read line2
@@ -145,7 +129,13 @@ build_conseil () {
     sed -i "s/*user*/$line2/g" "$conseil_conf_file"
     sed -i "s/*password*/$line3/g" "$conseil_conf_file"
 
+    cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./build/
     cp ./conseil.conf ./build/
+
+
+    cp ./Conseil/src/main/resources/logback.xml ./build/
+    #cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./build/
+
 
     docker build -f "$DIR"/app/conseil/dockerfile -t conseil-"$DEPLOYMENT_ENV" .
     rm ./build
