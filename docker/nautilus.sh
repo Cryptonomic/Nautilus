@@ -94,7 +94,7 @@ PATH_TO_CONFIG="${path_to_config:-$DIR/config/local}"
 BUILD_NAME="${build_name:-nautilus_build_"$build_time"}"
 WORKING_DIR=$HOME/"$BUILD_NAME"
 DEPLOYMENT_ENV="$(basename "$PATH_TO_CONFIG")"
-
+tezosnetwork=`cat "$PATH_TO_CONFIG"/tezos/tezos_network.txt`
 
 build_conseil () { 
 	docker container stop conseil-"$DEPLOYMENT_ENV"
@@ -142,12 +142,9 @@ build_tezos () {
     TEZOS_WORK_DIR="$WORKING_DIR"/tezos
     mkdir "$TEZOS_WORK_DIR"
     cp ./app/tezos/dockerfile "$TEZOS_WORK_DIR"/dockerfile
-    tezosnetwork=`cat "$PATH_TO_CONFIG"/tezos/tezos_network`
-    cd "$TEZOS_WORK_DIR"
     tz_dockerfile="$TEZOS_WORK_DIR"/dockerfile
-
-    sed "s/protocol/$tezosnetwork/g" "$tz_dockerfile" &&
-
+    sed -i "s/protocol/$tezosnetwork/g" "$tz_dockerfile"
+    cd "$TEZOS_WORK_DIR"
     docker build -f dockerfile -t tezos-node-"$DEPLOYMENT_ENV" . &&
 
     docker run --name=tezos-node-"$DEPLOYMENT_ENV" --network=nautilus -v tznode_data:/var/run/tezos/node-"$DEPLOYMENT_ENV" -v tzclient_data:/var/run/tezos/client-"$DEPLOYMENT_ENV" -d -p 8732:8732 -p 9732:9732 tezos-node-"$DEPLOYMENT_ENV"
