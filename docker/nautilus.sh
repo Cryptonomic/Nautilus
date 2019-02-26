@@ -87,7 +87,7 @@ done
     && fatal "Please specify at least one container type (examples: -a,-c,-d,-t)."
 
 
-build_time=$(date "+%Y.%m.%d-%H.%M.%S")
+build_time=$(date "+%Y.%m.%d-%H:%M")
 #sets current directory to variable DIR
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 #config file path, should contain exact files and directory structure as that of config/local
@@ -225,7 +225,7 @@ remove_postgres_volumes () {
     docker container stop postgres-"$DEPLOYMENT_ENV"
 	docker container rm postgres-"$DEPLOYMENT_ENV"
     docker volume rm pgdata-"$DEPLOYMENT_ENV"
-    rm -rf $HOME/volumes/pgdata-"$DEPLOYMENT_ENV"
+    sudo rm -rf $HOME/volumes/pgdata-"$DEPLOYMENT_ENV"
 }
 
 #set_protocol () {
