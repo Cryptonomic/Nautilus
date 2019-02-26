@@ -22,7 +22,7 @@ add the jenkins user public key as an authorized key.
 If executing locally, be sure to change the postgres username and password in conseil.conf located in
 docker/config/local/conseil/ and use the same username and password in dockerfile for postgres.
 
-Usage: $CMD [OPTIONS] -p [/PATH/TO/CONFIG_FOLDER]]
+Usage: "$CMD" [OPTIONS] -p [/PATH/TO/CONFIG_FOLDER]]
             [-h] [-v]
 
 Options:
@@ -50,7 +50,7 @@ Options:
                                    there has been a schema change as simply rebuilding the container will not replace the schema
 
 Examples:
-    $CMD -a -p /$HOME/production-environment-1
+    "$CMD" -a -p /"$HOME"/production-environment-1
                                    # build, initialize, and run docker containers
                                    # for conseil, postgres, and tezos
                                    # takes config files from production-environment-1 folder
@@ -65,7 +65,7 @@ SHORT_OPTS='ab:cd:hn:p:tv'
 LONG_OPTS='all,build-name:,conseil,database,help,:,path-to-config:,protocol:,tezos,volume'
 
 #parse command line parameters
-ARGS=$(getopt -o $SHORT_OPTS -l $LONG_OPTS -n "$CMD" -- "$@" 2>/dev/null)
+ARGS=$(getopt -o "$SHORT_OPTS" -l "$LONG_OPTS" -n "$CMD" -- "$@" 2>/dev/null)
 #check getopt command failure
 eval set -- "$ARGS"
 (( $? != 0 )) && fatal "invalid options"
@@ -137,20 +137,20 @@ build_tezos () {
     [[ -d $HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV" ]] || mkdir $HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV"
 
     docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tznode_data-"$DEPLOYMENT_ENV" tznode_data-"$DEPLOYMENT_ENV"
-    docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tzclient_data-$DEPLOYMENT_ENV tzclient_data-"$DEPLOYMENT_ENV"
-	docker container stop tezos-$DEPLOYMENT_ENV
-	docker container rm tezos-$DEPLOYMENT_ENV
+    docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV" tzclient_data-"$DEPLOYMENT_ENV"
+	docker container stop tezos-"$DEPLOYMENT_ENV"
+	docker container rm tezos-"$DEPLOYMENT_ENV"
 	cd ./app/tezos
 
 	bash ./build.sh -p "$PATH_TO_CONFIG" -n "$build_name"
 
 	cd ../..
-    docker run --name=tezos-node-$DEPLOYMENT_ENV --network=nautilus -v tznode_data:/var/run/tezos/node-$DEPLOYMENT_ENV -v tzclient_data:/var/run/tezos/client-$DEPLOYMENT_ENV -d -p 8732:8732 -p 9732:9732 tezos-node-$DEPLOYMENT_ENV
+    docker run --name=tezos-node-"$DEPLOYMENT_ENV" --network=nautilus -v tznode_data:/var/run/tezos/node-"$DEPLOYMENT_ENV" -v tzclient_data:/var/run/tezos/client-"$DEPLOYMENT_ENV" -d -p 8732:8732 -p 9732:9732 tezos-node-"$DEPLOYMENT_ENV"
 }
 
 remove_postgres_volumes () {
-    docker volume rm pgdata-$DEPLOYMENT_ENV
-    rm -rf $HOME/volumes/pgdata-$DEPLOYMENT_ENV
+    docker volume rm pgdata-"$DEPLOYMENT_ENV"
+    rm -rf $HOME/volumes/pgdata-"$DEPLOYMENT_ENV"
 }
 
 set_protocol () {
@@ -168,7 +168,7 @@ set_protocol () {
 [[ $POSTGRES ]] && build_postgres
 
 #if tezos flag set build tezos container
-[[ $TEZOS ]] && build_tezos
+[[ "$TEZOS" ]] && build_tezos
 
 #if postgres-volume flag remove postgres volumes
 [[ $VOLUME ]] && remove_postgres_volumes

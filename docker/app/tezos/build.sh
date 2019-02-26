@@ -10,5 +10,5 @@ cp ./app/tezos/dockerfile ./dockerfile
 
 sed 's/protocol/"$tezosprotocol"/g' dockerfile
 
-docker build -f ./dockerfile -t tezos-node-$1 .
+docker build -f ./dockerfile -t tezos-node-"$DEPLOYMENT_ENV" .
 
