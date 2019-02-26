@@ -90,7 +90,7 @@ done
 default_network="alphanet"
 build_time=$(date "+%Y.%m.%d-%H.%M.%S")
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-PATH_TO_CONFIG="${path_to_config:-$DIR/config/local}"
+PATH_TO_CONFIG="${path_to_config:-$DIR/config/local/}"
 BUILD_NAME="${build_name:-$build_time}"
 DEPLOYMENT_ENV="$(basename "$PATH_TO_CONFIG")"
 tezosprotocol="${default_network:-$protocol}"
@@ -135,8 +135,8 @@ build_tezos () {
 
     docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tznode_data-"$DEPLOYMENT_ENV" tznode_data-"$DEPLOYMENT_ENV"
     docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV" tzclient_data-"$DEPLOYMENT_ENV"
-	docker container stop tezos-"$DEPLOYMENT_ENV"
-	docker container rm tezos-"$DEPLOYMENT_ENV"
+	docker container stop tezos-node-"$DEPLOYMENT_ENV"
+	docker container rm tezos-node-"$DEPLOYMENT_ENV"
 	cd ./app/tezos
 
 	bash ./build.sh -p "$PATH_TO_CONFIG" -n "$build_name"
