@@ -89,22 +89,59 @@ done
 
 
 build_time=$(date "+%Y.%m.%d-%H.%M.%S")
+#sets current directory to variable DIR
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+#config file path, should contain exact files and directory structure as that of config/local
 PATH_TO_CONFIG="${path_to_config:-$DIR/config/local}"
+
+#working directory
 BUILD_NAME="${build_name:-nautilus_build_"$build_time"}"
 WORKING_DIR=$HOME/"$BUILD_NAME"
+#example: production-environment-1, will default to base folder name of config files
 DEPLOYMENT_ENV="$(basename "$PATH_TO_CONFIG")"
+#make working directory
+[[ -d "$WORKING_DIR" ]] || mkdir "$WORKING_DIR"
+#create variable for tezos-network(alphanet or mainnet)
 tezosnetwork=`cat "$PATH_TO_CONFIG"/tezos/tezos_network.txt`
+
 
 build_conseil () { 
 	docker container stop conseil-"$DEPLOYMENT_ENV"
 	docker container rm conseil-"$DEPLOYMENT_ENV"
 	cd ./app/conseil
+    . ./build.sh
 
-    bash ./build.sh -p "$PATH_TO_CONFIG" -n "$BUILD_NAME"
-    cd ../..
+	CONSEIL_WORK_DIR="$WORKING_DIR/conseil"
+    mkdir "$CONSEIL_WORK_DIR"
 
-	docker run --name=conseil-"$DEPLOYMENT_ENV" --network=nautilus -d -p 1337:1337 conseil-"$DEPLOYMENT_ENV"
+    cd $CONSEIL_WORK_DIR
+    ln -s $HOME/Conseil ./build
+    (( $? == 0 )) || fatal "Unable to create symlink to build directory"
+
+
+    cp $HOME/Conseil/src/main/resources/logback.xml ./build/
+    cp /$PATH_TO_CONFIG/conseil/runconseil-lorre.sh ./build/
+    mv /tmp/conseil.jar ./build/conseil.jar
+
+    {
+    read line1
+    read line2
+    read line3
+    } < "$PATH_TO_CONFIG"/conseil/credentials.txt
+    line1=`echo $line1`
+    line2=`echo $line2`
+    line3=`echo $line3`
+    cp "$PATH_TO_CONFIG"/conseil/conseil.conf ./build/
+    conseil_conf_file=./build/conseil.conf
+    sed -i "s/*databaseName*/$line1/g" "$conseil_conf_file"
+    sed -i "s/*user*/$line2/g" "$conseil_conf_file"
+    sed -i "s/*password*/$line3/g" "$conseil_conf_file"
+
+
+    cp /$PATH_TO_CONFIG/conseil/runconseil-lorre.sh ./build/
+    docker build -f $DIR/docker/app/conseil/dockerfile -t conseil-$DEPLOYMENT_ENV .
+    rm ./build
+   	docker run --name=conseil-"$DEPLOYMENT_ENV" --network=nautilus -d -p 1337:1337 conseil-"$DEPLOYMENT_ENV"
 
 	yes | docker system prune
 }
@@ -133,20 +170,28 @@ build_tezos () {
     [[ -d $HOME/volumes ]] || mkdir $HOME/volumes
     [[ -d $HOME/volumes/tznode_data-"$DEPLOYMENT_ENV" ]] || mkdir $HOME/volumes/tznode_data-"$DEPLOYMENT_ENV"
     [[ -d $HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV" ]] || mkdir $HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV"
+    #stop and remove current container
+    docker container stop tezos-node-"$DEPLOYMENT_ENV"
+	docker container rm tezos-node-"$DEPLOYMENT_ENV"
 
+    #createdocker volumes
     docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tznode_data-"$DEPLOYMENT_ENV" tznode_data-"$DEPLOYMENT_ENV"
     docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV" tzclient_data-"$DEPLOYMENT_ENV"
-	docker container stop tezos-node-"$DEPLOYMENT_ENV"
-	docker container rm tezos-node-"$DEPLOYMENT_ENV"
-    [[ -d "$WORKING_DIR" ]] || mkdir "$WORKING_DIR"
+
+	#make tezos subdirectory
     TEZOS_WORK_DIR="$WORKING_DIR"/tezos
     mkdir "$TEZOS_WORK_DIR"
+
+    #copy dockerfile from nautilus
     cp ./app/tezos/dockerfile "$TEZOS_WORK_DIR"/dockerfile
+
+    #replace tezos network in dockerfile
     tz_dockerfile="$TEZOS_WORK_DIR"/dockerfile
     sed -i "s/protocol/$tezosnetwork/g" "$tz_dockerfile"
     cd "$TEZOS_WORK_DIR"
-    docker build -f dockerfile -t tezos-node-"$DEPLOYMENT_ENV" . &&
 
+    #build and run docker container
+    docker build -f dockerfile -t tezos-node-"$DEPLOYMENT_ENV" . &&
     docker run --name=tezos-node-"$DEPLOYMENT_ENV" --network=nautilus -v tznode_data:/var/run/tezos/node-"$DEPLOYMENT_ENV" -v tzclient_data:/var/run/tezos/client-"$DEPLOYMENT_ENV" -d -p 8732:8732 -p 9732:9732 tezos-node-"$DEPLOYMENT_ENV"
 }
 
