@@ -127,9 +127,9 @@ build_conseil () {
     line2=`echo $line2`
     line3=`echo $line3`
     conseil_conf_file=./conseil.conf
-    sed -i "s/.*databaseName*./$line1/g" "$conseil_conf_file"
-    sed -i "s/.*user*./$line2/g" "$conseil_conf_file"
-    sed -i "s/.*password*./$line3/g" "$conseil_conf_file"
+    sed -i "s/databaseName =*./$line1/g" "$conseil_conf_file"
+    sed -i "s/user =*./$line2/g" "$conseil_conf_file"
+    sed -i "s/password =*./$line3/g" "$conseil_conf_file"
 
     cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./build/
     cp ./conseil.conf ./build/
