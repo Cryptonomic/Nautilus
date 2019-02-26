@@ -147,7 +147,8 @@ build_tezos () {
 
     sed "s/protocol/$tezosnetwork/g" dockerfile
 
-    docker build -f dockerfile -t tezos-node-"$DEPLOYMENT_ENV" .
+    docker build -f dockerfile -t tezos-node-"$DEPLOYMENT_ENV" . &&
+
     docker run --name=tezos-node-"$DEPLOYMENT_ENV" --network=nautilus -v tznode_data:/var/run/tezos/node-"$DEPLOYMENT_ENV" -v tzclient_data:/var/run/tezos/client-"$DEPLOYMENT_ENV" -d -p 8732:8732 -p 9732:9732 tezos-node-"$DEPLOYMENT_ENV"
 }
 
