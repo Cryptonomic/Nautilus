@@ -87,14 +87,14 @@ done
 [[ -z "${CONSEIL}${POSTGRES}${TEZOS}" ]] && display_usage \
     && fatal "Please specify at least one container type (examples: -a,-c,-d,-t)."
 
-default_network="alphanet"
+
 build_time=$(date "+%Y.%m.%d-%H.%M.%S")
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 PATH_TO_CONFIG="${path_to_config:-$DIR/config/local}"
 BUILD_NAME="${build_name:-nautilus_build_"$build_time"}"
 WORKING_DIR=$HOME/"$BUILD_NAME"
 DEPLOYMENT_ENV="$(basename "$PATH_TO_CONFIG")"
-tezosprotocol="${default_network:-$protocol}"
+
 
 build_conseil () { 
 	docker container stop conseil-"$DEPLOYMENT_ENV"
@@ -146,7 +146,7 @@ build_tezos () {
     cd "$TEZOS_WORK_DIR"
     tz_dockerfile="$TEZOS_WORK_DIR"/dockerfile
 
-    sed "s/protocol/$tezosnetwork/g" "$tz_dockerfile"
+    sed "s/protocol/$tezosnetwork/g" "$tz_dockerfile" &&
 
     docker build -f dockerfile -t tezos-node-"$DEPLOYMENT_ENV" . &&
 
