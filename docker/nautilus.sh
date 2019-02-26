@@ -22,7 +22,7 @@ add the jenkins user public key as an authorized key.
 If executing locally, be sure to change the postgres username and password in conseil.conf located in
 docker/config/local/conseil/ and use the same username and password in dockerfile for postgres.
 
-Usage: "$CMD" [OPTIONS] -p [/PATH/TO/CONFIG_FOLDER]]
+Usage: $CMD [OPTIONS] -p [/PATH/TO/CONFIG_FOLDER]]
             [-h] [-v]
 
 Options:
@@ -50,7 +50,7 @@ Options:
                                    there has been a schema change as simply rebuilding the container will not replace the schema
 
 Examples:
-    "$CMD" -a -p /"$HOME"/production-environment-1
+    $CMD -a -p /$HOME/production-environment-1
                                    # build, initialize, and run docker containers
                                    # for conseil, postgres, and tezos
                                    # takes config files from production-environment-1 folder
@@ -62,14 +62,11 @@ EOF
 
 # parse command line arguments
 SHORT_OPTS='ab:cd:hn:p:tv'
-LONG_OPTS='all,build-name:,conseil,database,help,:,path-to-config:,protocol:,tezos,volume'
-
-#parse command line parameters
-ARGS=$(getopt -o "$SHORT_OPTS" -l "$LONG_OPTS" -n "$CMD" -- "$@" 2>/dev/null)
+LONG_OPTS='all,build-name:,conseil,database,help,path-to-config:,protocol:,tezos,volume'
+ARGS=$(getopt -o $SHORT_OPTS -l $LONG_OPTS -n "$CMD" -- "$@" 2>/dev/null)
 #check getopt command failure
-eval set -- "$ARGS"
 (( $? != 0 )) && fatal "invalid options"
-
+eval set -- "${ARGS}"
 # set execution flags and/or execute functions for each option
 while true ; do
     case "$1" in
@@ -87,7 +84,7 @@ while true ; do
 done
 
 # ensure necessary command line parameters were specified(man test to see usages, checks contents of a string)
-[[ -z "${CONSEIL}${POSTGRES}${TEZOS}" ]] && display_usage \
+[[ -z "${CONSEIL?}${POSTGRES?}${TEZOS?}" ]] && display_usage \
     && fatal "Please specify at least one container type (examples: -a,-c,-d,-t)."
 
 default_network="alphanet"
@@ -115,7 +112,7 @@ build_postgres () {
     #declaring persistent volumes
     #current volume created check
     [[ -d $HOME/volumes ]] || mkdir $HOME/volumes
-    [[ -d $HOME/volumes/pgdata-$DEPLOYMENT_ENV ]] || mkdir $HOME/volumes/pgdata-"$DEPLOYMENT_ENV"
+    [[ -d $HOME/volumes/pgdata-"$DEPLOYMENT_ENV" ]] || mkdir $HOME/volumes/pgdata-"$DEPLOYMENT_ENV"
 
     docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/pgdata-"$DEPLOYMENT_ENV" pgdata-"$DEPLOYMENT_ENV"
 
@@ -175,3 +172,5 @@ set_protocol () {
 
 #tezos network protocol flag set check
 [[ $tezosprotocol ]] && set_protocol
+
+exit 0
