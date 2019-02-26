@@ -109,13 +109,13 @@ build_conseil () {
 	docker container stop conseil-"$DEPLOYMENT_ENV"
 	docker container rm conseil-"$DEPLOYMENT_ENV"
 
-	#CONSEIL_WORK_DIR="$WORKING_DIR"
-    #mkdir "$CONSEIL_WORK_DIR"
-    #cd "$CONSEIL_WORK_DIR"
-    cd "$WORKING_DIR"
-    . /app/conseil/build.sh
+	CONSEIL_WORK_DIR="$WORKING_DIR"/conseil-"$DEPLOYMENT_ENV"
+    mkdir "$CONSEIL_WORK_DIR"
+    cd "$CONSEIL_WORK_DIR"
 
-    cp "$PATH_TO_CONFIG"/conseil/* "$WORKING_DIR"/Conseil/
+    . "$DIR"/app/conseil/build.sh
+
+    cp "$PATH_TO_CONFIG"/conseil/* "$CONSEIL_WORK_DIR"
     ln -s ./Conseil ./build
     mv /tmp/conseil.jar ./build/conseil.jar
 
