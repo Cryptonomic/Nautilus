@@ -8,7 +8,7 @@ mkdir "$TEZOS_WORK_DIR"
 cd $TEZOS_WORK_DIR
 cp ./app/tezos/dockerfile ./dockerfile
 
-sed 's/protocol/$tezosprotocol/g' dockerfile
+sed 's/protocol/"$tezosprotocol"/g' dockerfile
 
 docker build -f ./dockerfile -t tezos-node-$1 .
 

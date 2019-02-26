@@ -67,9 +67,8 @@ LONG_OPTS='all,build-name:,conseil,database,help,:,path-to-config:,protocol:,tez
 #parse command line parameters
 ARGS=$(getopt -o $SHORT_OPTS -l $LONG_OPTS -n "$CMD" -- "$@" 2>/dev/null)
 #check getopt command failure
-(( $? != 0 )) && fatal "invalid options"
-
 eval set -- "$ARGS"
+(( $? != 0 )) && fatal "invalid options"
 
 # set execution flags and/or execute functions for each option
 while true ; do
