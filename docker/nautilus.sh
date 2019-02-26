@@ -115,13 +115,13 @@ build_conseil () {
     mkdir "$CONSEIL_WORK_DIR"
 
     cd "$CONSEIL_WORK_DIR"
-    ln -s $HOME/Conseil ./build
-
+    ln -s $HOME/Conseil "$CONSEIL_WORK_DIR"/build
+    mv /tmp/conseil.jar "$CONSEIL_WORK_DIR"/build/conseil.jar
     (( $? == 0 )) || fatal "Unable to create symlink to build directory"
 
     cp $HOME/Conseil/src/main/resources/logback.xml ./build/
     cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./build/
-    mv /tmp/conseil.jar ./build/conseil.jar
+
 
     {
     read line1
