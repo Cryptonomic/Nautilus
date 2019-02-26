@@ -144,8 +144,9 @@ build_tezos () {
     cp ./app/tezos/dockerfile "$TEZOS_WORK_DIR"/dockerfile
     tezosnetwork=`cat "$PATH_TO_CONFIG"/tezos/tezos_network`
     cd "$TEZOS_WORK_DIR"
+    tz_dockerfile="$TEZOS_WORK_DIR"/dockerfile
 
-    sed "s/protocol/$tezosnetwork/g" "$TEZOS_WORK_DIR"/dockerfile
+    sed "s/protocol/$tezosnetwork/g" "$tz_dockerfile"
 
     docker build -f dockerfile -t tezos-node-"$DEPLOYMENT_ENV" . &&
 
