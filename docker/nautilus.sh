@@ -112,7 +112,7 @@ build_conseil () {
 	CONSEIL_WORK_DIR="$WORKING_DIR"/conseil-build
     mkdir "$CONSEIL_WORK_DIR"
     cd "$CONSEIL_WORK_DIR"
-    . ./app/conseil/build.sh
+    . "$DIR"/app/conseil/build.sh
     mv /tmp/conseil.jar ./build/conseil.jar
     ln -s ./Conseil ./build
     #mv /tmp/conseil.jar "$CONSEIL_WORK_DIR"/build/conseil.jar
