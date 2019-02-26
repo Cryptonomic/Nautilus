@@ -61,7 +61,7 @@ EOF
 }
 
 # parse command line arguments
-SHORT_OPTS='ab:cd:hn:p:tv'
+SHORT_OPTS='ab:cd:hn:ptv'
 LONG_OPTS='all,build-name:,conseil,database,help,path-to-config:,protocol:,tezos,volume'
 ARGS=$(getopt -o $SHORT_OPTS -l $LONG_OPTS -n "$CMD" -- "$@" 2>/dev/null)
 #check getopt command failure
