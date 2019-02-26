@@ -160,7 +160,7 @@ build_postgres () {
     #check out schema and put it in the right place
 
 
-    POSTGRES_WORK_DIR="$WORKING_DIR"/postgres
+    POSTGRES_WORK_DIR="$WORKING_DIR"/postgres-"$DEPLOYMENT_ENV"
     mkdir "$POSTGRES_WORK_DIR"
 
     cp "$DIR"/app/postgres/dockerfile "$POSTGRES_WORK_DIR"/dockerfile
