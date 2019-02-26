@@ -24,14 +24,12 @@ done
 SHORT_OPTS='ab:cd:hn:p:tv'
 LONG_OPTS='all,build-name:,conseil,database,help,:,path-to-config:,protocol:,tezos,volume'
 
-eval set -- "$ARGS"
-
 #parse command line parameters
 ARGS=$(getopt -o $SHORT_OPTS -l $LONG_OPTS -n "$CMD" -- "$@" 2>/dev/null)
 #check getopt command failure
 (( $? != 0 )) && fatal "invalid options"
 
-
+eval set -- "$ARGS"
 # test necessary command line parameters were specified
 [[ -z "${CONSEIL}${POSTGRES}${TEZOS}" ]] && display_usage \
     && fatal "Please specify at least one container type (examples: -a,-c,-d,-t)."
