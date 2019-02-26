@@ -109,17 +109,16 @@ build_conseil () {
 	docker container stop conseil-"$DEPLOYMENT_ENV"
 	docker container rm conseil-"$DEPLOYMENT_ENV"
 
-    . ./app/conseil/build.sh
-
 	CONSEIL_WORK_DIR="$WORKING_DIR"/conseil-build
     mkdir "$CONSEIL_WORK_DIR"
-
     cd "$CONSEIL_WORK_DIR"
-    ln -s $HOME/Conseil "$CONSEIL_WORK_DIR"/build
-    mv /tmp/conseil.jar "$CONSEIL_WORK_DIR"/build/conseil.jar
+    . ./app/conseil/build.sh
+    mv /tmp/conseil.jar ./build/conseil.jar
+    ln -s ./Conseil ./build
+    #mv /tmp/conseil.jar "$CONSEIL_WORK_DIR"/build/conseil.jar
     (( $? == 0 )) || fatal "Unable to create symlink to build directory"
 
-    cp $HOME/Conseil/src/main/resources/logback.xml ./build/
+    cp ./Conseil/src/main/resources/logback.xml ./build/
     cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./build/
 
 
