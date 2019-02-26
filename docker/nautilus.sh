@@ -104,6 +104,7 @@ DEPLOYMENT_ENV="$(basename "$PATH_TO_CONFIG")"
 #create variable for tezos-network(alphanet or mainnet)
 tezosnetwork=`cat "$PATH_TO_CONFIG"/tezos/tezos_network.txt`
 
+docker network create nautilus
 
 build_conseil () { 
 	docker container stop conseil-"$DEPLOYMENT_ENV"
@@ -116,6 +117,7 @@ build_conseil () {
     . "$DIR"/app/conseil/build.sh
 
     cp "$PATH_TO_CONFIG"/conseil/conseil.conf ./conseil.conf
+    conseil_conf_file=./conseil.conf
     {
     read line1
     read line2
@@ -125,9 +127,9 @@ build_conseil () {
     line2=`echo $line2`
     line3=`echo $line3`
     conseil_conf_file=./conseil.conf
-    sed -i "s/*databaseName*/$line1/g" "$conseil_conf_file"
-    sed -i "s/*user*/$line2/g" "$conseil_conf_file"
-    sed -i "s/*password*/$line3/g" "$conseil_conf_file"
+    sed -i "s/.*databaseName*./$line1/g" "$conseil_conf_file"
+    sed -i "s/.*user*./$line2/g" "$conseil_conf_file"
+    sed -i "s/.*password*./$line3/g" "$conseil_conf_file"
 
     cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./build/
     cp ./conseil.conf ./build/
@@ -155,10 +157,36 @@ build_postgres () {
     docker container stop postgres-"$DEPLOYMENT_ENV"
 	docker container rm postgres-"$DEPLOYMENT_ENV"
 
-	cd ./app/postgres
-	bash ./build.sh -p "$PATH_TO_CONFIG" -n "$build_name"
+    #check out schema and put it in the right place
 
-	cd ../..
+
+    POSTGRES_WORK_DIR="$WORKING_DIR"/postgres/
+    mkdir "$POSTGRES_WORK_DIR"
+
+    cp ./app/postgres/dockerfile "$POSTGRES_WORK_DIR"/dockerfile
+    #change postgres databasename, username, and password
+    {
+    read line1
+    read line2
+    read line3
+    } < "$PATH_TO_CONFIG"/postgres/credentials.txt
+    line1=`echo $line1`
+    line2=`echo $line2`
+    line3=`echo $line3`
+    postgres_dockerfile="$POSTGRES_WORK_DIR"/dockerfile
+    sed -i "s/ENV POSTGRES_USER=*/$line1/g" "$postgres_dockerfile"
+    sed -i "s/*user*/$line2/g" "$postgres_dockerfile"
+    sed -i "s/*password*/$line3/g" "$postgres_dockerfile"
+
+
+
+    #check out schema and put it in the right place
+    mv $PATH_TO_CONFIG/postgres/conseil.sql $PATH_TO_CONFIG/postgres/conseil.sql.bak
+    wget https://raw.githubusercontent.com/Cryptonomic/Conseil/master/doc/conseil.sql > $PATH_TO_CONFIG/postgres/conseil.sql
+
+    #place schema into working directory for auditability
+    ln -s $PATH_TO_CONFIG/postgres/conseil.sql ./conseil.sql
+    docker build -f "$POSTGRES_WORK_DIR"/dockerfile -t postgres-"$DEPLOYMENT_ENV" .
 
 	docker run --name=postgres-"$DEPLOYMENT_ENV" --network=nautilus -v pgdata-$DEPLOYMENT_ENV:/var/lib/postgresql/data -d -p 5432:5432 postgres-"$DEPLOYMENT_ENV"
 }
