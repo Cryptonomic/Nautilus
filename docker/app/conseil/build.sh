@@ -19,5 +19,3 @@ sbt 'set test in assembly := {}' assembly
 
 
 
-#ln -s $HOME/Conseil "$CONSEIL_WORK_DIR"/build
-#mv /tmp/conseil.jar "$CONSEIL_WORK_DIR"/build/conseil.jar
