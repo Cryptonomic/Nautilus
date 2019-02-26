@@ -90,7 +90,7 @@ done
 default_network="alphanet"
 build_time=$(date "+%Y.%m.%d-%H.%M.%S")
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-PATH_TO_CONFIG="${path_to_config:-$DIR/config/local/}"
+PATH_TO_CONFIG="${path_to_config:-$DIR/config/local}"
 BUILD_NAME="${build_name:-$build_time}"
 DEPLOYMENT_ENV="$(basename "$PATH_TO_CONFIG")"
 tezosprotocol="${default_network:-$protocol}"
