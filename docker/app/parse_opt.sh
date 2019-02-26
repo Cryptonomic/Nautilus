@@ -31,7 +31,7 @@ while true ; do
 done
 
 # test necessary command line parameters were specified
-[[ -z "${CONSEIL}${DATABASE}${TEZOS}" ]] && display_usage \
+[[ -z "${CONSEIL}${POSTGRES}${TEZOS}" ]] && display_usage \
     && fatal "Please specify at least one container type (examples: -a,-c,-d,-t)."
 
 default_network="alphanet"

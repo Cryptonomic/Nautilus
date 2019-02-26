@@ -96,18 +96,18 @@ build_time=$(date "+%Y.%m.%d-%H.%M.%S")
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 PATH_TO_CONFIG="${path_to_config:-$DIR/config/local}"
 BUILD_NAME="${build_name:-$build_time}"
-DEPLOYMENT_ENV="$(basename $PATH_TO_CONFIG)"
+DEPLOYMENT_ENV="$(basename "$PATH_TO_CONFIG")"
 tezosprotocol="${default_network:-$protocol}"
 
 build_conseil () { 
-	docker container stop conseil-$DEPLOYMENT_ENV
-	docker container rm conseil-$DEPLOYMENT_ENV
+	docker container stop conseil-"$DEPLOYMENT_ENV"
+	docker container rm conseil-"$DEPLOYMENT_ENV"
 	cd ./app/conseil
 
     bash ./build.sh -p "$PATH_TO_CONFIG" -n "$BUILD_NAME"
     cd ../..
 
-	docker run --name=conseil-$DEPLOYMENT_ENV --network=nautilus -d -p 1337:1337 conseil-$DEPLOYMENT_ENV
+	docker run --name=conseil-"$DEPLOYMENT_ENV" --network=nautilus -d -p 1337:1337 conseil-"$DEPLOYMENT_ENV"
 
 	yes | docker system prune
 }
@@ -116,29 +116,29 @@ build_postgres () {
     #declaring persistent volumes
     #current volume created check
     [[ -d $HOME/volumes ]] || mkdir $HOME/volumes
-    [[ -d $HOME/volumes/pgdata-$DEPLOYMENT_ENV ]] || mkdir $HOME/volumes/pgdata-$DEPLOYMENT_ENV
+    [[ -d $HOME/volumes/pgdata-$DEPLOYMENT_ENV ]] || mkdir $HOME/volumes/pgdata-"$DEPLOYMENT_ENV"
 
-    docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/pgdata-$DEPLOYMENT_ENV pgdata-$DEPLOYMENT_ENV
+    docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/pgdata-"$DEPLOYMENT_ENV" pgdata-"$DEPLOYMENT_ENV"
 
-    docker container stop postgres-$DEPLOYMENT_ENV
-	docker container rm postgres-$DEPLOYMENT_ENV
+    docker container stop postgres-"$DEPLOYMENT_ENV"
+	docker container rm postgres-"$DEPLOYMENT_ENV"
 
 	cd ./app/postgres
 	bash ./build.sh -p "$PATH_TO_CONFIG" -n "$build_name"
 
 	cd ../..
 
-	docker run --name=postgres-$DEPLOYMENT_ENV --network=nautilus -v pgdata-$DEPLOYMENT_ENV:/var/lib/postgresql/data -d -p 5432:5432 postgres-$DEPLOYMENT_ENV
+	docker run --name=postgres-"$DEPLOYMENT_ENV" --network=nautilus -v pgdata-$DEPLOYMENT_ENV:/var/lib/postgresql/data -d -p 5432:5432 postgres-"$DEPLOYMENT_ENV"
 }
 
 build_tezos () {
     #volumes creation for persistent storage
     [[ -d $HOME/volumes ]] || mkdir $HOME/volumes
-    [[ -d $HOME/volumes/tznode_data-$DEPLOYMENT_ENV ]] || mkdir $HOME/volumes/tznode_data-$DEPLOYMENT_ENV
-    [[ -d $HOME/volumes/tzclient_data-$DEPLOYMENT_ENV ]] || mkdir $HOME/volumes/tzclient_data-$DEPLOYMENT_ENV
+    [[ -d $HOME/volumes/tznode_data-"$DEPLOYMENT_ENV" ]] || mkdir $HOME/volumes/tznode_data-"$DEPLOYMENT_ENV"
+    [[ -d $HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV" ]] || mkdir $HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV"
 
-    docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tznode_data-$DEPLOYMENT_ENV tznode_data-$DEPLOYMENT_ENV
-    docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tzclient_data-$DEPLOYMENT_ENV tzclient_data-$DEPLOYMENT_ENV
+    docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tznode_data-"$DEPLOYMENT_ENV" tznode_data-"$DEPLOYMENT_ENV"
+    docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tzclient_data-$DEPLOYMENT_ENV tzclient_data-"$DEPLOYMENT_ENV"
 	docker container stop tezos-$DEPLOYMENT_ENV
 	docker container rm tezos-$DEPLOYMENT_ENV
 	cd ./app/tezos
@@ -159,6 +159,7 @@ set_protocol () {
         build_tezos
     else
         fatal "Invalid tezos network specified"
+    fi
 }
 
 #if conseil flag set build conseil container
