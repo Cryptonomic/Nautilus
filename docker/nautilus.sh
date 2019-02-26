@@ -222,6 +222,8 @@ build_tezos () {
 }
 
 remove_postgres_volumes () {
+    docker container stop postgres-"$DEPLOYMENT_ENV"
+	docker container rm postgres-"$DEPLOYMENT_ENV"
     docker volume rm pgdata-"$DEPLOYMENT_ENV"
     rm -rf $HOME/volumes/pgdata-"$DEPLOYMENT_ENV"
 }
