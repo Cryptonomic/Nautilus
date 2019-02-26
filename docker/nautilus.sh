@@ -130,8 +130,9 @@ build_conseil () {
     sed -i "s/user=.*/$line2/g" "$conseil_conf_file"
     sed -i "s/password=.*/$line3/g" "$conseil_conf_file"
 
+    cp "$conseil_conf_file" ./build/
     cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./build/
-    cp ./conseil.conf ./build/
+    
 
 
     cp ./Conseil/src/main/resources/logback.xml ./build/
@@ -162,7 +163,7 @@ build_postgres () {
     POSTGRES_WORK_DIR="$WORKING_DIR"/postgres
     mkdir "$POSTGRES_WORK_DIR"
 
-    cp ./app/postgres/dockerfile "$POSTGRES_WORK_DIR"/dockerfile
+    cp "$DIR"/app/postgres/dockerfile "$POSTGRES_WORK_DIR"/dockerfile
     postgres_dockerfile="$POSTGRES_WORK_DIR"/dockerfile
     #change postgres databasename, username, and password
     {
