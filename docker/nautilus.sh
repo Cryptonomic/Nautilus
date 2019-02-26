@@ -87,7 +87,7 @@ done
     && fatal "Please specify at least one container type (examples: -a,-c,-d,-t)."
 
 
-build_time=$(date "+%Y.%m.%d-%H.%M")
+build_time=$(date "+%Y.%m.%d")
 #sets current directory to variable DIR
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 #config file path, should contain exact files and directory structure as that of config/local
