@@ -109,16 +109,21 @@ build_conseil () {
 	docker container stop conseil-"$DEPLOYMENT_ENV"
 	docker container rm conseil-"$DEPLOYMENT_ENV"
 
-	CONSEIL_WORK_DIR="$WORKING_DIR"/conseil-build
+	CONSEIL_WORK_DIR="$WORKING_DIR"/conseil
     mkdir "$CONSEIL_WORK_DIR"
+
+    . /app/conseil/build.sh
+
+    #cp "$PATH_TO_CONFIG"/conseil/* "$CONSEIL_WORK_DIR"/
+    #cp "$HOME"/Conseil/* "$CONSEIL_WORK_DIR"/
     cd "$CONSEIL_WORK_DIR"
-    . "$DIR"/app/conseil/build.sh
+
+    ln -s "$CONSEIL_WORK_DIR" ./build
     mv /tmp/conseil.jar ./build/conseil.jar
-    ln -s ./Conseil ./build
-    #mv /tmp/conseil.jar "$CONSEIL_WORK_DIR"/build/conseil.jar
+
     (( $? == 0 )) || fatal "Unable to create symlink to build directory"
 
-    cp ./Conseil/src/main/resources/logback.xml ./build/
+    cp "$HOME"/Conseil/src/main/resources/logback.xml ./build/
     cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./build/
 
 
@@ -130,7 +135,7 @@ build_conseil () {
     line1=`echo $line1`
     line2=`echo $line2`
     line3=`echo $line3`
-    cp "$PATH_TO_CONFIG"/conseil/conseil.conf ./build/
+    cp $/conseil.conf ./build/
     conseil_conf_file=./build/conseil.conf
     sed -i "s/*databaseName*/$line1/g" "$conseil_conf_file"
     sed -i "s/*user*/$line2/g" "$conseil_conf_file"
