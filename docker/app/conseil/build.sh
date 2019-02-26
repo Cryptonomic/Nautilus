@@ -4,7 +4,7 @@
 
 cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd
 #runs parse_opt script in current shell(sourcing)
-. ../../parse_opt.sh
+. ../parse_opt.sh
 
 
 CONSEIL_WORK_DIR="$HOME/conseil_build_$BUILD_NAME"

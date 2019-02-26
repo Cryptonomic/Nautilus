@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Copy resources to remote imaging Pi, flash CM3 devices, and partition SD
-# cards.
+# Master script to build and run conseil, postgres, and tezos containers and their respective volumes.
+
 
 # global constants
 CMD="$(basename $0)"
@@ -16,9 +16,11 @@ display_usage () {
 Connections to the imaging pi/instance/droplet are made using SSH.  Docker has to be preinstalled and ports 1337, 5432,
 8732, 9732, and 19732 will be opened.
 
-This script was written to be executed from Jenkins.  When executing from
-Jenkins, be sure to create a "jenkins" user on the remote imaging pi/instance/droplet and
+This script was written to be executed from Jenkins, but can also be run locally.
+If executing from Jenkins, be sure to create a "jenkins" user on the remote imaging pi/instance/droplet and
 add the jenkins user public key as an authorized key.
+If executing locally, be sure to change the postgres username and password in conseil.conf located in
+docker/config/local/conseil/ and use the same username and password in dockerfile for postgres.
 
 Usage: $CMD [OPTIONS] -p [/PATH/TO/CONFIG_FOLDER]]
             [-h] [-v]
@@ -29,7 +31,7 @@ Options:
     -b, --build-name               if specified, creates a name for current build, otherwise
                                    defaults to current time
     -c, --conseil                  stops and removes existing conseil container if it exists
-                                   and rebuilds and starts the conseil container
+                                   and rebuilds and starts a new instance of the conseil container
     -d, --database                 stops and removes existing postgres database container if it exists
                                    and rebuilds only the postgres container
     -h, --help                     display this help and exit
@@ -49,11 +51,10 @@ Options:
 
 Examples:
     $CMD -a -p /$HOME/production-environment-1
-                                   # initialize bridge memory connected to
-                                   # "sf-imager" device and use directory
-                                   # "/var/lib/jenkins/projects/flash-devices"
-                                   # for local Git repos and other resources
-                                   # required for flashing and partitioning
+                                   # build, initialize, and run docker containers
+                                   # for conseil, postgres, and tezos
+                                   # takes config files from production-environment-1 folder
+
 
 Report bugs to <swap@cryptonomic.tech>.
 EOF
@@ -145,7 +146,7 @@ build_tezos () {
 	bash ./build.sh -p "$PATH_TO_CONFIG" -n "$build_name"
 
 	cd ../..
-    docker run --name=tezos-node-$DEPLOYMENT_ENV --network=nautilus -v tznode_data:/var/run/tezos/node-$DEPLOYMENT_ENV -v tzclient_data:/var/run/tezos/client-$1 -d -p 8732:8732 -p 9732:9732 tezos-node-$DEPLOYMENT_ENV
+    docker run --name=tezos-node-$DEPLOYMENT_ENV --network=nautilus -v tznode_data:/var/run/tezos/node-$DEPLOYMENT_ENV -v tzclient_data:/var/run/tezos/client-$DEPLOYMENT_ENV -d -p 8732:8732 -p 9732:9732 tezos-node-$DEPLOYMENT_ENV
 }
 
 remove_postgres_volumes () {
