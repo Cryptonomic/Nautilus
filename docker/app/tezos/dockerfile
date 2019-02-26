@@ -1,4 +1,4 @@
-FROM tezos/tezos:protocol
+FROM tezos/tezos:tezos-network
 
 # RPC
 EXPOSE 8732

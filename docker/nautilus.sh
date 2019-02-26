@@ -90,7 +90,7 @@ done
 default_network="alphanet"
 build_time=$(date "+%Y.%m.%d-%H.%M.%S")
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-PATH_TO_CONFIG="${path_to_config:-$DIR/config/local}"
+PATH_TO_CONFIG="${path_to_config:-$DIR/docker/config/local}"
 BUILD_NAME="${build_name:-nautilus_build_"$build_time"}"
 WORKING_DIR=$HOME/"$BUILD_NAME"
 DEPLOYMENT_ENV="$(basename "$PATH_TO_CONFIG")"
@@ -142,10 +142,10 @@ build_tezos () {
     TEZOS_WORK_DIR="$WORKING_DIR"/tezos
     mkdir "$TEZOS_WORK_DIR"
     cp ./app/tezos/dockerfile "$TEZOS_WORK_DIR"/dockerfile
-    cat ./PATH_TO_CONFIG/$DEPLOYMENT_ENV/tezos/tezos-network > tezos-network
+    tezosnetwork=`cat "$PATH_TO_CONFIG"/tezos/tezos-network`
     cd "$TEZOS_WORK_DIR"
 
-    sed 's/protocol/"$tezos-network"/g' ./dockerfile
+    sed 's/protocol/"$tezosnetwork"/' ./dockerfile
 
     docker build -f dockerfile -t tezos-node-"$DEPLOYMENT_ENV" .
     docker run --name=tezos-node-"$DEPLOYMENT_ENV" --network=nautilus -v tznode_data:/var/run/tezos/node-"$DEPLOYMENT_ENV" -v tzclient_data:/var/run/tezos/client-"$DEPLOYMENT_ENV" -d -p 8732:8732 -p 9732:9732 tezos-node-"$DEPLOYMENT_ENV"
