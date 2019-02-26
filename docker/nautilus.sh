@@ -187,7 +187,8 @@ build_postgres () {
 
     #place schema into working directory for auditability
     cd "$POSTGRES_WORK_DIR"
-    ln -s "$PATH_TO_CONFIG"/postgres/conseil.sql ./conseil.sql
+    rm ./conseil.sql
+    cp "$PATH_TO_CONFIG"/postgres/conseil.sql ./conseil.sql
     docker build -f dockerfile -t postgres-"$DEPLOYMENT_ENV" .
 
 	docker run --name=postgres-"$DEPLOYMENT_ENV" --network=nautilus -v pgdata-"$DEPLOYMENT_ENV":/var/lib/postgresql/data -d -p 5432:5432 postgres-"$DEPLOYMENT_ENV"
