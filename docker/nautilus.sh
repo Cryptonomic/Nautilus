@@ -108,19 +108,19 @@ tezosnetwork=`cat "$PATH_TO_CONFIG"/tezos/tezos_network.txt`
 build_conseil () { 
 	docker container stop conseil-"$DEPLOYMENT_ENV"
 	docker container rm conseil-"$DEPLOYMENT_ENV"
-	cd ./app/conseil
-    . ./build.sh
 
-	CONSEIL_WORK_DIR="$WORKING_DIR/conseil"
+    . ./app/conseil/build.sh
+
+	CONSEIL_WORK_DIR="$WORKING_DIR"/conseil-build
     mkdir "$CONSEIL_WORK_DIR"
 
-    cd $CONSEIL_WORK_DIR
+    cd "$CONSEIL_WORK_DIR"
     ln -s $HOME/Conseil ./build
+
     (( $? == 0 )) || fatal "Unable to create symlink to build directory"
 
-
     cp $HOME/Conseil/src/main/resources/logback.xml ./build/
-    cp /$PATH_TO_CONFIG/conseil/runconseil-lorre.sh ./build/
+    cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./build/
     mv /tmp/conseil.jar ./build/conseil.jar
 
     {
@@ -139,7 +139,8 @@ build_conseil () {
 
 
     cp /$PATH_TO_CONFIG/conseil/runconseil-lorre.sh ./build/
-    docker build -f $DIR/docker/app/conseil/dockerfile -t conseil-$DEPLOYMENT_ENV .
+
+    docker build -f "$DIR"/app/conseil/dockerfile -t conseil-"$DEPLOYMENT_ENV" .
     rm ./build
    	docker run --name=conseil-"$DEPLOYMENT_ENV" --network=nautilus -d -p 1337:1337 conseil-"$DEPLOYMENT_ENV"
 
@@ -200,13 +201,13 @@ remove_postgres_volumes () {
     rm -rf $HOME/volumes/pgdata-"$DEPLOYMENT_ENV"
 }
 
-set_protocol () {
-    if [[ tezosprotocol == "alphanet" || tezosprotocol == "mainnet" || tezosprotocol == "zeronet" ]]; then
-        build_tezos
-    else
-        fatal "Invalid tezos network specified"
-    fi
-}
+#set_protocol () {
+#    if [[ tezosprotocol == "alphanet" || tezosprotocol == "mainnet" || tezosprotocol == "zeronet" ]]; then
+#        build_tezos
+#    else
+#        fatal "Invalid tezos network specified"
+#    fi
+#}
 
 #if conseil flag set build conseil container
 [[ $CONSEIL ]] && build_conseil
@@ -221,6 +222,6 @@ set_protocol () {
 [[ $VOLUME ]] && remove_postgres_volumes
 
 #tezos network protocol flag set check
-[[ $tezosprotocol ]] && set_protocol
+#[[ $tezosprotocol ]] && set_protocol
 
 exit 0

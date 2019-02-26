@@ -2,11 +2,7 @@
 #
 # Container build script for conseil
 
-cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd
-#runs parse_opt script in current shell(sourcing)
-. ../parse_opt.sh
-
-cd $HOME
+cd "$HOME"
 
 if [[ -d ./Conseil ]] ; then
     cd Conseil
