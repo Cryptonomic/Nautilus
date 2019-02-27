@@ -109,29 +109,36 @@ build_conseil () {
 	docker container stop conseil-"$DEPLOYMENT_ENV"
 	docker container rm conseil-"$DEPLOYMENT_ENV"
 
-	CONSEIL_WORK_DIR="$WORKING_DIR"/conseil-"$DEPLOYMENT_ENV"
+	CONSEIL_WORK_DIR="$WORKING_DIR"/conseil-"$DEPLOYMENT_ENV"-"$build_time"
     mkdir "$CONSEIL_WORK_DIR"
     cd "$CONSEIL_WORK_DIR"
 
     . "$DIR"/app/conseil/build.sh
 
     cp "$PATH_TO_CONFIG"/conseil/conseil.conf ./conseil.conf
+    cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./runconseil-lorre.sh
     conseil_conf_file=./conseil.conf
+    runconseillorre=./runconseil-lorre.sh
     {
     read line1
     read line2
     read line3
+    read line4
+    read line5
     } < "$PATH_TO_CONFIG"/conseil/credentials.txt
     line1=`echo $line1`
     line2=`echo $line2`
     line3=`echo $line3`
-
+    line4=`echo $line4`
+    line5=`echo $line5`
     sed -i "s/databaseName=.*/$line1/g" "$conseil_conf_file"
     sed -i "s/user=.*/$line2/g" "$conseil_conf_file"
     sed -i "s/password=.*/$line3/g" "$conseil_conf_file"
-
+    sed -i "s/APIKEY.=..*/$line4/g" "$conseil_conf_file"
+    sed -i "s/alphanet/$line5/g" "$runconseillorre"
     cp "$conseil_conf_file" ./build/
-    cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./build/
+    cp "$runconseillorre" ./build/
+
 
 
 
@@ -160,7 +167,7 @@ build_postgres () {
     #check out schema and put it in the right place
 
 
-    POSTGRES_WORK_DIR="$WORKING_DIR"/postgres-"$DEPLOYMENT_ENV"
+    POSTGRES_WORK_DIR="$WORKING_DIR"/postgres-"$DEPLOYMENT_ENV"-"$build_time"
     mkdir "$POSTGRES_WORK_DIR"
 
     cp "$DIR"/app/postgres/dockerfile "$POSTGRES_WORK_DIR"/dockerfile
@@ -181,14 +188,12 @@ build_postgres () {
 
 
 
-    #check out schema and put it in the right place
-    mv "$PATH_TO_CONFIG"/postgres/conseil.sql "$PATH_TO_CONFIG"/postgres/conseil.sql.bak
-    wget https://raw.githubusercontent.com/Cryptonomic/Conseil/master/doc/conseil.sql > "$PATH_TO_CONFIG"/postgres/conseil.sql
-
-    #place schema into working directory for auditability
+    #check out schema and place in working directory
     cd "$POSTGRES_WORK_DIR"
-    rm ./conseil.sql
-    cp "$PATH_TO_CONFIG"/postgres/conseil.sql ./conseil.sql
+    [[ -f conseil.sql ]] || rm ./conseil.sql
+    wget https://raw.githubusercontent.com/Cryptonomic/Conseil/master/doc/conseil.sql > "$POSTGRES_WORK_DIR"/conseil.sql
+
+    #build docker container
     docker build -f dockerfile -t postgres-"$DEPLOYMENT_ENV" .
 
 	docker run --name=postgres-"$DEPLOYMENT_ENV" --network=nautilus -v pgdata-"$DEPLOYMENT_ENV":/var/lib/postgresql/data -d -p 5432:5432 postgres-"$DEPLOYMENT_ENV"
@@ -208,7 +213,7 @@ build_tezos () {
     docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV" tzclient_data-"$DEPLOYMENT_ENV"
 
 	#make tezos subdirectory
-    TEZOS_WORK_DIR="$WORKING_DIR"/tezos
+    TEZOS_WORK_DIR="$WORKING_DIR"/node/"$DEPLOYMENT_ENV"
     mkdir "$TEZOS_WORK_DIR"
 
     #copy dockerfile from nautilus
@@ -224,11 +229,11 @@ build_tezos () {
     docker run --name=tezos-node-"$DEPLOYMENT_ENV" --network=nautilus -v tznode_data:/var/run/tezos/node-"$DEPLOYMENT_ENV" -v tzclient_data:/var/run/tezos/client-"$DEPLOYMENT_ENV" -d -p 8732:8732 -p 9732:9732 tezos-node-"$DEPLOYMENT_ENV"
 }
 
-remove_postgres_volumes () {
+remove_postgres_all () {
     docker container stop postgres-"$DEPLOYMENT_ENV"
 	docker container rm postgres-"$DEPLOYMENT_ENV"
     docker volume rm pgdata-"$DEPLOYMENT_ENV"
-    sudo rm -rf $HOME/volumes/pgdata-"$DEPLOYMENT_ENV"
+    rm -rf $HOME/volumes/pgdata-"$DEPLOYMENT_ENV"
 }
 
 #set_protocol () {
@@ -249,7 +254,7 @@ remove_postgres_volumes () {
 [[ "$TEZOS" ]] && build_tezos
 
 #if postgres-volume flag remove postgres volumes
-[[ $VOLUME ]] && remove_postgres_volumes
+[[ $VOLUME ]] && remove_postgres_all
 
 #tezos network protocol flag set check
 #[[ $tezosprotocol ]] && set_protocol
