@@ -61,7 +61,7 @@ EOF
 }
 
 # parse command line arguments
-SHORT_OPTS='ab:cdh:p:tv'
+SHORT_OPTS='ab:cdhp:tv'
 LONG_OPTS='all,build-name:,conseil,database,help,path-to-config:,tezos,volume'
 ARGS=$(getopt -o $SHORT_OPTS -l $LONG_OPTS -n "$CMD" -- "$@" 2>/dev/null)
 #check getopt command failure
@@ -105,9 +105,17 @@ tezosnetwork=`cat "$PATH_TO_CONFIG"/tezos/tezos_network.txt`
 
 docker network create nautilus
 
-build_conseil () { 
+build_conseil () {
+
+    DEPLOYMENT_ENV="$1"
+    WORKING_DIR="$2"
+    
+
+
 	docker container stop conseil-"$DEPLOYMENT_ENV"
 	docker container rm conseil-"$DEPLOYMENT_ENV"
+
+
 
 	CONSEIL_WORK_DIR="$WORKING_DIR"/conseil-"$DEPLOYMENT_ENV"-"$build_time"
     mkdir "$CONSEIL_WORK_DIR"
@@ -134,7 +142,7 @@ build_conseil () {
     sed -i "s/databaseName=.*/$line1/g" "$conseil_conf_file"
     sed -i "s/user=.*/$line2/g" "$conseil_conf_file"
     sed -i "s/password=.*/$line3/g" "$conseil_conf_file"
-    sed -i "s/APIKEY.=..APIKEY.*/$line4/g" "$conseil_conf_file"
+    sed -i "s/keys.=...APIKEY..*/$line4/g" "$conseil_conf_file"
     sed -i "s/alphanet/$line5/g" "$runconseillorre"
     cp "$conseil_conf_file" ./build/
     cp "$runconseillorre" ./build/
