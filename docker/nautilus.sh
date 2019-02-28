@@ -134,7 +134,7 @@ build_conseil () {
     sed -i "s/databaseName=.*/$line1/g" "$conseil_conf_file"
     sed -i "s/user=.*/$line2/g" "$conseil_conf_file"
     sed -i "s/password=.*/$line3/g" "$conseil_conf_file"
-    sed -i "s/APIKEY.=..*.*/$line4/g" "$conseil_conf_file"
+    sed -i "s/APIKEY.=..APIKEY.*/$line4/g" "$conseil_conf_file"
     sed -i "s/alphanet/$line5/g" "$runconseillorre"
     cp "$conseil_conf_file" ./build/
     cp "$runconseillorre" ./build/
@@ -233,7 +233,7 @@ remove_postgres_all () {
     docker container stop postgres-"$DEPLOYMENT_ENV"
 	docker container rm postgres-"$DEPLOYMENT_ENV"
     docker volume rm pgdata-"$DEPLOYMENT_ENV"
-    
+
 }
 
 #set_protocol () {
