@@ -94,8 +94,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 PATH_TO_CONFIG="${path_to_config:-$DIR/config/local}"
 
 #working directory
-BUILD_NAME="${build_name:-$HOME/nautilus/"$build_time"}"
-WORKING_DIR="$BUILD_NAME"
+
+BUILD_NAME="${build_name:-$HOME/nautilus}"
+WORKING_DIR="$BUILD_NAME"/"$build_time"
 #example: production-environment-1, will default to base folder name of config files
 DEPLOYMENT_ENV="$(basename "$PATH_TO_CONFIG")"
 
