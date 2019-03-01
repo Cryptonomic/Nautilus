@@ -23,7 +23,7 @@ build_postgres () {
     #check out schema and put it in the right place
 
 
-    POSTGRES_WORK_DIR="$WORKING_DIR"/postgres-"$DEPLOYMENT_ENV"-"$build_time"
+    POSTGRES_WORK_DIR="$WORKING_DIR"/postgres-"$DEPLOYMENT_ENV"
     mkdir "$POSTGRES_WORK_DIR"
 
     cp "$DIR"/dockerfile "$POSTGRES_WORK_DIR"/dockerfile
@@ -50,6 +50,7 @@ build_postgres () {
 
     #build docker container
     docker build -f dockerfile -t postgres-"$DEPLOYMENT_ENV" .
-
+    (( $? == 0 )) || fatal "Unable to build postgres container"
 	docker run --name=postgres-"$DEPLOYMENT_ENV" --network=nautilus -v pgdata-"$DEPLOYMENT_ENV":/var/lib/postgresql/data -d -p 5432:5432 postgres-"$DEPLOYMENT_ENV"
+
 }

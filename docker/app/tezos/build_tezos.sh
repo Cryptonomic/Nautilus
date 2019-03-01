@@ -23,7 +23,7 @@ build_tezos () {
     docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV" tzclient_data-"$DEPLOYMENT_ENV"
 
 	#make tezos subdirectory
-    TEZOS_WORK_DIR="$WORKING_DIR"/tezos-node-"$DEPLOYMENT_ENV"-"$build_time"
+    TEZOS_WORK_DIR="$WORKING_DIR"/tezos-node-"$DEPLOYMENT_ENV"
     mkdir "$TEZOS_WORK_DIR"
 
     #copy dockerfile from nautilus
@@ -41,5 +41,6 @@ build_tezos () {
 
     #build and run docker container
     docker build -f "$TEZOS_WORK_DIR"/dockerfile -t tezos-node-"$DEPLOYMENT_ENV" .
+    (( $? == 0 )) || fatal "Unable to build tezos container"
     docker run --name=tezos-node-"$DEPLOYMENT_ENV" --network=nautilus -v tznode_data:/var/run/tezos/node-"$DEPLOYMENT_ENV" -v tzclient_data:/var/run/tezos/client-"$DEPLOYMENT_ENV" -d -p 8732:8732 -p 9732:9732 tezos-node-"$DEPLOYMENT_ENV"
 }

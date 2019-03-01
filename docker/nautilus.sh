@@ -94,13 +94,14 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 PATH_TO_CONFIG="${path_to_config:-$DIR/config/local}"
 
 #working directory
-BUILD_NAME="${build_name:-nautilus_build_"$build_time"}"
-WORKING_DIR=$HOME/"$BUILD_NAME"
+BUILD_NAME="${build_name:-$HOME/nautilus/"$build_time"}"
+WORKING_DIR="$BUILD_NAME"
 #example: production-environment-1, will default to base folder name of config files
 DEPLOYMENT_ENV="$(basename "$PATH_TO_CONFIG")"
+
 #make working directory
 [[ -d "$WORKING_DIR" ]] || mkdir "$WORKING_DIR"
-#create variable for tezos-network(alphanet or mainnet)
+(( $? == 0 )) || fatal "Unable to create working directory."
 
 
 docker network create nautilus
@@ -116,7 +117,7 @@ remove_postgres_all () {
     docker volume rm pgdata-"$DEPLOYMENT_ENV"
 }
 
-ls
+
 
 
 #if conseil flag set build conseil container

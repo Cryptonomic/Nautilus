@@ -20,7 +20,7 @@ build_conseil () {
 	docker container stop "$current_continer"
 	docker container rm "$current_continer"
 
-	CONSEIL_WORK_DIR="$WORKING_DIR"/conseil-"$DEPLOYMENT_ENV"-"$build_time"
+	CONSEIL_WORK_DIR="$WORKING_DIR"/conseil-"$DEPLOYMENT_ENV"
     mkdir "$CONSEIL_WORK_DIR"
     cd "$CONSEIL_WORK_DIR"
 
@@ -49,6 +49,7 @@ build_conseil () {
     cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./runconseil-lorre.sh
     conseil_conf_file=./conseil.conf
     runconseillorre=./runconseil-lorre.sh
+
     {
     read line1
     read line2
@@ -79,6 +80,6 @@ build_conseil () {
     docker build -f "$DIR"/dockerfile -t conseil-"$DEPLOYMENT_ENV" .
     rm ./build
    	docker run --name=conseil-"$DEPLOYMENT_ENV" --network=nautilus -d -p 1337:1337 conseil-"$DEPLOYMENT_ENV"
-
+    (( $? == 0 )) || fatal "Unable to build conseil container"
 	yes | docker system prune
 }
