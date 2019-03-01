@@ -101,7 +101,7 @@ DEPLOYMENT_ENV="$(basename "$PATH_TO_CONFIG")"
 #make working directory
 [[ -d "$WORKING_DIR" ]] || mkdir "$WORKING_DIR"
 #create variable for tezos-network(alphanet or mainnet)
-tezosnetwork=`cat "$PATH_TO_CONFIG"/tezos/tezos_network.txt`
+
 
 docker network create nautilus
 . "$DIR"/app/conseil/build_conseil.sh

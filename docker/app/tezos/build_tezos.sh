@@ -32,7 +32,8 @@ build_tezos () {
     read line1
     } < "$PATH_TO_CONFIG"/tezos/tezos_network.txt
 
-    tezosnetwork="$line1"
+    tezosnetwork=`echo $line1`
+    
     #replace tezos network in dockerfile
     tz_dockerfile="$TEZOS_WORK_DIR"/dockerfile
     sed -i "s/protocol/$tezosnetwork/g" "$tz_dockerfile"
