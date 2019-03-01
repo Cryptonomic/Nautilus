@@ -29,11 +29,9 @@ build_tezos () {
     #copy dockerfile from nautilus
     cp "$DIR"/dockerfile "$TEZOS_WORK_DIR"/dockerfile
 
-    {
-    read line1
-    } < "$PATH_TO_CONFIG"/tezos/tezos_network.txt
 
-    tezos_network=`echo "$line1"`
+    tezos_network=`cat "$PATH_TO_CONFIG"/tezos/tezos_network.txt`
+
     cd "$TEZOS_WORK_DIR"
 
     #replace tezos network in dockerfile
