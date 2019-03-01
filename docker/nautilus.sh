@@ -116,10 +116,7 @@ remove_postgres_all () {
     docker volume rm pgdata-"$DEPLOYMENT_ENV"
 }
 
-DEPLOYMENT_ENV="$1"
-    WORKING_DIR="$2"
-    PATH_TO_CONFIG="$3"
-    build_time="$4"
+
 
 
 #if conseil flag set build conseil container
