@@ -28,18 +28,20 @@ build_tezos () {
 
     #copy dockerfile from nautilus
     cp "$DIR"/dockerfile "$TEZOS_WORK_DIR"/dockerfile
+
     {
     read line1
     } < "$PATH_TO_CONFIG"/tezos/tezos_network.txt
 
-    tezosnetwork=`echo $line1`
-    
-    #replace tezos network in dockerfile
-    tz_dockerfile="$TEZOS_WORK_DIR"/dockerfile
-    sed -i "s/protocol/$tezosnetwork/g" "$tz_dockerfile"
+    tezos_network=`echo "$line1"`
     cd "$TEZOS_WORK_DIR"
 
+    #replace tezos network in dockerfile
+    tz_dockerfile="$TEZOS_WORK_DIR"/dockerfile
+    sed -i "s/protocol/$tezos_network/g" "$tz_dockerfile"
+
+
     #build and run docker container
-    docker build -f "$DIR"/dockerfile -t tezos-node-"$DEPLOYMENT_ENV" .
+    docker build -f "$TEZOS_WORK_DIR"/dockerfile -t tezos-node-"$DEPLOYMENT_ENV" .
     docker run --name=tezos-node-"$DEPLOYMENT_ENV" --network=nautilus -v tznode_data:/var/run/tezos/node-"$DEPLOYMENT_ENV" -v tzclient_data:/var/run/tezos/client-"$DEPLOYMENT_ENV" -d -p 8732:8732 -p 9732:9732 tezos-node-"$DEPLOYMENT_ENV"
 }

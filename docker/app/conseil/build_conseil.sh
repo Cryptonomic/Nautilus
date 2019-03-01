@@ -56,11 +56,11 @@ build_conseil () {
     read line4
     read line5
     } < "$PATH_TO_CONFIG"/conseil/credentials.txt
-    line1=`echo $line1`
-    line2=`echo $line2`
-    line3=`echo $line3`
-    line4=`echo $line4`
-    line5=`echo $line5`
+    line1=`echo "$line1"`
+    line2=`echo "$line2"`
+    line3=`echo "$line3"`
+    line4=`echo "$line4"`
+    line5=`echo "$line5"`
     sed -i "s/databaseName=.*/$line1/g" "$conseil_conf_file"
     sed -i "s/user=.*/$line2/g" "$conseil_conf_file"
     sed -i "s/password=.*/$line3/g" "$conseil_conf_file"
