@@ -28,8 +28,8 @@ Usage: bash $CMD [OPTIONS] -p [/PATH/TO/CONFIG_FOLDER]]
 Options:
     -a, --all                      builds, links, and starts tezos, postgres, and conseil docker
                                    containers and their respective volumes
-    -b, --build-name               creates a working directory within home to use for the build instance, defaults to
-                                   nautilus_build_current-date-time
+    -b, --custom-build-path        specify a custom working directory to use for the build instance, defaults to
+                                   $HOME/nautilus/current-date-time
     -c, --conseil                  stops and removes existing conseil container if it exists
                                    and rebuilds and starts a new instance of the conseil container
     -d, --database                 stops and removes existing postgres database container if it exists
