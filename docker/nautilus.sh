@@ -22,7 +22,7 @@ add the jenkins user public key as an authorized key.
 If executing locally, be sure to change the postgres username and password in conseil.conf located in
 docker/config/local/conseil/ and use the same username and password in dockerfile for postgres.
 
-Usage: $CMD [OPTIONS] -p [/PATH/TO/CONFIG_FOLDER]]
+Usage: bash $CMD [OPTIONS] -p [/PATH/TO/CONFIG_FOLDER]]
             [-h] [-v]
 
 Options:
@@ -50,7 +50,7 @@ Options:
                                    there has been a schema change as simply rebuilding the container will not replace the schema
 
 Examples:
-    $CMD -a -p /$HOME/production-environment-1
+    bash $CMD -a -p /$HOME/production-environment-1
                                    # build, initialize, and run docker containers
                                    # for conseil, postgres, and tezos
                                    # takes config files from production-environment-1 folder
@@ -104,165 +104,35 @@ DEPLOYMENT_ENV="$(basename "$PATH_TO_CONFIG")"
 tezosnetwork=`cat "$PATH_TO_CONFIG"/tezos/tezos_network.txt`
 
 docker network create nautilus
-
-build_conseil () {
-
-    DEPLOYMENT_ENV="$1"
-    WORKING_DIR="$2"
-    
+. "$DIR"/app/conseil/build_conseil.sh
+. "$DIR"/app/postgres/build_postgres.sh
+. "$DIR"/app/tezos/build_tezos.sh
 
 
-	docker container stop conseil-"$DEPLOYMENT_ENV"
-	docker container rm conseil-"$DEPLOYMENT_ENV"
-
-
-
-	CONSEIL_WORK_DIR="$WORKING_DIR"/conseil-"$DEPLOYMENT_ENV"-"$build_time"
-    mkdir "$CONSEIL_WORK_DIR"
-    cd "$CONSEIL_WORK_DIR"
-
-    . "$DIR"/app/conseil/build.sh
-
-    cp "$PATH_TO_CONFIG"/conseil/conseil.conf ./conseil.conf
-    cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./runconseil-lorre.sh
-    conseil_conf_file=./conseil.conf
-    runconseillorre=./runconseil-lorre.sh
-    {
-    read line1
-    read line2
-    read line3
-    read line4
-    read line5
-    } < "$PATH_TO_CONFIG"/conseil/credentials.txt
-    line1=`echo $line1`
-    line2=`echo $line2`
-    line3=`echo $line3`
-    line4=`echo $line4`
-    line5=`echo $line5`
-    sed -i "s/databaseName=.*/$line1/g" "$conseil_conf_file"
-    sed -i "s/user=.*/$line2/g" "$conseil_conf_file"
-    sed -i "s/password=.*/$line3/g" "$conseil_conf_file"
-    sed -i "s/keys.=...APIKEY..*/$line4/g" "$conseil_conf_file"
-    sed -i "s/alphanet/$line5/g" "$runconseillorre"
-    cp "$conseil_conf_file" ./build/
-    cp "$runconseillorre" ./build/
-
-
-
-
-    cp ./Conseil/src/main/resources/logback.xml ./build/
-    #cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./build/
-
-
-    docker build -f "$DIR"/app/conseil/dockerfile -t conseil-"$DEPLOYMENT_ENV" .
-    rm ./build
-   	docker run --name=conseil-"$DEPLOYMENT_ENV" --network=nautilus -d -p 1337:1337 conseil-"$DEPLOYMENT_ENV"
-
-	yes | docker system prune
-}
-
-build_postgres () {
-    #declaring persistent volumes
-    #current volume created check
-    [[ -d $HOME/volumes ]] || mkdir $HOME/volumes
-    [[ -d $HOME/volumes/pgdata-"$DEPLOYMENT_ENV" ]] || mkdir $HOME/volumes/pgdata-"$DEPLOYMENT_ENV"
-
-    docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/pgdata-"$DEPLOYMENT_ENV" pgdata-"$DEPLOYMENT_ENV"
-
-    docker container stop postgres-"$DEPLOYMENT_ENV"
-	docker container rm postgres-"$DEPLOYMENT_ENV"
-
-    #check out schema and put it in the right place
-
-
-    POSTGRES_WORK_DIR="$WORKING_DIR"/postgres-"$DEPLOYMENT_ENV"-"$build_time"
-    mkdir "$POSTGRES_WORK_DIR"
-
-    cp "$DIR"/app/postgres/dockerfile "$POSTGRES_WORK_DIR"/dockerfile
-    postgres_dockerfile="$POSTGRES_WORK_DIR"/dockerfile
-    #change postgres databasename, username, and password
-    {
-    read line1
-    read line2
-    read line3
-    } < "$PATH_TO_CONFIG"/postgres/credentials.txt
-    line1=`echo $line1`
-    line2=`echo $line2`
-    line3=`echo $line3`
-
-    sed -i "s/ENV POSTGRES_USER=.*/$line1/g" "$postgres_dockerfile"
-    sed -i "s/ENV POSTGRES_PASSWORD=.*/$line2/g" "$postgres_dockerfile"
-    sed -i "s/ENV POSTGRES_DB=.*/$line3/g" "$postgres_dockerfile"
-
-
-
-    #check out schema and place in working directory
-    cd "$POSTGRES_WORK_DIR"
-    [[ -f conseil.sql ]] || rm ./conseil.sql
-    wget https://raw.githubusercontent.com/Cryptonomic/Conseil/master/doc/conseil.sql > "$POSTGRES_WORK_DIR"/conseil.sql
-
-    #build docker container
-    docker build -f dockerfile -t postgres-"$DEPLOYMENT_ENV" .
-
-	docker run --name=postgres-"$DEPLOYMENT_ENV" --network=nautilus -v pgdata-"$DEPLOYMENT_ENV":/var/lib/postgresql/data -d -p 5432:5432 postgres-"$DEPLOYMENT_ENV"
-}
-
-build_tezos () {
-    #volumes creation for persistent storage
-    [[ -d $HOME/volumes ]] || mkdir $HOME/volumes
-    [[ -d $HOME/volumes/tznode_data-"$DEPLOYMENT_ENV" ]] || mkdir $HOME/volumes/tznode_data-"$DEPLOYMENT_ENV"
-    [[ -d $HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV" ]] || mkdir $HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV"
-    #stop and remove current container
-    docker container stop tezos-node-"$DEPLOYMENT_ENV"
-	docker container rm tezos-node-"$DEPLOYMENT_ENV"
-
-    #createdocker volumes
-    docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tznode_data-"$DEPLOYMENT_ENV" tznode_data-"$DEPLOYMENT_ENV"
-    docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV" tzclient_data-"$DEPLOYMENT_ENV"
-
-	#make tezos subdirectory
-    TEZOS_WORK_DIR="$WORKING_DIR"/node/"$DEPLOYMENT_ENV"
-    mkdir "$TEZOS_WORK_DIR"
-
-    #copy dockerfile from nautilus
-    cp "$DIR"/app/tezos/dockerfile "$TEZOS_WORK_DIR"/dockerfile
-
-    #replace tezos network in dockerfile
-    tz_dockerfile="$TEZOS_WORK_DIR"/dockerfile
-    sed -i "s/protocol/$tezosnetwork/g" "$tz_dockerfile"
-    cd "$TEZOS_WORK_DIR"
-
-    #build and run docker container
-    docker build -f dockerfile -t tezos-node-"$DEPLOYMENT_ENV" .
-    docker run --name=tezos-node-"$DEPLOYMENT_ENV" --network=nautilus -v tznode_data:/var/run/tezos/node-"$DEPLOYMENT_ENV" -v tzclient_data:/var/run/tezos/client-"$DEPLOYMENT_ENV" -d -p 8732:8732 -p 9732:9732 tezos-node-"$DEPLOYMENT_ENV"
-}
 
 remove_postgres_all () {
     docker container stop postgres-"$DEPLOYMENT_ENV"
 	docker container rm postgres-"$DEPLOYMENT_ENV"
     docker volume rm pgdata-"$DEPLOYMENT_ENV"
-
 }
 
-#set_protocol () {
-#    if [[ tezosprotocol == "alphanet" || tezosprotocol == "mainnet" || tezosprotocol == "zeronet" ]]; then
-#        build_tezos
-#    else
-#        fatal "Invalid tezos network specified"
-#    fi
-#}
+DEPLOYMENT_ENV="$1"
+    WORKING_DIR="$2"
+    PATH_TO_CONFIG="$3"
+    build_time="$4"
+
 
 #if conseil flag set build conseil container
-[[ $CONSEIL ]] && build_conseil
+[[ "$CONSEIL" ]] && build_conseil "$DEPLOYMENT_ENV" "$WORKING_DIR" "$PATH_TO_CONFIG" "$build_time"
 
 #if postgres flag set build postgres container
-[[ $POSTGRES ]] && build_postgres
+[[ "$POSTGRES" ]] && build_postgres "$DEPLOYMENT_ENV" "$WORKING_DIR" "$PATH_TO_CONFIG" "$build_time"
 
 #if tezos flag set build tezos container
-[[ "$TEZOS" ]] && build_tezos
+[[ "$TEZOS" ]] && build_tezos "$DEPLOYMENT_ENV" "$WORKING_DIR" "$PATH_TO_CONFIG" "$build_time"
 
 #if postgres-volume flag remove postgres volumes
-[[ $VOLUME ]] && remove_postgres_all
+[[ "$VOLUME" ]] && remove_postgres_all
 
 #tezos network protocol flag set check
 #[[ $tezosprotocol ]] && set_protocol

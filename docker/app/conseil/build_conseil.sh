@@ -2,13 +2,18 @@
 #
 # Container build script for conseil
 
-#cd "$HOME"
 
 
 
-build_conseil ("$DEPLOYMENT_ENV", ) {
 
-    $DEPLOYMENT_ENV="$1"
+build_conseil () {
+
+    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+    DEPLOYMENT_ENV="$1"
+    WORKING_DIR="$2"
+    PATH_TO_CONFIG="$3"
+    build_time="$4"
 
 	docker container stop conseil-"$DEPLOYMENT_ENV"
 	docker container rm conseil-"$DEPLOYMENT_ENV"
@@ -36,7 +41,7 @@ build_conseil ("$DEPLOYMENT_ENV", ) {
     mv /tmp/conseil.jar ./build/conseil.jar
     cp ./Conseil/src/main/resources/application.conf ./build/
 
-    . "$DIR"/app/conseil/build.sh
+
 
     cp "$PATH_TO_CONFIG"/conseil/conseil.conf ./conseil.conf
     cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./runconseil-lorre.sh
@@ -69,7 +74,7 @@ build_conseil ("$DEPLOYMENT_ENV", ) {
     #cp "$PATH_TO_CONFIG"/conseil/runconseil-lorre.sh ./build/
 
 
-    docker build -f "$DIR"/app/conseil/dockerfile -t conseil-"$DEPLOYMENT_ENV" .
+    docker build -f "$DIR"/dockerfile -t conseil-"$DEPLOYMENT_ENV" .
     rm ./build
    	docker run --name=conseil-"$DEPLOYMENT_ENV" --network=nautilus -d -p 1337:1337 conseil-"$DEPLOYMENT_ENV"
 
