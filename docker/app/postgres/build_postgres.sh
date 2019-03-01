@@ -9,16 +9,16 @@ build_postgres () {
     DEPLOYMENT_ENV="$1"
     WORKING_DIR="$2"
     PATH_TO_CONFIG="$3"
-
+    build_time="$4"
     #declaring persistent volumes
     #current volume created check
     [[ -d $HOME/volumes ]] || mkdir $HOME/volumes
     [[ -d $HOME/volumes/pgdata-"$DEPLOYMENT_ENV" ]] || mkdir $HOME/volumes/pgdata-"$DEPLOYMENT_ENV"
 
     docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/pgdata-"$DEPLOYMENT_ENV" pgdata-"$DEPLOYMENT_ENV"
-
-    docker container stop postgres-"$DEPLOYMENT_ENV"
-	docker container rm postgres-"$DEPLOYMENT_ENV"
+    current_postgres_container=postgres-"$DEPLOYMENT_ENV"
+    docker container stop "$current_postgres_container"
+	docker container rm "$current_postgres_container"
 
     #check out schema and put it in the right place
 
@@ -46,8 +46,7 @@ build_postgres () {
 
     #check out schema and place in working directory
     cd "$POSTGRES_WORK_DIR"
-    [[ -f conseil.sql ]] || rm ./conseil.sql
-    wget https://raw.githubusercontent.com/Cryptonomic/Conseil/master/doc/conseil.sql > "$POSTGRES_WORK_DIR"/conseil.sql
+    wget https://raw.githubusercontent.com/Cryptonomic/Conseil/master/doc/conseil.sql
 
     #build docker container
     docker build -f dockerfile -t postgres-"$DEPLOYMENT_ENV" .
