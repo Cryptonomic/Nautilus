@@ -7,21 +7,23 @@ build_tezos () {
     DEPLOYMENT_ENV="$1"
     WORKING_DIR="$2"
     PATH_TO_CONFIG="$3"
+    build_time="$4"
 
     #volumes creation for persistent storage
     [[ -d $HOME/volumes ]] || mkdir $HOME/volumes
     [[ -d $HOME/volumes/tznode_data-"$DEPLOYMENT_ENV" ]] || mkdir $HOME/volumes/tznode_data-"$DEPLOYMENT_ENV"
     [[ -d $HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV" ]] || mkdir $HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV"
     #stop and remove current container
-    docker container stop tezos-node-"$DEPLOYMENT_ENV"
-	docker container rm tezos-node-"$DEPLOYMENT_ENV"
+    current_tezos_container=tezos-node-"$DEPLOYMENT_ENV"
+    docker container stop "$current_tezos_container"
+	docker container rm "$current_tezos_container"
 
     #createdocker volumes
     docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tznode_data-"$DEPLOYMENT_ENV" tznode_data-"$DEPLOYMENT_ENV"
     docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV" tzclient_data-"$DEPLOYMENT_ENV"
 
 	#make tezos subdirectory
-    TEZOS_WORK_DIR="$WORKING_DIR"/tezos_"$build_time"/tezos-node-"$DEPLOYMENT_ENV"
+    TEZOS_WORK_DIR="$WORKING_DIR"/tezos-node-"$DEPLOYMENT_ENV"-"$build_time"
     mkdir "$TEZOS_WORK_DIR"
 
     #copy dockerfile from nautilus
