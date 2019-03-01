@@ -96,6 +96,7 @@ PATH_TO_CONFIG="${path_to_config:-$DIR/config/local}"
 #working directory
 
 BUILD_NAME="${build_name:-$HOME/nautilus}"
+[[ -d "$BUILD_NAME" ]] || mkdir "$BUILD_NAME"
 WORKING_DIR="$BUILD_NAME"/"$build_time"
 #example: production-environment-1, will default to base folder name of config files
 DEPLOYMENT_ENV="$(basename "$PATH_TO_CONFIG")"
