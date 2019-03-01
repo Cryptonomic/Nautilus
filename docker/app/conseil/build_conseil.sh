@@ -78,8 +78,9 @@ build_conseil () {
 
 
     docker build -f "$DIR"/dockerfile -t conseil-"$DEPLOYMENT_ENV" .
+    (( $? == 0 )) || fatal "Unable to build conseil container"
     rm ./build
    	docker run --name=conseil-"$DEPLOYMENT_ENV" --network=nautilus -d -p 1337:1337 conseil-"$DEPLOYMENT_ENV"
-    (( $? == 0 )) || fatal "Unable to build conseil container"
+    (( $? == 0 )) || fatal "Unable to run conseil container"
 	yes | docker system prune
 }

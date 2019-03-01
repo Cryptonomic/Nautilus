@@ -52,5 +52,5 @@ build_postgres () {
     docker build -f dockerfile -t postgres-"$DEPLOYMENT_ENV" .
     (( $? == 0 )) || fatal "Unable to build postgres container"
 	docker run --name=postgres-"$DEPLOYMENT_ENV" --network=nautilus -v pgdata-"$DEPLOYMENT_ENV":/var/lib/postgresql/data -d -p 5432:5432 postgres-"$DEPLOYMENT_ENV"
-
+    (( $? == 0 )) || fatal "Unable to run postgres container, please check ports 5432 and any running instances of postgres"
 }
