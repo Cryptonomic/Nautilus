@@ -28,25 +28,13 @@ build_postgres () {
 
     cp "$DIR"/dockerfile "$POSTGRES_WORK_DIR"/dockerfile
     postgres_dockerfile="$POSTGRES_WORK_DIR"/dockerfile
-    #change postgres databasename, username, and password
-    {
-    read line1
-    read line2
-    read line3
-    } < "$PATH_TO_CONFIG"/postgres/credentials.txt
-    line1=`echo $line1`
-    line2=`echo $line2`
-    line3=`echo $line3`
-
-    sed -i "s/ENV POSTGRES_USER=.*/$line1/g" "$postgres_dockerfile"
-    sed -i "s/ENV POSTGRES_PASSWORD=.*/$line2/g" "$postgres_dockerfile"
-    sed -i "s/ENV POSTGRES_DB=.*/$line3/g" "$postgres_dockerfile"
-
-
 
     #check out schema and place in working directory
     cd "$POSTGRES_WORK_DIR"
     wget https://raw.githubusercontent.com/Cryptonomic/Conseil/master/doc/conseil.sql
+
+    #Set required env vars for Docker
+    . "$PATH_TO_CONFIG"/postgres/set_postgres_env.sh
 
     #build docker container
     docker build -f dockerfile -t postgres-"$DEPLOYMENT_ENV" .
