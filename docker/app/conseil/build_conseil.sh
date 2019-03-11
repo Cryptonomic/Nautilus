@@ -62,7 +62,6 @@ build_conseil () {
     line3=`echo "$line3"`
     line4=`echo "$line4"`
     line5=`echo "$line5"`
-    sed -i "s/databaseName=.*/$line1/g" "$conseil_conf_file"
     sed -i "s/user=.*/$line2/g" "$conseil_conf_file"
     sed -i "s/password=.*/$line3/g" "$conseil_conf_file"
     sed -i "s/keys.=...APIKEY..*/$line4/g" "$conseil_conf_file"
@@ -79,7 +78,6 @@ build_conseil () {
 
     docker build -f "$DIR"/dockerfile -t conseil-"$DEPLOYMENT_ENV" .
     (( $? == 0 )) || fatal "Unable to build conseil container"
-    rm ./build
    	docker run --name=conseil-"$DEPLOYMENT_ENV" --network=nautilus -d -p 1337:1337 conseil-"$DEPLOYMENT_ENV"
     (( $? == 0 )) || fatal "Unable to run conseil container"
 	yes | docker system prune

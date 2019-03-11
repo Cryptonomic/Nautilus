@@ -56,7 +56,6 @@ Examples:
                                    # takes config files from production-environment-1 folder
 
 
-Report bugs to <swap@cryptonomic.tech>.
 EOF
 }
 
