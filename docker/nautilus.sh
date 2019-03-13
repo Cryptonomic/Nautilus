@@ -116,6 +116,8 @@ remove_postgres_all () {
     docker container stop postgres-"$DEPLOYMENT_ENV"
 	docker container rm postgres-"$DEPLOYMENT_ENV"
     docker volume rm pgdata-"$DEPLOYMENT_ENV"
+    VOLUME_DIR=$HOME/volumes/pgdata-"$DEPLOYMENT_ENV"
+    rm -rf "$VOLUME_DIR"
 }
 
 
