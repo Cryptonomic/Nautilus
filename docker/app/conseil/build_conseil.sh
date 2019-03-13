@@ -50,23 +50,6 @@ build_conseil () {
     conseil_conf_file=./conseil.conf
     runconseillorre=./runconseil-lorre.sh
 
-    {
-    read line1
-    read line2
-    read line3
-    read line4
-    read line5
-    } < "$PATH_TO_CONFIG"/conseil/credentials.txt
-    line1=`echo "$line1"`
-    line2=`echo "$line2"`
-    line3=`echo "$line3"`
-    line4=`echo "$line4"`
-    line5=`echo "$line5"`
-    sed -i "s/databaseName=.*/$line1/g" "$conseil_conf_file"
-    sed -i "s/user=.*/$line2/g" "$conseil_conf_file"
-    sed -i "s/password=.*/$line3/g" "$conseil_conf_file"
-    sed -i "s/keys.=...APIKEY..*/$line4/g" "$conseil_conf_file"
-    sed -i "s/alphanet/$line5/g" "$runconseillorre"
     cp "$conseil_conf_file" ./build/
     cp "$runconseillorre" ./build/
 
@@ -79,7 +62,6 @@ build_conseil () {
 
     docker build -f "$DIR"/dockerfile -t conseil-"$DEPLOYMENT_ENV" .
     (( $? == 0 )) || fatal "Unable to build conseil container"
-    rm ./build
    	docker run --name=conseil-"$DEPLOYMENT_ENV" --network=nautilus -d -p 1337:1337 conseil-"$DEPLOYMENT_ENV"
     (( $? == 0 )) || fatal "Unable to run conseil container"
 	yes | docker system prune
