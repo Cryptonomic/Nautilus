@@ -41,7 +41,6 @@ build_conseil () {
     ln -s ./Conseil ./build
     (( $? == 0 )) || fatal "Unable to create symlink to build directory"
     mv /tmp/conseil.jar ./build/conseil.jar
-    cp ./Conseil/src/main/resources/application.conf ./build/
 
 
 
