@@ -16,7 +16,7 @@ build_postgres () {
     [[ -d $HOME/volumes ]] || mkdir $HOME/volumes
     [[ -d $HOME/volumes/pgdata-"$DEPLOYMENT_ENV" ]] || mkdir "$VOLUME_DIR"
 
-    docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/pgdata-"$DEPLOYMENT_ENV" pgdata-"$DEPLOYMENT_ENV"-4
+    docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/pgdata-"$DEPLOYMENT_ENV" pgdata-"$DEPLOYMENT_ENV"
     current_postgres_container=postgres-"$DEPLOYMENT_ENV"
     docker container stop "$current_postgres_container"
 	docker container rm "$current_postgres_container"
