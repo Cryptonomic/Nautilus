@@ -1,14 +1,29 @@
 #!/bin/bash
 
-mkdir $1-temp && cd $1-temp
+build_arronx () {
 
-git clone https://github.com/Cryptonomic/Arronax.git
-cd Arronax
 
-npm install
+    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-cp -f ../../env/$1/config.json ./public
+    DEPLOYMENT_ENV="$1"
+    WORKING_DIR="$2"
+    PATH_TO_CONFIG="$3"
+    build_time="$4"
 
-npm run build
+    current_container=conseil-"$DEPLOYMENT_ENV"
 
-docker build -f ./dockerfile -t arronax-$1 .
+    docker container stop "$current_container"
+    docker container rm "$current_container"
+    mkdir /tmp/$WORKING_DIR && cd $WORKING_DIR
+
+    git clone https://github.com/Cryptonomic/Arronax.git
+    cd Arronax
+
+    npm install
+
+    cp -f ../../env/$1/config.json ./public
+
+    npm run build
+
+    docker build -f ./dockerfile -t arronax-$DEPLOYMENT_ENV .
+}

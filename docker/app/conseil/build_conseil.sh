@@ -15,10 +15,10 @@ build_conseil () {
     PATH_TO_CONFIG="$3"
     build_time="$4"
 
-    current_continer=conseil-"$DEPLOYMENT_ENV"
+    current_container=conseil-"$DEPLOYMENT_ENV"
 
-	docker container stop "$current_continer"
-	docker container rm "$current_continer"
+	docker container stop "$current_container"
+	docker container rm "$current_container"
 
 	CONSEIL_WORK_DIR="$WORKING_DIR"/conseil-"$DEPLOYMENT_ENV"
     mkdir "$CONSEIL_WORK_DIR"
