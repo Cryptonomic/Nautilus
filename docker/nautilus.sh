@@ -75,6 +75,7 @@ while true ; do
         -d|--database) POSTGRES=1 ; shift ;;
         -h|--help) display_usage && exit 0 ; shift ;;
         -p|--path-to-config) path_to_config="$2" ; shift 2 ;;
+        -r|--arronax) ARRONAX=1 ; shift ;;
         -t|--tezos) TEZOS=1 ; shift ;;
         -v|--volume) VOLUME=1 ; shift ;;
         --) shift ; break ;;
@@ -82,7 +83,7 @@ while true ; do
 done
 
 # ensure necessary command line parameters were specified(man test to see usages, checks contents of a string)
-[[ -z "${CONSEIL}${POSTGRES}${TEZOS}${VOLUME}" ]] && display_usage \
+[[ -z "${ARRONAX}${CONSEIL}${POSTGRES}${TEZOS}${VOLUME}" ]] && display_usage \
     && fatal "Please specify at least one container type (examples: -a,-c,-d,-t)."
 
 
@@ -109,7 +110,7 @@ docker network create nautilus
 . "$DIR"/app/conseil/build_conseil.sh
 . "$DIR"/app/postgres/build_postgres.sh
 . "$DIR"/app/tezos/build_tezos.sh
-
+. "$DIR"/app/arronax/build_arronax.sh
 
 
 remove_postgres_all () {
@@ -121,7 +122,8 @@ remove_postgres_all () {
 }
 
 
-
+#if conseil flag set build conseil container
+[[ "$ARRONAX" ]] && build_arronax
 
 #if conseil flag set build conseil container
 [[ "$CONSEIL" ]] && build_conseil "$DEPLOYMENT_ENV" "$WORKING_DIR" "$PATH_TO_CONFIG" "$build_time"
