@@ -123,7 +123,7 @@ remove_postgres_all () {
 
 
 #if conseil flag set build conseil container
-[[ "$ARRONAX" ]] && build_arronax $DEPLOYMENT_ENV" "$WORKING_DIR" "$PATH_TO_CONFIG" "$build_time"
+[[ "$ARRONAX" ]] && build_arronax "$DEPLOYMENT_ENV" "$WORKING_DIR" "$PATH_TO_CONFIG" "$build_time"
 
 #if conseil flag set build conseil container
 [[ "$CONSEIL" ]] && build_conseil "$DEPLOYMENT_ENV" "$WORKING_DIR" "$PATH_TO_CONFIG" "$build_time"
