@@ -25,5 +25,6 @@ build_arronax () {
 
     npm run build
 
-    docker build -f ./dockerfile -t arronax-$DEPLOYMENT_ENV .
+    docker build -f dockerfile -t arronax-$DEPLOYMENT_ENV .
+    docker run --name=arronax-$DEPLOYMENT_ENV --network=nautilus -d -p 8080:80 arronax-$DEPLOYMENT_ENV
 }
