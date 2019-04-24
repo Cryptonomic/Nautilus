@@ -60,8 +60,8 @@ EOF
 }
 
 # parse command line arguments
-SHORT_OPTS='ab:cdhp:tv'
-LONG_OPTS='all,custom-build-path:,conseil,database,help,path-to-config:,tezos,volume'
+SHORT_OPTS='ab:cdhp:rtv'
+LONG_OPTS='all,custom-build-path:,conseil,database,help,path-to-config:,arronax,tezos,volume'
 ARGS=$(getopt -o $SHORT_OPTS -l $LONG_OPTS -n "$CMD" -- "$@" 2>/dev/null)
 #check getopt command failure
 (( $? != 0 )) && fatal "invalid options"
