@@ -33,7 +33,7 @@ build_conseil () {
     fi
 
 
-    sbt 'set logLevel in compile := Level.Error' compile
+    sbt 'set logLevel in compile := Level.Error' compile -J-Xss32m
     sbt 'set test in assembly := {}' assembly
 
     cd ..
