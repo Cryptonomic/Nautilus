@@ -60,8 +60,8 @@ EOF
 }
 
 # parse command line arguments
-SHORT_OPTS='ab:cdhp:tv'
-LONG_OPTS='all,custom-build-path:,conseil,database,help,path-to-config:,tezos,volume'
+SHORT_OPTS='ab:cdhn:p:tv'
+LONG_OPTS='all,custom-build-path:,conseil,database,help,network:,path-to-config:,tezos,volume'
 ARGS=$(getopt -o $SHORT_OPTS -l $LONG_OPTS -n "$CMD" -- "$@" 2>/dev/null)
 #check getopt command failure
 (( $? != 0 )) && fatal "invalid options"
@@ -71,9 +71,10 @@ while true ; do
     case "$1" in
         -a|--all) CONSEIL=1 ; POSTGRES=1 ; TEZOS=1 ; shift ;;
         -b|--custom-build-path) build_name="$2" ; shift 2 ;;
-	    -c|--conseil) CONSEIL=1 ; shift ;;
+	-c|--conseil) CONSEIL=1 ; shift ;;
         -d|--database) POSTGRES=1 ; shift ;;
         -h|--help) display_usage && exit 0 ; shift ;;
+	-n|--network) network="$2" ; shift 2 ;;
         -p|--path-to-config) path_to_config="$2" ; shift 2 ;;
         -t|--tezos) TEZOS=1 ; shift ;;
         -v|--volume) VOLUME=1 ; shift ;;
@@ -91,7 +92,8 @@ build_time=$(date "+%Y.%m.%d-%H.%M.%S")
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 #config file path, should contain exact files and directory structure as that of config/local
 PATH_TO_CONFIG="${path_to_config:-$DIR/config/local}"
-
+DEFAULT_TEZOS_NETWORK="alphanet"
+NETWORK="${network:-$DEFAULT_TEZOS_NETWORK}"
 #working directory
 
 BUILD_NAME="${build_name:-$HOME/nautilus}"
@@ -130,7 +132,7 @@ remove_postgres_all () {
 [[ "$POSTGRES" ]] && build_postgres "$DEPLOYMENT_ENV" "$WORKING_DIR" "$PATH_TO_CONFIG" "$build_time"
 
 #if tezos flag set build tezos container
-[[ "$TEZOS" ]] && build_tezos "$DEPLOYMENT_ENV" "$WORKING_DIR" "$PATH_TO_CONFIG" "$build_time"
+[[ "$TEZOS" ]] && build_tezos "$DEPLOYMENT_ENV" "$WORKING_DIR" "$PATH_TO_CONFIG" "$build_time" "$NETWORK"
 
 #if postgres-volume flag remove postgres volumes
 [[ "$VOLUME" ]] && remove_postgres_all
