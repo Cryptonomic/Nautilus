@@ -9,5 +9,14 @@ This script builds and deploys a conseil, postgres, and/or tezos container.  In 
 
 The default network for tezos is alphanet, and this setting is stored in https://github.com/Cryptonomic/Nautilus/blob/master/docker/config/local/tezos/tezos_network.txt This text file only contains one word, currently it's "alphanet".  However, it can be changed to mainnet or zeronet.  
 
+## Initialize Environment
+1. clone
+2. edit config
+3. run script to build images
+
+## start environment
+## stop environment
+
+
 
 
