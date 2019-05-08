@@ -8,7 +8,8 @@ build_tezos () {
     WORKING_DIR="$2"
     PATH_TO_CONFIG="$3"
     build_time="$4"
-
+    tezos_network="$5"  
+     
     #volumes creation for persistent storage
     [[ -d $HOME/volumes ]] || mkdir $HOME/volumes
     [[ -d $HOME/volumes/tznode_data-"$DEPLOYMENT_ENV" ]] || mkdir $HOME/volumes/tznode_data-"$DEPLOYMENT_ENV"
@@ -16,13 +17,13 @@ build_tezos () {
     #stop and remove current container
     current_tezos_container=tezos-node-"$DEPLOYMENT_ENV"
     docker container stop "$current_tezos_container"
-	docker container rm "$current_tezos_container"
+    docker container rm "$current_tezos_container"
 
     #createdocker volumes
     docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tznode_data-"$DEPLOYMENT_ENV" tznode_data-"$DEPLOYMENT_ENV"
     docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/volumes/tzclient_data-"$DEPLOYMENT_ENV" tzclient_data-"$DEPLOYMENT_ENV"
 
-	#make tezos subdirectory
+    #make tezos subdirectory
     TEZOS_WORK_DIR="$WORKING_DIR"/tezos-node-"$DEPLOYMENT_ENV"
     mkdir "$TEZOS_WORK_DIR"
 
@@ -30,7 +31,7 @@ build_tezos () {
     cp "$DIR"/dockerfile "$TEZOS_WORK_DIR"/dockerfile
 
 
-    tezos_network=`cat "$PATH_TO_CONFIG"/tezos/tezos_network.txt`
+    #tezos_network=`cat "$PATH_TO_CONFIG"/tezos/tezos_network.txt`
 
     cd "$TEZOS_WORK_DIR"
 
