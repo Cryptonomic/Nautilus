@@ -3,8 +3,8 @@
 Automation tools for deploying blockchain networks
 
 ## Prerequisites
-Prior to using this script, it's required that docker, sbt, and openjdk are installed on the host.  
-In order to install Docker, please execute the following commands:
+Prior to using this script, it's required that Docker, SBT, and OpenJDK are installed on the host.    
+Please note, the following are instructions for ubuntu, different operating systems will require .  In order to install Docker, please execute the following commands:
 
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo apt-key fingerprint 0EBFCD88
@@ -25,7 +25,7 @@ sudo apt-get install -y sbt
 
 ## Initialize Environment
 
-This script builds and deploys a conseil, postgres, and/or tezos container.  Please note, in order to run the containers, ports 1337(conseil front end), 8732(tezos rpc), and 9732(tezos network)  will need to be opened.  
+This script builds and deploys a Conseil, Postgres, and/or Tezos container.  Please note, in order to run the containers, ports 1337(conseil front end), 8732(tezos rpc), and 9732(tezos network)  will need to be opened, additionally, .  
 
 In this repo, there is provided a default configuration for all three containers, this config folder is located in docker/config/local.  These configuration values can be changed, it's advisable, but not required to copy the config folder to another location so that the original can be kept intact for reference purposes.    
 
@@ -37,22 +37,17 @@ The default configuration for conseil and postgres is contained in /path/to/repo
 Depending on the use case the following commands will build the images and deploy the containers.  Please note that the name of the containers will depend on the name of the folder containing the config files, in the default case the folder is "local", so the containers will be named conseil-local, postgres-local, and tezos-node-local.  
 
 ### Running with default configs
+Please note that the flags are listed in the help command and can be displayed by executing the following:
+
+```bash /path/to/repo/docker/nautilus.sh -h```
+
 Build all three containers:
 ```bash /path/to/repo/docker/nautilus.sh -a```
 
 Please note, the following flags can be used together or seperately.
 
 
-    -b, --custom-build-path        specify a custom working directory to use for the build instance, defaults to
-                                   $HOME/nautilus/current-date-time
-                                   
-    -c, --conseil                  stops and removes existing conseil container if it exists
-                                   and rebuilds and starts a new instance of the conseil container
-    -d, --database                 stops and removes existing postgres database container if it exists  
-    -p, --path_to_config           absolute path to configuration folder, folder should contain at the very least a conseil                                    folder,if using a modified schema, a postgres folder with a conseil.sql file. if not                                        specified,uses configuration files for conseil, postgres and tezos from the config folder                                    in repo.  config folder name will also be used in docker container nomenclature(e.g.                                        config folder name is prod1, docker container name will be conseil-prod1, postgres-prod1,                                    etc.),default config folder is "local", it resides within config folder in repo
-                                   NOTE: docker volumes will be created here to create persistence
-    -t, --tezos                    stops and removes existing tezos container if it exists
-                                   and rebuilds and starts the tezos container
+
 Build conseil container seperately
 ```bash /path/to/repo/docker/nautilus.sh -c```
 Build conseil container seperately with customized config files at a seperate location.
