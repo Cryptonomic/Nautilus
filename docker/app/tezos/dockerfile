@@ -9,4 +9,4 @@ EXPOSE 19732
 
 RUN tezos-node identity generate
 
-CMD ["tezos-node"]
+CMD ["tezos-node", "--history-mode", "archive"]
