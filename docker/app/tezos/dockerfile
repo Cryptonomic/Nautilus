@@ -7,4 +7,4 @@ EXPOSE 9732
 # P2P Mainnet
 EXPOSE 19732
 
-CMD ["tezos-node"]
+CMD ["tezos-node", "--history-mode", "archive"]
