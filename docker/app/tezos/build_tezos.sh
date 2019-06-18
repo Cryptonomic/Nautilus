@@ -40,6 +40,6 @@ build_tezos () {
     #build and run docker container
     docker build -f "$TEZOS_WORK_DIR"/dockerfile -t tezos-node-"$DEPLOYMENT_ENV" .
     (( $? == 0 )) || fatal "Unable to build tezos container"
-    docker run --name=tezos-node-"$DEPLOYMENT_ENV" --network=nautilus --mount type=bind,src=/mnt/tezos-prod,dst=/var/run/tezos/node -d -p 8732:8732 -p 9732:9732 tezos-node-"$DEPLOYMENT_ENV"
+    docker run --name=tezos-node-"$DEPLOYMENT_ENV" --network=nautilus --mount type=bind,src=/mnt/tezos-"$DEPLOYMENT_ENV",dst=/var/run/tezos/node -d -p 8732:8732 -p 9732:9732 tezos-node-"$DEPLOYMENT_ENV"
     (( $? == 0 )) || fatal "Unable to run tezos container, please check ports and current configurations"
 }
