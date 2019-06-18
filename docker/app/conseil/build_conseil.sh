@@ -30,6 +30,7 @@ build_conseil () {
     else
         git clone https://github.com/Cryptonomic/Conseil.git
         cd Conseil
+	git checkout bug/fix_connection_check
     fi
 
 

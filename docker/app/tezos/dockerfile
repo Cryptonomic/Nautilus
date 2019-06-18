@@ -7,4 +7,5 @@ EXPOSE 9732
 # P2P Mainnet
 EXPOSE 19732
 
+#RUN ["tezos-node", "config", "--data-dir", "/tezos-node-data"]
 CMD ["tezos-node", "--history-mode", "archive"]
