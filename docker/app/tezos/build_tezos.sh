@@ -18,7 +18,7 @@ build_tezos () {
 	docker container rm "$current_tezos_container"
 
     #createdocker volumes
-    docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/mnt/tezos-"$DEPLOYMENT_ENV" tznode_data-"$DEPLOYMENT_ENV"
+    #docker volume create --driver local --opt type=none --opt o=bind --opt device=$HOME/mnt/tezos-"$DEPLOYMENT_ENV" tznode_data-"$DEPLOYMENT_ENV"
 
     #make tezos subdirectory
     TEZOS_WORK_DIR="$WORKING_DIR"/tezos-node-"$DEPLOYMENT_ENV"
