@@ -7,7 +7,7 @@ Automation tools for deploying reproducible blockchain infrastructure.
 This document assumes there is a Tezos node running and shows how to setup containers for [Conseil](https://github.com/Cryptonomic/Conseil) and Postgres respectively.
 
 ### Prerequisites
-1. A Linix system, we use Ubuntu LTS releases.
+1. A Linux system, we use Ubuntu LTS releases.
 1. Docker installed and a non-root user added to the docker group in order to run the docker commands.
 1. A Scala build environment which can be installed as follows:
 ```sh
