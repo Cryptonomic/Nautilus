@@ -66,8 +66,8 @@ Note that the containers are named after the directories immediately inside `/do
 While the script in step 4 will spawn the images created at the end, starting them later can be done as follows.
 
 ```sh
-docker start conseil-local
-docker start postgres-local
+docker container start conseil-local
+docker container start postgres-local
 ```
 
 To stop the containers execute:
