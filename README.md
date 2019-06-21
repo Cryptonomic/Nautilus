@@ -66,8 +66,8 @@ Note that the containers are named after the directories immediately inside `/do
 While the script in step 4 will spawn the images created at the end, starting them later can be done as follows.
 
 ```sh
-docker run --name=postgres-local -v pgdata-local:/var/lib/postgresql/data -d -p 5432:5432 postgres-local
-docker run --name=conseil-local -d -p 1337:1337 conseil-local
+docker start conseil-local
+docker start postgres-local
 ```
 
 To stop the containers execute:
