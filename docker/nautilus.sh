@@ -105,13 +105,6 @@ DEPLOYMENT_ENV="$(basename "$PATH_TO_CONFIG")"
 (( $? == 0 )) || fatal "Unable to create working directory."
 
 
-docker network create nautilus
-. "$DIR"/app/conseil/build_conseil.sh
-. "$DIR"/app/postgres/build_postgres.sh
-. "$DIR"/app/tezos/build_tezos.sh
-
-
-
 remove_postgres_all () {
     docker container stop postgres-"$DEPLOYMENT_ENV"
 	docker container rm postgres-"$DEPLOYMENT_ENV"
@@ -120,7 +113,9 @@ remove_postgres_all () {
     rm -rf "$VOLUME_DIR"
 }
 
-
+. "$DIR"/app/conseil/build_conseil.sh
+. "$DIR"/app/postgres/build_postgres.sh
+. "$DIR"/app/tezos/build_tezos.sh
 
 
 #if conseil flag set build conseil container
@@ -134,8 +129,5 @@ remove_postgres_all () {
 
 #if postgres-volume flag remove postgres volumes
 [[ "$VOLUME" ]] && remove_postgres_all
-
-#tezos network protocol flag set check
-#[[ $tezosprotocol ]] && set_protocol
 
 exit 0

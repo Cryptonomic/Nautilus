@@ -42,6 +42,6 @@ build_postgres () {
     #build docker container
     docker build --build-arg CONSEILDB_USER=${CONSEILDB_USER} --build-arg CONSEILDB_PASSWORD=${CONSEILDB_PASSWORD} --build-arg CONSEILDB_DBNAME=${CONSEILDB_DBNAME}  -f dockerfile -t postgres-"$DEPLOYMENT_ENV" .
     (( $? == 0 )) || fatal "Unable to build postgres container"
-	docker run --name=postgres-"$DEPLOYMENT_ENV" --network=nautilus -v pgdata-"$DEPLOYMENT_ENV":/var/lib/postgresql/data -d -p 5432:5432 postgres-"$DEPLOYMENT_ENV"
+	docker run --name=postgres-"$DEPLOYMENT_ENV" --network=host -v pgdata-"$DEPLOYMENT_ENV":/var/lib/postgresql/data -d postgres-"$DEPLOYMENT_ENV"
     (( $? == 0 )) || fatal "Unable to run postgres container, please check ports 5432 and any running instances of postgres"
 }
