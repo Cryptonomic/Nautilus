@@ -1,0 +1,7 @@
+[package]
+name = "nautilus"
+version = "0.1.0"
+authors = ["Bhaskar Kishore"]
+edition = "2018"
+
+[dependencies]
