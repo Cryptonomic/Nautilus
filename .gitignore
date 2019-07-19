@@ -1,1 +1,4 @@
 .idea
+Nautilus.iml
+/target
+**/*.rs.bk
