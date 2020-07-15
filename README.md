@@ -4,11 +4,13 @@ This is a tool to automate the setup and installation of multiple Tezos nodes on
 
 This is a work in progress, don't kill me. 
 
-## Setup Instructions:
+## Prerequisistes:
 
-Run `setup_workspace.sh` before doing anything, this will downoad tezos, and install its dependencies, along with those for Conseil, and any of the other features built into this tool.
+You need to have `curl`, `wget`, `git`, `python3`, and `pip3` installed.
 
-This will ask for root privilege when running, which you should provice ONLY AFTER ENSURING THAT THE SCRIPT YOU ARE RUNNING IS DOING AS EXPECTED!
+You also need to install `flask` using `pip3`.
+
+I think that's it. Eventually there will be a `pip` requirements file, but until then, you're on you're own mate.
 
 ## Running Instructions:
 
@@ -18,11 +20,13 @@ We recommend that you do NOT interact with the nodes without the UI, as this can
 
 Please only start and stop nodes from the UI.
 
+Please respect the nodes, and the hard work they do. 
+
 ## Uninstall / Cleanup:
 
-Deleting the repository will delete all of the localy stored data.
-
-Installed dependencies using apt and PIP can be installed user their respective uninstall tools.
+Deleting the repository will delete all of the locally stored data.
 
 Docker images will be generated, which can be removed using docker's CLI. All of the images generated have the names `conseil-api-foo`, `conseil-lorre-foo`, or `arronax-foo` where `foo` is the name of the nodes installed.
+
+I'll probably create an uninstall button soon.
 
