@@ -23,6 +23,7 @@
         <br>
         <br>
         <input type="checkbox" name="restore"> Restore Node from Snapshot? <br>
+        <i>NOTE: This is not recommended for archive mode, it is better to bootstrap the node from scratch.</i> <br>
         <br>
         <br>
         <i>More Advanced Settings Coming Soon...</i>
@@ -36,27 +37,27 @@
 
     </textarea>
 
-    <script>
-        let startLogging = function() {
-            $.ajax({
-                type: "GET",
-                url: "/logs/",
-                data: {name: $("#name-field").val()},
-                dataType: "text",
-                success: function(data) {
-                    console.log(data);
-                    $("#output").innerHTML = data.logs;
-                }
-            });
-        }
+<!--    <script>-->
+<!--        let startLogging = function() {-->
+<!--            $.ajax({-->
+<!--                type: "GET",-->
+<!--                url: "/logs/",-->
+<!--                data: {name: $("#name-field").val()},-->
+<!--                dataType: "text",-->
+<!--                success: function(data) {-->
+<!--                    console.log(data);-->
+<!--                    $("#output").innerHTML = data.logs;-->
+<!--                }-->
+<!--            });-->
+<!--        }-->
 
-        $("#submit-button").click(function () {
-            setTimeout(function() {
-                while(true) {
-                    startLogging();
-                }
-            }, 1000);
-        });
-    </script>
+<!--        $("#submit-button").click(function () {-->
+<!--            setTimeout(function() {-->
+<!--                while(true) {-->
+<!--                    startLogging();-->
+<!--                }-->
+<!--            }, 1000);-->
+<!--        });-->
+<!--    </script>-->
 </body>
 </html>
