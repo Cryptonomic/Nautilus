@@ -7,6 +7,11 @@
 </head>
 <body>
     <h1>Setup your Node</h1>
+    {% for message in get_flashed_messages() %}
+        <br>
+        <i>{{ message }}</i>
+        <br>
+    {% endfor %}
     <form action="/start_node">
         Name: <input type="text" name="name" id="name-field">
         <br>
@@ -32,32 +37,5 @@
         <button type="submit" id="submit-button">Submit</button>
         <br>
     </form>
-
-    <textarea id="output">
-
-    </textarea>
-
-<!--    <script>-->
-<!--        let startLogging = function() {-->
-<!--            $.ajax({-->
-<!--                type: "GET",-->
-<!--                url: "/logs/",-->
-<!--                data: {name: $("#name-field").val()},-->
-<!--                dataType: "text",-->
-<!--                success: function(data) {-->
-<!--                    console.log(data);-->
-<!--                    $("#output").innerHTML = data.logs;-->
-<!--                }-->
-<!--            });-->
-<!--        }-->
-
-<!--        $("#submit-button").click(function () {-->
-<!--            setTimeout(function() {-->
-<!--                while(true) {-->
-<!--                    startLogging();-->
-<!--                }-->
-<!--            }, 1000);-->
-<!--        });-->
-<!--    </script>-->
 </body>
 </html>

@@ -1,5 +1,7 @@
 #!/bin/bash
 
-docker stop "tezos-node-$1"
+name=$1
 
-#screen -XS "$1" quit
+cd "util/docker-compose/$name" || exit 1
+
+docker-compose stop

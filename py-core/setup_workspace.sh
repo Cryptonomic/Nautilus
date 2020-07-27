@@ -1,31 +1,36 @@
 #!/bin/bash
 
-#DEPENDENCIES FOR NODE
+# Pull Tezos Docker Image
+docker pull tezos/tezos:latest-release
 
-sudo apt-get install curl
+# Build Arronax Image Locally
+git clone https://github.com/Cryptonomic/Arronax.git
 
-sudo apt-get install python3
+cd Arronax
 
-sudo apt-get install python3-pip
+touch src/config.tsx
 
-sudo apt-get install screen
+echo "import { Config } from './types';
 
-pip3 install flask
+const configs: Config[] = [
+  {
+    platform: 'tezos',
+    network: 'mainnet',
+    displayName: 'Tezos Mainnet',
+    url: 'http://conseil-api:80',
+    apiKey: 'conseil',
+    nodeUrl: 'http://tezos-node:8732',
+    entities: ['blocks', 'operations', 'accounts', 'bakers', 'governance'],
+    hiddenEntities: ['originated_account_maps', 'big_maps', 'big_map_contents']
+  }
+]
 
-pip3 install psutil
+export default configs;
+" >> src/config.tsx
 
-cd app
+docker build -t arronax .
 
-#./util/scripts/install_packages.sh
+# shellcheck disable=SC2103
+cd ..
 
-./util/scripts/setup_tezos.sh
-
-#./util/scripts/build_tezos.sh
-
-sudo apt-get install git
-
-sudo apt-get install docker.io
-
-sudo groupadd docker
-
-sudo usermod -aG docker $USER
+rm -rf Arronax
