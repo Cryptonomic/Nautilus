@@ -189,6 +189,7 @@ def delete_node():
               "delete_node.sh " +
               p_name
               )
+    shutil.rmtree(DOCKER_COMPOSE_FILE_PATH + p_name)
     remove_node(p_name)
     return redirect("/")
 
