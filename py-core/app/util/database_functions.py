@@ -78,14 +78,12 @@ def update_status(name, status):
     database.commit()
 
 
-def get_max_port():
+def get_max_arronax_port():
     database = sqlite3.connect(DATABASE_PATH)
     cursor = database.cursor()
     command = """SELECT MAX(arronax_port) FROM 'nodes';"""
     cursor.execute(command)
     result = cursor.fetchone()
-    if result[0] is None:
-        return 50000
     return result[0]
 
 

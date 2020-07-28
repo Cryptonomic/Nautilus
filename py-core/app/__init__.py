@@ -27,9 +27,14 @@ CARTHAGENET_ROLLING_SNAPSHOT = "https://conseil-snapshots.s3.amazonaws.com/tezos
 MAINNET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-data.tar.gz"
 CARTHAGENET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-data.tar.gz"
 
+# Where the ports should start counting off from
+STARTING_PORT_LOCATION = 50000
+
 
 def get_next_port():
-    port = get_max_port() + 1
+    port = get_max_arronax_port()
+    if port is None:
+        port = STARTING_PORT_LOCATION
     ports = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     while True:
         if ports.connect_ex(("127.0.0.1", port)) != 0:
