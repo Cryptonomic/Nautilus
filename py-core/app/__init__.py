@@ -157,7 +157,7 @@ def node_start_page():
 
 @app.route("/stop_node", methods=["GET"])
 def stop_node():
-    p_name = request.args.get('name')
+    p_name = str(request.args.get('name'))
     os.system(SCRIPT_FILE_PATH +
               "stop_node.sh " +
               p_name
@@ -169,39 +169,35 @@ def stop_node():
 @app.route("/restart_node", methods=['GET'])
 def restart_node():
     p_name = str(request.args.get("name"))
-
     os.system(SCRIPT_FILE_PATH +
               "restart_node.sh " +
               p_name
               )
-
     update_status(p_name, "running")
     return redirect("/node?name=" + p_name)
 
 
 @app.route("/delete_node", methods=['GET'])
 def delete_node():
-    name = str(request.args.get("name"))
-
+    p_name = str(request.args.get("name"))
     os.system(SCRIPT_FILE_PATH +
               "delete_node.sh " +
-              name
+              p_name
               )
-
-    remove_node(name)
+    remove_node(p_name)
     return redirect("/")
 
 
 @app.route("/node", methods=["GET"])
 def node_page():
-    p_name = request.args.get("name")
+    p_name = str(request.args.get("name"))
     data = get_node_data(p_name)
     return render_template("node.html", node=data)
 
 
 @app.route("/rpc", methods=['GET'])
 def node_rpc_page():
-    p_name = request.args.get("name")
+    p_name = str(request.args.get("name"))
     data = get_node_data(p_name)
     return render_template("rpc.html", node=data)
 
