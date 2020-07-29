@@ -6,11 +6,9 @@ This is a work in progress, don't kill me.
 
 ## Prerequisistes:
 
-You need to have `curl`, `wget`, `git`, `python3`, and `pip3` installed.
+You need to have `wget`, `git`, `python3`, and `pip3` installed.
 
-You also need to install `flask` using `pip3`.
-
-I think that's it. Eventually there will be a `pip` requirements file, but until then, you're on you're own mate.
+The app runs inside a python `venv` so it won't be adding things to your system.
 
 ## Running Instructions:
 

@@ -138,6 +138,9 @@ def node_start_page():
     text = text.replace("\"TEZOS NETWORK\"",
                         "\"{}\"".format(p_network)
                         )
+    text = text.replace("image: arronax",
+                        "image: arronax-{}".format(p_network)
+                        )
     text = text.replace("\"3080:80\"",
                         "\"{}:80\"".format(data["arronax_port"])
                         )
