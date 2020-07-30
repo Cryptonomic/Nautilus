@@ -5,6 +5,8 @@ services:
   tezos-node:
     image: tezos/tezos:latest-release
     restart: always
+    ports:
+      - "8732:8732"
     expose:
       - 8732
     command: "NODE START COMMAND"
@@ -57,6 +59,8 @@ services:
       XTZ_Port: 8732
       XTZ_Network: "TEZOS NETWORK"
     command: "conseil"
+    ports:
+      - "4080:80"
     expose:
       - 80
     networks:

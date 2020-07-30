@@ -10,6 +10,8 @@ def setup_database():
     command = """CREATE TABLE IF NOT EXISTS 'nodes' (
         name VARCHAR PRIMARY KEY,
         arronax_port INTEGER,
+        conseil_port INTEGER,
+        node_port INTEGER,
         network VARCHAR,
         history_mode VARCHAR,
         status VARCHAR 
@@ -42,9 +44,11 @@ def result_to_dict(data):
     output = dict()
     output['name'] = data[0]
     output['arronax_port'] = data[1]
-    output['network'] = data[2]
-    output['history_mode'] = data[3]
-    output['status'] = data[4]
+    output['conseil_port'] = data[2]
+    output['node_port'] = data[3]
+    output['network'] = data[4]
+    output['history_mode'] = data[5]
+    output['status'] = data[6]
     return output
 
 
@@ -59,9 +63,11 @@ def get_node_data(name):
 def add_node(data):
     database = sqlite3.connect(DATABASE_PATH)
     cursor = database.cursor()
-    command = """INSERT INTO 'nodes' VALUES ("{}", {}, "{}", "{}", "{}");""".format(
+    command = """INSERT INTO 'nodes' VALUES ("{}", {}, {}, {}, "{}", "{}", "{}");""".format(
         data["name"],
         data["arronax_port"],
+        data["conseil_port"],
+        data["node_port"],
         data["network"],
         data["history_mode"],
         data["status"]
@@ -78,10 +84,10 @@ def update_status(name, status):
     database.commit()
 
 
-def get_max_arronax_port():
+def get_max_node_port():
     database = sqlite3.connect(DATABASE_PATH)
     cursor = database.cursor()
-    command = """SELECT MAX(arronax_port) FROM 'nodes';"""
+    command = """SELECT MAX(node_port) FROM 'nodes';"""
     cursor.execute(command)
     result = cursor.fetchone()
     return result[0]

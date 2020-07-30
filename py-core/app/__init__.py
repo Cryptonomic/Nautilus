@@ -31,15 +31,20 @@ CARTHAGENET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-data.ta
 STARTING_PORT_LOCATION = 50000
 
 
-def get_next_port():
-    port = get_max_arronax_port()
+def get_next_port(num_ports):
+    output = list()
+    port = get_max_node_port()
     if port is None:
         port = STARTING_PORT_LOCATION
     ports = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    while True:
-        if ports.connect_ex(("127.0.0.1", port)) != 0:
-            return port
-        port += 1
+    for x in range(num_ports):
+        port_not_found = True
+        while port_not_found:
+            if ports.connect_ex(("127.0.0.1", port)) != 0:
+                output.append(port)
+                port_not_found = False
+            port += 1
+    return output
 
 
 @app.route("/")
@@ -66,10 +71,14 @@ def node_start_page():
         flash("The name you have provided is already being used.", "error")
         return render_template("node_options.html")
 
+    ports = get_next_port(3)
+
     # Store data for this network
     data = dict()
     data["name"] = p_name
-    data["arronax_port"] = get_next_port()
+    data["arronax_port"] = ports[0]
+    data["conseil_port"] = ports[1]
+    data["node_port"] = ports[2]
     data["network"] = p_network
     data["history_mode"] = p_history_mode
     data["status"] = "starting"
@@ -143,6 +152,12 @@ def node_start_page():
                         )
     text = text.replace("\"3080:80\"",
                         "\"{}:80\"".format(data["arronax_port"])
+                        )
+    text = text.replace("\"4080:80\"",
+                        "\"{}:80\"".format(data["conseil_port"])
+                        )
+    text = text.replace("\"8732:8732\"",
+                        "\"{}:8732\"".format(data["node_port"])
                         )
 
     file = open(DOCKER_COMPOSE_FILE_PATH + p_name + "/docker-compose.yml", "w")

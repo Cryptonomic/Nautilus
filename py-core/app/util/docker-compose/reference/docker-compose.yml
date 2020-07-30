@@ -5,6 +5,8 @@ services:
   tezos-node:
     image: tezos/tezos:latest-release
     restart: always
+    ports:
+      - "8732:8732"
     expose:
       - 8732
     command: "tezos-node --cors-header='content-type' --cors-origin='*' --history-mode full --network mainnet --rpc-addr 0.0.0.0:8732"
@@ -55,6 +57,8 @@ services:
       XTZ_Port: 8732
       XTZ_Network: "mainnet"
     command: "conseil"
+    ports:
+      - "4080:80"
     expose:
       - 80
     networks:
