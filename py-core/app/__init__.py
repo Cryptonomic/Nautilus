@@ -75,7 +75,7 @@ def node_start_page():
 
     # Store data for this network
     data = dict()
-    data["name"] = p_name
+    data["name"] = p_name.lower().replace("-", "_")
     data["arronax_port"] = ports[0]
     data["conseil_port"] = ports[1]
     data["node_port"] = ports[2]
