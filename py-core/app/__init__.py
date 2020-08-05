@@ -1,12 +1,7 @@
 from flask import Flask, render_template, request, redirect, flash
-import os
-import socket
-import shutil
-import wget
-import tarfile
-import docker
+# import rq
 
-from util.database_functions import *
+from util.tezos_node_functions import *
 
 SECRET_KEY = "driptonomic"
 
@@ -15,36 +10,6 @@ app = Flask(__name__)
 # Path to location of shell scripts
 SCRIPT_FILE_PATH = "./util/scripts/"
 DOCKER_COMPOSE_FILE_PATH = "util/docker-compose/"
-
-# TODO: CHANGE THESE LINKS
-# Snapshot Download URLs
-MAINNET_FULL_SNAPSHOT = "https://conseil-snapshots.s3.amazonaws.com/tezos-node_snapshot-latest.full"
-MAINNET_ROLLING_SNAPSHOT = "https://conseil-snapshots.s3.amazonaws.com/tezos-node_snapshot-latest.full"
-CARTHAGENET_FULL_SNAPSHOT = "https://conseil-snapshots.s3.amazonaws.com/tezos-node_snapshot-latest.full"
-CARTHAGENET_ROLLING_SNAPSHOT = "https://conseil-snapshots.s3.amazonaws.com/tezos-node_snapshot-latest.full"
-
-# Data-Directory Download URLs
-MAINNET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-data.tar.gz"
-CARTHAGENET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-data.tar.gz"
-
-# Where the ports should start counting off from
-STARTING_PORT_LOCATION = 50000
-
-
-def get_next_port(num_ports):
-    output = list()
-    port = get_max_node_port()
-    if port is None:
-        port = STARTING_PORT_LOCATION
-    ports = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    for x in range(num_ports):
-        port_not_found = True
-        while port_not_found:
-            if ports.connect_ex(("127.0.0.1", port)) != 0:
-                output.append(port)
-                port_not_found = False
-            port += 1
-    return output
 
 
 @app.route("/")
@@ -67,13 +32,8 @@ def node_start_page():
     p_network = str(request.args.get("network"))
     p_history_mode = str(request.args.get("mode"))
 
-    if is_name_taken(p_name):
-        flash("The name you have provided is already being used.", "error")
-        return render_template("node_options.html")
-
     ports = get_next_port(3)
 
-    # Store data for this network
     data = dict()
     data["name"] = p_name.lower().replace("-", "_")
     data["arronax_port"] = ports[0]
@@ -81,99 +41,14 @@ def node_start_page():
     data["node_port"] = ports[2]
     data["network"] = p_network
     data["history_mode"] = p_history_mode
+    data["restore"] = p_snapshot_restore
     data["status"] = "starting"
 
-    data_location = DOCKER_COMPOSE_FILE_PATH + p_name
-    filename = ""
+    if is_name_taken(p_name):
+        flash("The name you have provided is already being used.", "error")
+        return render_template("node_options.html")
 
-    # Start Node
-    if p_snapshot_restore:
-        shutil.copytree(DOCKER_COMPOSE_FILE_PATH + "reference-snapshot", DOCKER_COMPOSE_FILE_PATH + p_name)
-
-        if p_network == "mainnet" and p_history_mode == "archive":
-            filename = wget.download(MAINNET_DATA_DIR, data_location)
-
-        if p_network == "mainnet" and p_history_mode == "full":
-            filename = wget.download(MAINNET_FULL_SNAPSHOT, data_location)
-
-        if p_network == "mainnet" and p_history_mode == "rolling":
-            filename = wget.download(MAINNET_ROLLING_SNAPSHOT, data_location)
-
-        if p_network == "carthagenet" and p_history_mode == "archive":
-            filename = wget.download(CARTHAGENET_DATA_DIR, data_location)
-
-        if p_network == "carthagenet" and p_history_mode == "full":
-            filename = wget.download(CARTHAGENET_FULL_SNAPSHOT, data_location)
-
-        if p_network == "carthagenet" and p_history_mode == "rolling":
-            filename = wget.download(CARTHAGENET_ROLLING_SNAPSHOT, data_location)
-
-        if p_history_mode == "archive":
-            file = tarfile.open(data_location + "/tezos-data.tar.gz")
-            file.extractall(data_location)
-            file.close()
-            os.remove(data_location + "/tezos-data.tar.gz")
-        else:
-            docker_volumes = dict()
-
-            docker_volumes[os.getcwd() + DOCKER_COMPOSE_FILE_PATH + p_name + "/tezos-data"] = dict()
-            docker_volumes[os.getcwd() + DOCKER_COMPOSE_FILE_PATH + p_name + "/tezos-data"]["bind"] = "/var/run/tezos"
-            docker_volumes[os.getcwd() + DOCKER_COMPOSE_FILE_PATH + p_name + "/tezos-data"]["mode"] = "rw"
-
-            docker_volumes[os.getcwd() + DOCKER_COMPOSE_FILE_PATH + p_name + "/" + filename] = dict()
-            docker_volumes[os.getcwd() + DOCKER_COMPOSE_FILE_PATH + p_name + "/" + filename]["bind"] = "/snapshot"
-            docker_volumes[os.getcwd() + DOCKER_COMPOSE_FILE_PATH + p_name + "/" + filename]["mode"] = "rw"
-
-            docker_client = docker.from_env()
-            docker_client.containers.run("tezos/tezos:latest-release",
-                                         "tezos-snapshot-import",
-                                         auto_remove=True,
-                                         volumes=docker_volumes
-                                         )
-    else:
-        shutil.copytree(DOCKER_COMPOSE_FILE_PATH + "reference", DOCKER_COMPOSE_FILE_PATH + p_name)
-
-    file = open(DOCKER_COMPOSE_FILE_PATH + p_name + "/docker-compose.yml", "r")
-    text = file.read()
-    file.close()
-
-    text = text.replace("\"NODE START COMMAND\"",
-                        "\"tezos-node --cors-header='content-type' --cors-origin='*' --history-mode {history_mode} --network {network} --rpc-addr 0.0.0.0:8732\""
-                        .format(
-                            history_mode=p_history_mode,
-                            network=p_network
-                            )
-                        )
-    text = text.replace("\"TEZOS NETWORK\"",
-                        "\"{}\"".format(p_network)
-                        )
-    text = text.replace("image: arronax",
-                        "image: arronax-{}".format(p_network)
-                        )
-    text = text.replace("\"3080:80\"",
-                        "\"{}:80\"".format(data["arronax_port"])
-                        )
-    text = text.replace("\"4080:80\"",
-                        "\"{}:80\"".format(data["conseil_port"])
-                        )
-    text = text.replace("\"8732:8732\"",
-                        "\"{}:8732\"".format(data["node_port"])
-                        )
-
-    file = open(DOCKER_COMPOSE_FILE_PATH + p_name + "/docker-compose.yml", "w")
-    file.write(text)
-    file.close()
-
-    os.system(SCRIPT_FILE_PATH +
-              "start_node.sh" +
-              " " +
-              p_name
-              )
-
-    # Store node process statistics
-    data["status"] = "running"
-
-    add_node(data)
+    create_node(data)
 
     return redirect("/")
 
