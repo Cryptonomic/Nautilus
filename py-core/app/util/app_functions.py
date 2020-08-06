@@ -1,4 +1,5 @@
 import socket
+import docker
 
 from util.database_functions import *
 
@@ -20,3 +21,19 @@ def get_next_port(num_ports):
                 port_not_found = False
             port += 1
     return output
+
+
+def setup_job_queue_server():
+    try:
+        ports = dict()
+        ports["6379"] = "6379"
+        docker_client = docker.from_env()
+        docker_client.containers.run("redis",
+                                     "redis-server",
+                                     auto_remove=True,
+                                     detach=True,
+                                     ports=ports,
+                                     name="nautilus-core-redis"
+                                     )
+    except docker.errors.APIError as e:
+        bruh = True

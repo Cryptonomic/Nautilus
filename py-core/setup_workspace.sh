@@ -3,6 +3,9 @@
 # Pull Tezos Docker Image
 docker pull tezos/tezos:latest-release
 
+# Pull Redis Docker Container for Python Job Queue
+docker pull redis
+
 # Build Mainnet Arronax Image Locally
 git clone https://github.com/Cryptonomic/Arronax.git
 

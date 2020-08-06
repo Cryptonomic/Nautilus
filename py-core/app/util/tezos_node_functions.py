@@ -1,6 +1,5 @@
 import wget
 import tarfile
-import docker
 import os
 import shutil
 
@@ -110,7 +109,26 @@ def create_node(data):
               data["name"]
               )
 
-    # Store node process statistics
-    data["status"] = "running"
+    update_status(data["name"], "running")
 
-    add_node(data)
+
+def stop_node(name):
+    os.system(SCRIPT_FILE_PATH +
+              "stop_node.sh " +
+              name
+              )
+
+
+def delete_node(name):
+    os.system(SCRIPT_FILE_PATH +
+              "delete_node.sh " +
+              name
+              )
+    shutil.rmtree(DOCKER_COMPOSE_FILE_PATH + name)
+
+
+def restart_node(name):
+    os.system(SCRIPT_FILE_PATH +
+              "restart_node.sh " +
+              name
+              )
