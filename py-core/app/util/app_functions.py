@@ -1,7 +1,9 @@
 import socket
 import docker
+from conseil import conseil
 
 from util.database_functions import *
+from util.tezos_node_functions import get_node_logs
 
 
 STARTING_PORT_LOCATION = 50000
@@ -37,3 +39,35 @@ def setup_job_queue_server():
                                      )
     except docker.errors.APIError as e:
         bruh = True
+
+
+def get_latest_block_level(network):
+    if network == "mainnet":
+        return conseil.tezos.mainnet.blocks.head
+    return conseil.tezos.carthagenet.blocks.head
+
+
+def parse_logs(name):
+    logs = get_node_logs(name)
+    log_lines = logs.splitlines()
+    block_level = 0
+    network = get_network(name)
+    for line in log_lines:
+        words = line.split(" ")
+
+        # Check if still bootstrapping
+        if get_status(name) == "bootstrapping":
+            if "validator.chain: Update current head to" in line and "level" in line:
+                level = words[words.index("(level") + 1].replace(",", "")
+                if int(level) > block_level:
+                    block_level = int(level)
+
+    if int(block_level) < get_latest_block_level(network):
+        update_status(name, "bootstrapping")
+    else:
+        update_status(name, "running")
+
+
+def update_node_status():
+    for node in get_node_names():
+        parse_logs(node)

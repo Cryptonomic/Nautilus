@@ -76,6 +76,23 @@ def add_node(data):
     database.commit()
 
 
+def get_status(name):
+    database = sqlite3.connect(DATABASE_PATH)
+    cursor = database.cursor()
+    command = """SELECT status FROM 'nodes' WHERE name="{}";""".format(name)
+    cursor.execute(command)
+    result = cursor.fetchone()
+    return result[0]
+
+def get_network(name):
+    database = sqlite3.connect(DATABASE_PATH)
+    cursor = database.cursor()
+    command = """SELECT network FROM 'nodes' WHERE name="{}";""".format(name)
+    cursor.execute(command)
+    result = cursor.fetchone()
+    return result[0]
+
+
 def update_status(name, status):
     database = sqlite3.connect(DATABASE_PATH)
     cursor = database.cursor()

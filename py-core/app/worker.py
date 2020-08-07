@@ -1,16 +1,21 @@
 import os
 import redis
+import time
 from util.app_functions import setup_job_queue_server
 from rq import Worker, Queue, Connection
 
+import docker
+from conseil import conseil
+
 listen = ['default']
 
-redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
+redis_url = 'redis://localhost:6379'
 
 conn = redis.from_url(redis_url)
 
 if __name__ == '__main__':
     setup_job_queue_server()
+    time.sleep(1)
     with Connection(conn):
         worker = Worker(list(map(Queue, listen)))
         worker.work()

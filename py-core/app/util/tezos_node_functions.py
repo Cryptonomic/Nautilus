@@ -109,7 +109,7 @@ def create_node(data):
               data["name"]
               )
 
-    update_status(data["name"], "running")
+    update_status(data["name"], "bootstrapping")
 
 
 def stop_node(name):
@@ -132,3 +132,19 @@ def restart_node(name):
               "restart_node.sh " +
               name
               )
+
+
+def get_node_logs(name):
+    os.system(SCRIPT_FILE_PATH +
+              "save_node_logs.sh " +
+              name
+              )
+    logfile = open(DOCKER_COMPOSE_FILE_PATH +
+                   name +
+                   "/" +
+                   "log.tzlog",
+                   "r"
+                   )
+    output = logfile.read()
+    logfile.close()
+    return output

@@ -12,6 +12,8 @@ services:
     command: "tezos-node --cors-header='content-type' --cors-origin='*' --history-mode full --network mainnet --rpc-addr 0.0.0.0:8732"
     networks:
       - tezos
+    logging:
+      driver: "json-file"
 
   conseil-postgres:
     image: postgres:11.6
@@ -27,6 +29,8 @@ services:
       - tezos
     volumes:
       - ../../data/conseil.sql:/docker-entrypoint-initdb.d/conseil.sql
+    logging:
+      driver: "json-file"
 
   conseil-lorre:
     image: cryptonomictech/conseil:latest
@@ -43,6 +47,8 @@ services:
     command: "lorre"
     networks:
       - tezos
+    logging:
+      driver: "json-file"
 
   conseil-api:
     image: cryptonomictech/conseil:latest
@@ -63,6 +69,8 @@ services:
       - 80
     networks:
       - tezos
+    logging:
+      driver: "json-file"
 
   arronax:
     image: arronax
@@ -71,6 +79,8 @@ services:
       - "3080:80"
     networks:
       - tezos
+    logging:
+      driver: "json-file"
 
 networks:
   tezos:
