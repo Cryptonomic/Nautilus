@@ -1,10 +1,11 @@
-import os
 import redis
 import time
 from util.app_functions import setup_job_queue_server
 from rq import Worker, Queue, Connection
 
+# Imports for the job queue worker
 import docker
+import os
 from conseil import conseil
 
 listen = ['default']
