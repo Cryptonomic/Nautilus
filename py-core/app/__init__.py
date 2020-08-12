@@ -19,7 +19,7 @@ DOCKER_COMPOSE_FILE_PATH = "util/docker-compose/"
 @app.route("/")
 def start_page():
     nodes = db.get_node_names()
-    update_node_status()
+    # update_node_status()
     job_queue.enqueue_call(func=update_node_status, result_ttl=-1)
     return render_template("index.html", nodes=nodes)
 

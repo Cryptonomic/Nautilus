@@ -71,12 +71,12 @@ def add_node(data):
 
 def get_status(name):
     command = """SELECT status FROM 'nodes' WHERE name="{}";""".format(name)
-    return execute(command)[0]
+    return execute(command)[0][0]
 
 
 def get_network(name):
     command = """SELECT network FROM 'nodes' WHERE name="{}";""".format(name)
-    return execute(command)[0]
+    return execute(command)[0][0]
 
 
 def update_status(name, status):
@@ -86,7 +86,7 @@ def update_status(name, status):
 
 def get_max_node_port():
     command = """SELECT MAX(node_port) FROM 'nodes';"""
-    return execute(command)[0]
+    return execute(command)[0][0]
 
 
 def remove_node(name):
