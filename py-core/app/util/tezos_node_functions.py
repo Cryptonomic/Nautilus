@@ -54,14 +54,16 @@ def create_node(data):
             os.remove(data_location + "/tezos-data.tar.gz")
         else:
             docker_volumes = dict()
+            docker_data_path = os.getcwd() + DOCKER_COMPOSE_FILE_PATH + data["name"] + "/tezos-data"
+            docker_snapshot_path = os.getcwd() + DOCKER_COMPOSE_FILE_PATH + data["name"] + "/"
 
-            docker_volumes[os.getcwd() + DOCKER_COMPOSE_FILE_PATH + data["name"] + "/tezos-data"] = dict()
-            docker_volumes[os.getcwd() + DOCKER_COMPOSE_FILE_PATH + data["name"] + "/tezos-data"]["bind"] = "/var/run/tezos"
-            docker_volumes[os.getcwd() + DOCKER_COMPOSE_FILE_PATH + data["name"] + "/tezos-data"]["mode"] = "rw"
+            docker_volumes[docker_data_path] = dict()
+            docker_volumes[docker_data_path]["bind"] = "/var/run/tezos"
+            docker_volumes[docker_data_path]["mode"] = "rw"
 
-            docker_volumes[os.getcwd() + DOCKER_COMPOSE_FILE_PATH + data["name"] + "/" + filename] = dict()
-            docker_volumes[os.getcwd() + DOCKER_COMPOSE_FILE_PATH + data["name"] + "/" + filename]["bind"] = "/snapshot"
-            docker_volumes[os.getcwd() + DOCKER_COMPOSE_FILE_PATH + data["name"] + "/" + filename]["mode"] = "rw"
+            docker_volumes[docker_snapshot_path + filename] = dict()
+            docker_volumes[docker_snapshot_path + filename]["bind"] = "/snapshot"
+            docker_volumes[docker_snapshot_path + filename]["mode"] = "rw"
 
             docker_client = docker.from_env()
             docker_client.containers.run("tezos/tezos:latest-release",
