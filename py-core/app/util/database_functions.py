@@ -4,9 +4,15 @@ import sqlite3
 DATABASE_PATH = "./node_database.db"
 
 
-def setup_database():
+def execute(command):
     database = sqlite3.connect(DATABASE_PATH)
     cursor = database.cursor()
+    cursor.execute(command)
+    database.commit()
+    return cursor.fetchall()
+
+
+def setup_database():
     command = """CREATE TABLE IF NOT EXISTS 'nodes' (
         name VARCHAR PRIMARY KEY,
         arronax_port INTEGER,
@@ -16,24 +22,17 @@ def setup_database():
         history_mode VARCHAR,
         status VARCHAR 
         );"""
-    cursor.execute(command)
-    database.commit()
+    execute(command)
 
 
 def is_name_taken(name):
-    database = sqlite3.connect(DATABASE_PATH)
-    cursor = database.cursor()
     command = """SELECT name FROM 'nodes' WHERE name="{}";""".format(name)
-    cursor.execute(command)
-    return not cursor.fetchall() == []
+    return not execute(command) == []
 
 
 def get_node_names():
-    database = sqlite3.connect(DATABASE_PATH)
-    cursor = database.cursor()
     command = """SELECT name FROM 'nodes';"""
-    cursor.execute(command)
-    data = cursor.fetchall()
+    data = execute(command)
     output = list()
     for item in data:
         output.append(item[0])
@@ -53,16 +52,11 @@ def result_to_dict(data):
 
 
 def get_node_data(name):
-    database = sqlite3.connect(DATABASE_PATH)
-    cursor = database.cursor()
     command = """SELECT * FROM 'nodes' WHERE nodes.name="{}";""".format(name)
-    cursor.execute(command)
-    return result_to_dict(cursor.fetchone())
+    return result_to_dict(execute(command)[0])
 
 
 def add_node(data):
-    database = sqlite3.connect(DATABASE_PATH)
-    cursor = database.cursor()
     command = """INSERT INTO 'nodes' VALUES ("{}", {}, {}, {}, "{}", "{}", "{}");""".format(
         data["name"],
         data["arronax_port"],
@@ -72,47 +66,29 @@ def add_node(data):
         data["history_mode"],
         data["status"]
     )
-    cursor.execute(command)
-    database.commit()
+    execute(command)
 
 
 def get_status(name):
-    database = sqlite3.connect(DATABASE_PATH)
-    cursor = database.cursor()
     command = """SELECT status FROM 'nodes' WHERE name="{}";""".format(name)
-    cursor.execute(command)
-    result = cursor.fetchone()
-    return result[0]
+    return execute(command)[0]
+
 
 def get_network(name):
-    database = sqlite3.connect(DATABASE_PATH)
-    cursor = database.cursor()
     command = """SELECT network FROM 'nodes' WHERE name="{}";""".format(name)
-    cursor.execute(command)
-    result = cursor.fetchone()
-    return result[0]
+    return execute(command)[0]
 
 
 def update_status(name, status):
-    database = sqlite3.connect(DATABASE_PATH)
-    cursor = database.cursor()
     command = """UPDATE 'nodes' SET status="{}" WHERE name="{}";""".format(status, name)
-    cursor.execute(command)
-    database.commit()
+    execute(command)
 
 
 def get_max_node_port():
-    database = sqlite3.connect(DATABASE_PATH)
-    cursor = database.cursor()
     command = """SELECT MAX(node_port) FROM 'nodes';"""
-    cursor.execute(command)
-    result = cursor.fetchone()
-    return result[0]
+    return execute(command)[0]
 
 
 def remove_node(name):
-    database = sqlite3.connect(DATABASE_PATH)
-    cursor = database.cursor()
     command = """DELETE FROM 'nodes' WHERE name="{}";""".format(name)
-    cursor.execute(command)
-    database.commit()
+    execute(command)
