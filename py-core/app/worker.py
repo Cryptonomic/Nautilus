@@ -7,6 +7,9 @@ from rq import Worker, Queue, Connection
 import docker
 import os
 from conseil import conseil
+from sqlalchemy import *
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 listen = ['default']
 

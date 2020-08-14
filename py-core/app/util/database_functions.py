@@ -1,94 +1,98 @@
-import sqlite3
+from sqlalchemy import *
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 
-DATABASE_PATH = "./node_database.db"
+DATABASE_PATH = "/node_database.db"
+
+# Setup code base for sqlalchemy
+Base = declarative_base()
+engine = create_engine('sqlite://{}'.format(DATABASE_PATH))
+Session = sessionmaker(bind=engine)
+session = Session()
 
 
-def execute(command):
-    database = sqlite3.connect(DATABASE_PATH)
-    cursor = database.cursor()
-    cursor.execute(command)
-    database.commit()
-    return cursor.fetchall()
+class Node(Base):
+    # Setup sqlalchemy tablename
+    __tablename__ = "nodes"
+    # Define table schema
+    name = Column(String, primary_key=True)
+    arronax_port = Column(Integer)
+    conseil_port = Column(Integer)
+    node_port = Column(Integer)
+    network = Column(String)
+    history_mode = Column(String)
+    status = Column(String)
 
 
 def setup_database():
-    command = """CREATE TABLE IF NOT EXISTS 'nodes' (
-        name VARCHAR PRIMARY KEY,
-        arronax_port INTEGER,
-        conseil_port INTEGER,
-        node_port INTEGER,
-        network VARCHAR,
-        history_mode VARCHAR,
-        status VARCHAR 
-        );"""
-    execute(command)
+    Base.metadata.create_all(engine)
 
 
 def is_name_taken(name):
-    command = """SELECT name FROM 'nodes' WHERE name="{}";""".format(name)
-    return not execute(command) == []
+    query = session.query(Node).filter_by(name=name)
+    return query.count() > 0
 
 
 def get_node_names():
-    command = """SELECT name FROM 'nodes';"""
-    data = execute(command)
+    query = session.query(Node.name).all()
     output = list()
-    for item in data:
-        output.append(item[0])
+    for node in query:
+        output.append(node[0])
     return output
 
 
 def result_to_dict(data):
     output = dict()
-    output['name'] = data[0]
-    output['arronax_port'] = data[1]
-    output['conseil_port'] = data[2]
-    output['node_port'] = data[3]
-    output['network'] = data[4]
-    output['history_mode'] = data[5]
-    output['status'] = data[6]
+    output['name'] = data.name
+    output['arronax_port'] = data.arronax_port
+    output['conseil_port'] = data.conseil_port
+    output['node_port'] = data.node_port
+    output['network'] = data.network
+    output['history_mode'] = data.history_mode
+    output['status'] = data.status
     return output
 
 
 def get_node_data(name):
-    command = """SELECT * FROM 'nodes' WHERE nodes.name="{}";""".format(name)
-    return result_to_dict(execute(command)[0])
+    query = session.query(Node).filter_by(name=name).first()
+    return result_to_dict(query)
 
 
 def add_node(data):
-    command = """INSERT INTO 'nodes' VALUES ("{}", {}, {}, {}, "{}", "{}", "{}");""".format(
-        data["name"],
-        data["arronax_port"],
-        data["conseil_port"],
-        data["node_port"],
-        data["network"],
-        data["history_mode"],
-        data["status"]
-    )
-    execute(command)
+    node = Node(name=data["name"],
+                arronax_port=data["arronax_port"],
+                conseil_port=data["conseil_port"],
+                node_port=data["node_port"],
+                network=data["network"],
+                history_mode=data["history_mode"],
+                status=data["status"]
+                )
+    session.add(node)
+    session.commit()
 
 
 def get_status(name):
-    command = """SELECT status FROM 'nodes' WHERE name="{}";""".format(name)
-    return execute(command)[0][0]
+    query = session.query(Node).filter_by(name=name).first()
+    return query.status
 
 
 def get_network(name):
-    command = """SELECT network FROM 'nodes' WHERE name="{}";""".format(name)
-    return execute(command)[0][0]
+    query = session.query(Node).filter_by(name=name).first()
+    return query.network
 
 
 def update_status(name, status):
-    command = """UPDATE 'nodes' SET status="{}" WHERE name="{}";""".format(status, name)
-    execute(command)
+    query = session.query(Node).filter_by(name=name).first()
+    query.status = status
+    session.commit()
 
 
 def get_max_node_port():
-    command = """SELECT MAX(node_port) FROM 'nodes';"""
-    return execute(command)[0][0]
+    query = session.query(func.max(Node.node_port)).scalar()
+    return query
 
 
 def remove_node(name):
-    command = """DELETE FROM 'nodes' WHERE name="{}";""".format(name)
-    execute(command)
+    session.query(Node).filter_by(name=name).delete()
+    session.commit()
