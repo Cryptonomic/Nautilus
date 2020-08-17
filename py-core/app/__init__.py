@@ -38,6 +38,15 @@ def node_start_page():
     p_network = str(request.args.get("network"))
     p_history_mode = str(request.args.get("mode"))
 
+    # Checking if there are any problems with the user input
+    if p_name is None or p_history_mode is None or p_network is None or p_snapshot_restore is None:
+        flash("Please fill in all of the options.", "error")
+        return render_template("node_options.html")
+
+    if db.is_name_taken(p_name):
+        flash("The name you have provided is already being used.", "error")
+        return render_template("node_options.html")
+
     ports = get_next_port(3)
 
     data = dict()
@@ -49,10 +58,6 @@ def node_start_page():
     data["history_mode"] = p_history_mode
     data["restore"] = p_snapshot_restore
     data["status"] = "starting"
-
-    if db.is_name_taken(p_name):
-        flash("The name you have provided is already being used.", "error")
-        return render_template("node_options.html")
 
     # Add node to database
     db.add_node(data)
