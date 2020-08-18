@@ -1,12 +1,13 @@
 from flask import Flask, render_template, request, redirect, flash
 import rq
+import os
 
 from worker import conn
 from util.app_functions import *
 import util.tezos_node_functions as node_functions
 import util.database_functions as db
 
-SECRET_KEY = "driptonomic"
+SECRET_KEY = os.urandom(32)
 
 app = Flask(__name__)
 job_queue = rq.Queue(connection=conn)
