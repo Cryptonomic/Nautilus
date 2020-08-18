@@ -27,6 +27,8 @@ logging.basicConfig(filename=LOGGING_FILE_PATH,
 
 @app.route("/")
 def start_page():
+    logging.info("Opening start page.")
+
     logging.debug("Retrieving all nodes on machine from database.")
     nodes = db.get_node_names()
     logging.debug("Nodes retrieved from database.")
@@ -40,11 +42,13 @@ def start_page():
 
 @app.route("/node_setup")
 def new_node_setup():
+    logging.info("Opening node options page.")
     return render_template("node_options.html")
 
 
 @app.route("/start_node", methods=['GET'])
 def node_start_page():
+    logging.info("Starting node from options given.")
 
     # Store all user args
     logging.debug("Retrieving node options.")
@@ -93,6 +97,7 @@ def node_start_page():
 
 @app.route("/stop_node", methods=["GET"])
 def stop_node():
+    logging.info("Stopping node.")
 
     logging.debug("Retrieving node name.")
     p_name = str(request.args.get('name'))
@@ -111,6 +116,7 @@ def stop_node():
 
 @app.route("/restart_node", methods=['GET'])
 def restart_node():
+    logging.info("Restarting node.")
 
     logging.debug("Retrieving node name.")
     p_name = str(request.args.get("name"))
@@ -129,6 +135,7 @@ def restart_node():
 
 @app.route("/delete_node", methods=['GET'])
 def delete_node():
+    logging.info("Deleting Node.")
 
     logging.debug("Retrieving node name.")
     p_name = str(request.args.get("name"))
@@ -147,6 +154,7 @@ def delete_node():
 
 @app.route("/node", methods=["GET"])
 def node_page():
+    logging.info("Loading node page.")
 
     logging.debug("Adding node update job to work queue.")
     job_queue.enqueue_call(func=update_node_status, result_ttl=-1)
