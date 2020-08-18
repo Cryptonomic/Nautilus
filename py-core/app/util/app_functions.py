@@ -9,7 +9,7 @@ from util.tezos_node_functions import get_node_logs
 STARTING_PORT_LOCATION = 50000
 
 
-def get_next_port(num_ports):
+def get_next_port(num_ports: int):
     output = list()
     port = get_max_node_port()
     if port is None:
@@ -41,13 +41,13 @@ def setup_job_queue_server():
         bruh = True
 
 
-def get_latest_block_level(network):
+def get_latest_block_level(network: str):
     if network == "mainnet":
         return conseil.tezos.mainnet.blocks.head
     return conseil.tezos.carthagenet.blocks.head
 
 
-def parse_logs(name):
+def parse_logs(name: str):
     logs = get_node_logs(name)
     log_lines = logs.splitlines()
     block_level = 0
@@ -71,3 +71,10 @@ def parse_logs(name):
 def update_node_status():
     for node in get_node_names():
         parse_logs(node)
+
+
+def validate_node_name(name: str):
+    return name\
+        .lower()\
+        .replace("-", "_")\
+        .replace(" ", "_")
