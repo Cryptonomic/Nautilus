@@ -2,11 +2,15 @@ import wget
 import tarfile
 import os
 import shutil
+import logging
 
 from util.app_functions import *
 
 SCRIPT_FILE_PATH = "./util/scripts/"
 DOCKER_COMPOSE_FILE_PATH = "util/docker-compose/"
+LOGGING_FILE_PATH = "./logs/logs.txt"
+
+LOGGING_FORMAT = "<<%(levelname)s>> %(asctime)s | %(message)s"
 
 # TODO: CHANGE THESE LINKS
 # Snapshot Download URLs
@@ -18,6 +22,10 @@ CARTHAGENET_ROLLING_SNAPSHOT = "https://conseil-snapshots.s3.amazonaws.com/tezos
 # Data-Directory Download URLs
 MAINNET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-data.tar.gz"
 CARTHAGENET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-data.tar.gz"
+
+logging.basicConfig(filename=LOGGING_FILE_PATH,
+                    format=LOGGING_FORMAT,
+                    level=logging.DEBUG)
 
 
 def create_node(data):
@@ -54,16 +62,16 @@ def create_node(data):
             os.remove(data_location + "/tezos-data.tar.gz")
         else:
             docker_volumes = dict()
-            docker_data_path = os.getcwd() + DOCKER_COMPOSE_FILE_PATH + data["name"] + "/tezos-data"
-            docker_snapshot_path = os.getcwd() + DOCKER_COMPOSE_FILE_PATH + data["name"] + "/"
+            docker_data_path = os.getcwd() + "/" + DOCKER_COMPOSE_FILE_PATH + data["name"] + "/tezos-data"
+            docker_snapshot_path = os.getcwd() + "/" + filename
 
             docker_volumes[docker_data_path] = dict()
             docker_volumes[docker_data_path]["bind"] = "/var/run/tezos"
             docker_volumes[docker_data_path]["mode"] = "rw"
 
-            docker_volumes[docker_snapshot_path + filename] = dict()
-            docker_volumes[docker_snapshot_path + filename]["bind"] = "/snapshot"
-            docker_volumes[docker_snapshot_path + filename]["mode"] = "rw"
+            docker_volumes[docker_snapshot_path] = dict()
+            docker_volumes[docker_snapshot_path]["bind"] = "/snapshot"
+            docker_volumes[docker_snapshot_path]["mode"] = "rw"
 
             docker_client = docker.from_env()
             docker_client.containers.run("tezos/tezos:latest-release",
@@ -72,7 +80,7 @@ def create_node(data):
                                          volumes=docker_volumes
                                          )
     else:
-        shutil.copytree(DOCKER_COMPOSE_FILE_PATH + "reference", DOCKER_COMPOSE_FILE_PATH + data["name"""])
+        shutil.copytree(DOCKER_COMPOSE_FILE_PATH + "reference", DOCKER_COMPOSE_FILE_PATH + data["name"])
 
     file = open(DOCKER_COMPOSE_FILE_PATH + data["name"] + "/docker-compose.yml", "r")
     text = file.read()
