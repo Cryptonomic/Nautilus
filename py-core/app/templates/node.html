@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Node</title>
+</head>
+<body>
+
+    <center><h1>Viewing Node "{{ node['name'] }}"</h1></center>
+
+    <br>
+
+    <h4>History Mode: {{ node['history_mode'] }}</h4>
+    <h4>Network: {{ node['network'] }}</h4>
+
+    Status: {{ node['status'] }} <br>
+    Tezos-Node RPC Port: {{ node['node_port'] }} <br>
+    {% if node['history_mode'] == 'archive' %}
+        Conseil Port: {{ node['conseil_port'] }} <br>
+        Arronax Port: {{ node['arronax_port'] }} <br>
+    {% endif %}
+
+    <h4>Actions</h4>
+    {% if node['status'] == 'running' %}
+        <a href="http://localhost:{{node['arronax_port']}}" target="_blank">Query Node With Arronax</a> <br> <br>
+<!--        <a href="/rpc?name={{node['name']}}">Query with RPC</a> <br> <br>-->
+        <a href="/stop_node?name={{node['name']}}">Stop Node</a> <br> <br>
+        <a href="/delete_node?name={{node['name']}}">Delete Node</a> <br> <br>
+        <a href="/restart_node?name={{node['name']}}">Restart Node</a> <br> <br>
+    {% else %}
+        <a href="/stop_node?name={{node['name']}}">Stop Node</a> <br> <br>
+        <a href="/restart_node?name={{node['name']}}">Restart Node</a> <br> <br>
+        <a href="/delete_node?name={{node['name']}}">Delete Node</a> <br> <br>
+    {% endif %}
+
+    <a href="/">Back to Main Menu</a>
+</body>
+</html>

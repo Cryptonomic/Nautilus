@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Nautilus Core</title>
+</head>
+<body>
+    <center><h1>Welcome to Nautilus Core!</h1></center>
+    {% if not nodes %}
+        <img src="../static/img/squid.png">
+
+        <h4>What are you waiting for... <a href="/node_setup">start a node now</a>!</h4>
+    {% else %}
+        {% for node in nodes %}
+            <div>
+                <a href="/node?name={{ node }}">Node "{{ node }}"</a>
+            </div>
+            <br>
+            <br>
+        {% endfor %}
+    Start a new node <a href="/node_setup">here</a>!
+    {% endif %}
+</body>
+</html>
