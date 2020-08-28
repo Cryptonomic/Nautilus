@@ -20,7 +20,7 @@ CARTHAGENET_FULL_SNAPSHOT = "https://conseil-snapshots.s3.amazonaws.com/tezos-no
 CARTHAGENET_ROLLING_SNAPSHOT = "https://conseil-snapshots.s3.amazonaws.com/tezos-node_snapshot-latest.full"
 
 # Data-Directory Download URLs
-MAINNET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-data.tar.gz"
+MAINNET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-node_data-dir.tar.gz"
 CARTHAGENET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-data.tar.gz"
 
 logging.basicConfig(filename=LOGGING_FILE_PATH,
@@ -56,10 +56,11 @@ def create_node(data):
             filename = wget.download(CARTHAGENET_ROLLING_SNAPSHOT, data_location)
 
         if data["history_mode"] == "archive":
-            file = tarfile.open(data_location + "/tezos-data.tar.gz")
+            file = tarfile.open(filename)
             file.extractall(data_location)
             file.close()
-            os.remove(data_location + "/tezos-data.tar.gz")
+            os.remove(filename)
+            # os.remove(data_location + "/tezos-data/node/data/identity.json")
         else:
             docker_volumes = dict()
             docker_data_path = os.getcwd() + "/" + DOCKER_COMPOSE_FILE_PATH + data["name"] + "/tezos-data"
@@ -108,6 +109,11 @@ def create_node(data):
     text = text.replace("\"8732:8732\"",
                         "\"{}:8732\"".format(data["node_port"])
                         )
+
+    if data["history_mode"] == "archive":
+        text = text.replace("./tezos-data:/var/run/tezos",
+                            "./{}:/var/run/tezos".format("tezos-node_data-dir")
+                            )
 
     file = open(DOCKER_COMPOSE_FILE_PATH + data["name"] + "/docker-compose.yml", "w")
     file.write(text)
