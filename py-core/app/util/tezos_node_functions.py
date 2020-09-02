@@ -80,6 +80,8 @@ def create_node(data):
                                          auto_remove=True,
                                          volumes=docker_volumes
                                          )
+    elif data["network"] == "dalphanet":
+        shutil.copytree(DOCKER_COMPOSE_FILE_PATH + "reference-dalpha", DOCKER_COMPOSE_FILE_PATH + data["name"])
     else:
         shutil.copytree(DOCKER_COMPOSE_FILE_PATH + "reference", DOCKER_COMPOSE_FILE_PATH + data["name"])
 
@@ -94,18 +96,21 @@ def create_node(data):
                             network=data["network"]
                         )
                         )
-    text = text.replace("\"TEZOS NETWORK\"",
-                        "\"{}\"".format(data["network"])
-                        )
-    text = text.replace("image: arronax",
-                        "image: arronax-{}".format(data["network"])
-                        )
-    text = text.replace("\"3080:80\"",
-                        "\"{}:80\"".format(data["arronax_port"])
-                        )
-    text = text.replace("\"4080:80\"",
-                        "\"{}:80\"".format(data["conseil_port"])
-                        )
+
+    if data["network"] != "dalphanet":
+        text = text.replace("\"TEZOS NETWORK\"",
+                            "\"{}\"".format(data["network"])
+                            )
+        text = text.replace("image: arronax",
+                            "image: arronax-{}".format(data["network"])
+                            )
+        text = text.replace("\"3080:80\"",
+                            "\"{}:80\"".format(data["arronax_port"])
+                            )
+        text = text.replace("\"4080:80\"",
+                            "\"{}:80\"".format(data["conseil_port"])
+                            )
+
     text = text.replace("\"8732:8732\"",
                         "\"{}:8732\"".format(data["node_port"])
                         )
