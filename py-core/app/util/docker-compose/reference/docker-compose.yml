@@ -9,7 +9,7 @@ services:
       - "8732:8732"
     expose:
       - 8732
-    command: "tezos-node --cors-header='content-type' --cors-origin='*' --history-mode full --network mainnet --rpc-addr 0.0.0.0:8732"
+    command: "NODE START COMMAND"
     networks:
       - tezos
     logging:
@@ -43,7 +43,7 @@ services:
       DB_Database: "conseil"
       XTZ_Host: "tezos-node"
       XTZ_Port: 8732
-      XTZ_Network": "mainnet"
+      XTZ_Network": "TEZOS NETWORK"
     command: "lorre"
     networks:
       - tezos
@@ -61,7 +61,7 @@ services:
       DB_Database: "conseil"
       XTZ_Host: "tezos-node"
       XTZ_Port: 8732
-      XTZ_Network: "mainnet"
+      XTZ_Network: "TEZOS NETWORK"
     command: "conseil"
     ports:
       - "4080:80"

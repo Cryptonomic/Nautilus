@@ -90,12 +90,14 @@ def create_node(data):
     file.close()
 
     text = text.replace("\"NODE START COMMAND\"",
-                        "\"tezos-node --cors-header='content-type' --cors-origin='*' --history-mode {history_mode} --network {network} --rpc-addr 0.0.0.0:8732\""
+                        "\"tezos-node --cors-header='content-type' --cors-origin='*' --history-mode {} --network {} --rpc-addr 0.0.0.0:8732\""
                         .format(
-                            history_mode=data["history_mode"],
-                            network=data["network"]
+                            data["history_mode"],
+                            data["network"]
+                            )
                         )
-                        )
+
+    logging.error(text)
 
     if data["network"] != "dalphanet":
         text = text.replace("\"TEZOS NETWORK\"",
@@ -119,6 +121,8 @@ def create_node(data):
         text = text.replace("./tezos-data:/var/run/tezos",
                             "./{}:/var/run/tezos".format("tezos-node_data-dir")
                             )
+
+    logging.error(text)
 
     file = open(DOCKER_COMPOSE_FILE_PATH + data["name"] + "/docker-compose.yml", "w")
     file.write(text)
