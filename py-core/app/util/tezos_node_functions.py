@@ -80,6 +80,7 @@ def create_node(data):
                                          auto_remove=True,
                                          volumes=docker_volumes
                                          )
+
     elif data["network"] == "dalphanet":
         shutil.copytree(DOCKER_COMPOSE_FILE_PATH + "reference-dalpha", DOCKER_COMPOSE_FILE_PATH + data["name"])
     else:
