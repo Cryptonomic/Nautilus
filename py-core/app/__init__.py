@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, flash
+from flask import Flask, render_template, request, redirect, flash, jsonify
 import rq
 import os
 import logging
+import json
 
 from worker import conn
 from util.app_functions import *
@@ -179,6 +180,17 @@ def node_rpc_page():
     p_name = str(request.args.get("name"))
     data = db.get_node_data(p_name)
     return render_template("rpc.html", node=data)
+
+
+@app.route("/get_logs")
+def get_logs():
+    name = str(request.args.get("name"))
+    data = node_functions.get_container_logs(name)
+    return jsonify(arronax=data["arronax"],
+                   conseil=data['conseil'],
+                   lorre=data['lorre'],
+                   postgres=data['postgres'],
+                   tezos=data['tezos'])
 
 
 if __name__ == "__main__":

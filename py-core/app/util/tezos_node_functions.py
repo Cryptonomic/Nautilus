@@ -174,3 +174,24 @@ def get_node_logs(name):
     output = logfile.read()
     logfile.close()
     return output
+
+
+def read_file(path):
+    file = open(path, "r")
+    output = file.read()
+    file.close()
+    return output
+
+
+def get_container_logs(name):
+    os.system(SCRIPT_FILE_PATH +
+              "save_node_logs.sh " +
+              name
+              )
+    output = dict()
+    output["conseil"] = read_file(DOCKER_COMPOSE_FILE_PATH + name + "/conseil-log.tzlog")
+    output["lorre"] = read_file(DOCKER_COMPOSE_FILE_PATH + name + "/lorre-log.tzlog")
+    output["tezos"] = read_file(DOCKER_COMPOSE_FILE_PATH + name + "/node-log.tzlog")
+    output["arronax"] = read_file(DOCKER_COMPOSE_FILE_PATH + name + "/arronax-log.tzlog")
+    output["postgres"] = read_file(DOCKER_COMPOSE_FILE_PATH + name + "/postgres-log.tzlog")
+    return output
