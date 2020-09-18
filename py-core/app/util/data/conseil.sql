@@ -126,7 +126,8 @@ CREATE TABLE tezos.registered_tokens (
     id integer PRIMARY KEY,
     name text NOT NULL,
     contract_type text NOT NULL,
-    account_id text NOT NULL
+    account_id text NOT NULL,
+    scale integer NOT NULL
 );
 
 CREATE TABLE tezos.token_balances (
@@ -186,6 +187,8 @@ CREATE TABLE tezos.accounts_history (
     is_activated boolean NOT NULL DEFAULT false,
     is_active_baker boolean
 );
+
+CREATE INDEX ix_account_id ON tezos.accounts_history USING btree (account_id);
 
 --
 -- Name: accounts_checkpoint; Type: TABLE; Schema: tezos; Owner: -
@@ -265,7 +268,6 @@ CREATE TABLE tezos.blocks (
     proto integer NOT NULL,
     predecessor character varying NOT NULL,
     "timestamp" timestamp without time zone NOT NULL,
-    validation_pass integer NOT NULL,
     fitness character varying NOT NULL,
     context character varying,
     signature character varying,
@@ -277,7 +279,6 @@ CREATE TABLE tezos.blocks (
     current_expected_quorum integer,
     active_proposal character varying,
     baker character varying,
-    nonce_hash character varying,
     consumed_gas numeric,
     meta_level integer,
     meta_level_position integer,
@@ -285,7 +286,6 @@ CREATE TABLE tezos.blocks (
     meta_cycle_position integer,
     meta_voting_period integer,
     meta_voting_period_position integer,
-    expected_commitment boolean,
     priority integer,
     utc_year integer NOT NULL,
     utc_month integer NOT NULL,
@@ -295,7 +295,7 @@ CREATE TABLE tezos.blocks (
 
 
 --
--- Name: delegates; Type: TABLE; Schema: tezos; Owner: -
+-- Name: bakers; Type: TABLE; Schema: tezos; Owner: -
 --
 
 CREATE TABLE tezos.bakers (
@@ -311,6 +311,26 @@ CREATE TABLE tezos.bakers (
     block_level integer DEFAULT '-1'::integer NOT NULL,
     cycle integer,
     period integer
+);
+
+--
+-- Name: bakers_history; Type: TABLE; Schema: tezos; Owner: -
+--
+
+CREATE TABLE tezos.bakers_history (
+    pkh character varying NOT NULL,
+    block_id character varying NOT NULL,
+    balance numeric,
+    frozen_balance numeric,
+    staking_balance numeric,
+    delegated_balance numeric,
+    rolls integer DEFAULT 0 NOT NULL,
+    deactivated boolean NOT NULL,
+    grace_period integer NOT NULL,
+    block_level integer DEFAULT '-1'::integer NOT NULL,
+    cycle integer,
+    period integer,
+    asof timestamp without time zone NOT NULL
 );
 
 
@@ -427,7 +447,9 @@ CREATE TABLE tezos.operations (
     utc_time character varying NOT NULL
 );
 
-
+ CREATE INDEX ix_manager_pubkey ON tezos.operations USING btree (manager_pubkey);
+ CREATE INDEX ix_operation_group_hash ON tezos.operations USING btree (operation_group_hash);
+ CREATE INDEX ix_originated_contracts ON tezos.operations USING btree (originated_contracts);
 --
 -- Name: operations_operation_id_seq; Type: SEQUENCE; Schema: tezos; Owner: -
 --
@@ -552,6 +574,9 @@ ALTER TABLE ONLY tezos.operations
 --
 
 CREATE INDEX baking_rights_level_idx ON tezos.baking_rights USING btree (level);
+
+CREATE INDEX baking_rights_delegate_idx ON tezos.baking_rights USING btree (delegate);
+
 CREATE INDEX ix_delegate_priority ON tezos.baking_rights USING btree (delegate, priority);
 
 --
@@ -559,9 +584,10 @@ CREATE INDEX ix_delegate_priority ON tezos.baking_rights USING btree (delegate, 
 --
 
 CREATE INDEX endorsing_rights_level_idx ON tezos.endorsing_rights USING btree (level);
-CREATE INDEX ix_delegate ON tezos.endorsing_rights USING btree (delegate);
 
+CREATE INDEX endorsing_rights_delegate_idx ON tezos.endorsing_rights USING btree (delegate);
 
+CREATE INDEX ix_delegate_slot ON tezos.endorsing_rights USING btree (delegate, slot);
 --
 -- Name: fki_block; Type: INDEX; Schema: tezos; Owner: -
 --
@@ -758,3 +784,71 @@ ALTER TABLE ONLY tezos.operations
 --
 -- PostgreSQL database dump complete
 --
+
+CREATE SCHEMA bitcoin;
+
+-- https://developer.bitcoin.org/reference/rpc/getblock.html
+CREATE TABLE bitcoin.blocks (
+  hash text NOT NULL PRIMARY KEY,
+  size integer NOT NULL,
+  stripped_size integer NOT NULL,
+  weight integer NOT NULL,
+  height integer NOT NULL,
+  version integer NOT NULL,
+  version_hex text NOT NULL,
+  merkle_root text NOT NULL,
+  nonce bigint NOT NULL,
+  bits text NOT NULL,
+  difficulty numeric NOT NULL,
+  chain_work text NOT NULL,
+  n_tx integer NOT NULL,
+  previous_block_hash text,
+  next_block_hash text,
+  median_time timestamp without time zone NOT NULL,
+  time timestamp without time zone NOT NULL
+);
+
+-- https://developer.bitcoin.org/reference/rpc/getrawtransaction.html
+CREATE TABLE bitcoin.transactions (
+  txid text NOT NULL PRIMARY KEY,
+  blockhash text NOT NULL,
+  hash text NOT NULL,
+  hex text NOT NULL,
+  size integer NOT NULL,
+  vsize integer NOT NULL,
+  weight integer NOT NULL,
+  version integer NOT NULL,
+  lock_time timestamp without time zone NOT NULL,
+  block_time timestamp without time zone NOT NULL,
+  time timestamp without time zone NOT NULL
+);
+
+ALTER TABLE ONLY bitcoin.transactions
+  ADD CONSTRAINT bitcoin_transactions_blockhash_fkey FOREIGN KEY (blockhash) REFERENCES bitcoin.blocks(hash);
+
+CREATE TABLE bitcoin.inputs (
+  txid text NOT NULL,
+  v_out integer,
+  script_sig_asm text,
+  script_sig_hex text,
+  sequence bigint NOT NULL,
+  coinbase text,
+  tx_in_witness text
+);
+
+ALTER TABLE ONLY bitcoin.inputs
+  ADD CONSTRAINT bitcoin_inputs_txid_fkey FOREIGN KEY (txid) REFERENCES bitcoin.transactions(txid);
+
+CREATE TABLE bitcoin.outputs (
+  txid text NOT NULL,
+  value numeric,
+  n integer NOT NULL,
+  script_pub_key_asm text NOT NULL,
+  script_pub_key_hex text NOT NULL,
+  script_pub_key_req_sigs integer,
+  script_pub_key_type text NOT NULL,
+  script_pub_key_addresses text
+);
+
+ALTER TABLE ONLY bitcoin.outputs
+  ADD CONSTRAINT bitcoin_outputs_txid_fkey FOREIGN KEY (txid) REFERENCES bitcoin.transactions(txid);

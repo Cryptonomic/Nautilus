@@ -46,7 +46,7 @@ services:
       XTZ_Host: "tezos-node"
       XTZ_Port: 8732
       XTZ_Network": "TEZOS NETWORK"
-    command: "lorre"
+    command: "conseil-lorre"
     networks:
       - tezos
     logging:
@@ -64,7 +64,7 @@ services:
       XTZ_Host: "tezos-node"
       XTZ_Port: 8732
       XTZ_Network: "TEZOS NETWORK"
-    command: "conseil"
+    command: "conseil-api"
     ports:
       - "4080:80"
     expose:

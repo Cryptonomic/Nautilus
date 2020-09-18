@@ -2,11 +2,15 @@ import wget
 import tarfile
 import os
 import shutil
+import logging
 
 from util.app_functions import *
 
 SCRIPT_FILE_PATH = "./util/scripts/"
 DOCKER_COMPOSE_FILE_PATH = "util/docker-compose/"
+LOGGING_FILE_PATH = "./logs/logs.txt"
+
+LOGGING_FORMAT = "<<%(levelname)s>> %(asctime)s | %(message)s"
 
 # TODO: CHANGE THESE LINKS
 # Snapshot Download URLs
@@ -16,8 +20,12 @@ CARTHAGENET_FULL_SNAPSHOT = "https://conseil-snapshots.s3.amazonaws.com/tezos-no
 CARTHAGENET_ROLLING_SNAPSHOT = "https://conseil-snapshots.s3.amazonaws.com/tezos-node_snapshot-latest.full"
 
 # Data-Directory Download URLs
-MAINNET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-data.tar.gz"
+MAINNET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-node_data-dir.tar.gz"
 CARTHAGENET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-data.tar.gz"
+
+logging.basicConfig(filename=LOGGING_FILE_PATH,
+                    format=LOGGING_FORMAT,
+                    level=logging.DEBUG)
 
 
 def create_node(data):
@@ -48,22 +56,23 @@ def create_node(data):
             filename = wget.download(CARTHAGENET_ROLLING_SNAPSHOT, data_location)
 
         if data["history_mode"] == "archive":
-            file = tarfile.open(data_location + "/tezos-data.tar.gz")
+            file = tarfile.open(filename)
             file.extractall(data_location)
             file.close()
-            os.remove(data_location + "/tezos-data.tar.gz")
+            os.remove(filename)
+            # os.remove(data_location + "/tezos-data/node/data/identity.json")
         else:
             docker_volumes = dict()
-            docker_data_path = os.getcwd() + DOCKER_COMPOSE_FILE_PATH + data["name"] + "/tezos-data"
-            docker_snapshot_path = os.getcwd() + DOCKER_COMPOSE_FILE_PATH + data["name"] + "/"
+            docker_data_path = os.getcwd() + "/" + DOCKER_COMPOSE_FILE_PATH + data["name"] + "/tezos-data"
+            docker_snapshot_path = os.getcwd() + "/" + filename
 
             docker_volumes[docker_data_path] = dict()
             docker_volumes[docker_data_path]["bind"] = "/var/run/tezos"
             docker_volumes[docker_data_path]["mode"] = "rw"
 
-            docker_volumes[docker_snapshot_path + filename] = dict()
-            docker_volumes[docker_snapshot_path + filename]["bind"] = "/snapshot"
-            docker_volumes[docker_snapshot_path + filename]["mode"] = "rw"
+            docker_volumes[docker_snapshot_path] = dict()
+            docker_volumes[docker_snapshot_path]["bind"] = "/snapshot"
+            docker_volumes[docker_snapshot_path]["mode"] = "rw"
 
             docker_client = docker.from_env()
             docker_client.containers.run("tezos/tezos:latest-release",
@@ -71,35 +80,50 @@ def create_node(data):
                                          auto_remove=True,
                                          volumes=docker_volumes
                                          )
+
+    elif data["network"] == "dalphanet":
+        shutil.copytree(DOCKER_COMPOSE_FILE_PATH + "reference-dalpha", DOCKER_COMPOSE_FILE_PATH + data["name"])
     else:
-        shutil.copytree(DOCKER_COMPOSE_FILE_PATH + "reference", DOCKER_COMPOSE_FILE_PATH + data["name"""])
+        shutil.copytree(DOCKER_COMPOSE_FILE_PATH + "reference", DOCKER_COMPOSE_FILE_PATH + data["name"])
 
     file = open(DOCKER_COMPOSE_FILE_PATH + data["name"] + "/docker-compose.yml", "r")
     text = file.read()
     file.close()
 
     text = text.replace("\"NODE START COMMAND\"",
-                        "\"tezos-node --cors-header='content-type' --cors-origin='*' --history-mode {history_mode} --network {network} --rpc-addr 0.0.0.0:8732\""
+                        "\"tezos-node --cors-header='content-type' --cors-origin='*' --history-mode {} --network {} --rpc-addr 0.0.0.0:8732\""
                         .format(
-                            history_mode=data["history_mode"],
-                            network=data["network"]
+                            data["history_mode"],
+                            data["network"]
+                            )
                         )
-                        )
-    text = text.replace("\"TEZOS NETWORK\"",
-                        "\"{}\"".format(data["network"])
-                        )
-    text = text.replace("image: arronax",
-                        "image: arronax-{}".format(data["network"])
-                        )
-    text = text.replace("\"3080:80\"",
-                        "\"{}:80\"".format(data["arronax_port"])
-                        )
-    text = text.replace("\"4080:80\"",
-                        "\"{}:80\"".format(data["conseil_port"])
-                        )
+
+    logging.error(text)
+
+    if data["network"] != "dalphanet":
+        text = text.replace("\"TEZOS NETWORK\"",
+                            "\"{}\"".format(data["network"])
+                            )
+        text = text.replace("image: arronax",
+                            "image: arronax-{}".format(data["network"])
+                            )
+        text = text.replace("\"3080:80\"",
+                            "\"{}:80\"".format(data["arronax_port"])
+                            )
+        text = text.replace("\"4080:80\"",
+                            "\"{}:80\"".format(data["conseil_port"])
+                            )
+
     text = text.replace("\"8732:8732\"",
                         "\"{}:8732\"".format(data["node_port"])
                         )
+
+    if data["history_mode"] == "archive":
+        text = text.replace("./tezos-data:/var/run/tezos",
+                            "./{}:/var/run/tezos".format("tezos-node_data-dir")
+                            )
+
+    logging.error(text)
 
     file = open(DOCKER_COMPOSE_FILE_PATH + data["name"] + "/docker-compose.yml", "w")
     file.write(text)

@@ -1,0 +1,86 @@
+version: '3'
+
+services:
+
+  tezos-node:
+    image: tezos/tezos:dalpha-release_df12b817_20200804175858
+    restart: always
+    ports:
+      - "8732:8732"
+    expose:
+      - 8732
+    command: "tezos-node --cors-header='content-type' --cors-origin='*' --history-mode full --network dalphanet --rpc-addr 0.0.0.0:8732"
+    networks:
+      - tezos
+    logging:
+      driver: "json-file"
+
+#  conseil-postgres:
+#    image: postgres:11.6
+#    restart: always
+#    environment:
+#      POSTRGES_PASSWORD: "password"
+#      POSTGRES_USER: "conseil"
+#      POSTGRES_DB: "conseil"
+#      POSTGRES_INITDB_ARGS: "--lc-collate=en_US.UTF-8 -E UTF8"
+#    expose:
+#      - 5423
+#    networks:
+#      - tezos
+#    volumes:
+#      - ../../data/conseil.sql:/docker-entrypoint-initdb.d/conseil.sql
+#    logging:
+#      driver: "json-file"
+#
+#  conseil-lorre:
+#    image: cryptonomictech/conseil:latest
+#    restart: always
+#    environment:
+#      DB_Host: "conseil-postgres"
+#      DB_Port : 5432
+#      DB_User: "conseil"
+#      DB_Password: "password"
+#      DB_Database: "conseil"
+#      XTZ_Host: "tezos-node"
+#      XTZ_Port: 8732
+#      XTZ_Network": "mainnet"
+#    command: "lorre"
+#    networks:
+#      - tezos
+#    logging:
+#      driver: "json-file"
+#
+#  conseil-api:
+#    image: cryptonomictech/conseil:latest
+#    restart: always
+#    environment:
+#      DB_Host: "conseil-postgres"
+#      DB_Port: 5432
+#      DB_User: "conseil"
+#      DB_Password: "password"
+#      DB_Database: "conseil"
+#      XTZ_Host: "tezos-node"
+#      XTZ_Port: 8732
+#      XTZ_Network: "mainnet"
+#    command: "conseil"
+#    ports:
+#      - "4080:80"
+#    expose:
+#      - 80
+#    networks:
+#      - tezos
+#    logging:
+#      driver: "json-file"
+#
+#  arronax:
+#    image: arronax
+#    restart: always
+#    ports:
+#      - "3080:80"
+#    networks:
+#      - tezos
+#    logging:
+#      driver: "json-file"
+
+networks:
+  tezos:
