@@ -23,9 +23,18 @@ logging.basicConfig(filename=LOGGING_FILE_PATH,
 
 listen = ['default']
 
-redis_url = 'redis://localhost:6379'
+redis_url = 'localhost'
+port = 6379
 
-conn = redis.from_url(redis_url)
+try:
+    conn = redis.Redis(
+        host=redis_url,
+        port=port,
+        password="conseil"
+    )
+except:
+    print("Connection Error to Redis")
+    exit(1)
 
 if __name__ == '__main__':
     setup_job_queue_server()

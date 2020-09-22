@@ -31,7 +31,7 @@ def setup_job_queue_server():
         ports["6379"] = "6379"
         docker_client = docker.from_env()
         docker_client.containers.run("redis",
-                                     "redis-server",
+                                     "redis-server --requirepass conseil",
                                      auto_remove=True,
                                      detach=True,
                                      ports=ports,
