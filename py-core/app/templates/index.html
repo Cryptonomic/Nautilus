@@ -1,28 +1,24 @@
-{% extends "base.html" %}
-
-{% block title %}
-    Nautilus Core
-{% endblock %}
-
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Nautilus Core</title>
+</head>
+<body>
+    <center><h1>Welcome to Nautilus Core!</h1></center>
     {% if not nodes %}
-{#        <img src="../static/img/squid.png">#}
-        <div id="start-node-label">
-            <span>What are you waiting for?</span>
-        </div>
-        <a href="/node_setup" id="start-button-container">
-            <div class="button">
-                <span>Start Node</span>
-            </div>
-        </a>
+        <img src="../static/img/squid.png">
+
+        <h4>What are you waiting for... <a href="/node_setup">start a node now</a>!</h4>
     {% else %}
-        <div id="nodes">
-            {% for node in nodes %}
-                <div class="node-container">
-                    <a href="/node?name={{ node }}">Node "{{ node }}"</a>
-                </div>
-            {% endfor %}
-        </div>
+        {% for node in nodes %}
+            <div>
+                <a href="/node?name={{ node }}">Node "{{ node }}"</a>
+            </div>
+            <br>
+            <br>
+        {% endfor %}
     Start a new node <a href="/node_setup">here</a>!
     {% endif %}
-{% endblock %}
+</body>
+</html>
