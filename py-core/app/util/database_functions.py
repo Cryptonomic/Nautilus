@@ -24,17 +24,24 @@ class Node(Base):
     status = Column(String)
 
 
+def get_new_session():
+    engine = create_engine('sqlite://{}'.format(DATABASE_PATH))
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    return session
+
+
 def setup_database():
     Base.metadata.create_all(engine)
 
 
 def is_name_taken(name):
-    query = session.query(Node).filter_by(name=name)
+    query = get_new_session().query(Node).filter_by(name=name)
     return query.count() > 0
 
 
 def get_node_names():
-    query = session.query(Node.name).all()
+    query = get_new_session().query(Node.name).all()
     output = list()
     for node in query:
         output.append(node[0])
@@ -54,7 +61,7 @@ def result_to_dict(data):
 
 
 def get_node_data(name):
-    query = session.query(Node).filter_by(name=name).first()
+    query = get_new_session().query(Node).filter_by(name=name).first()
     return result_to_dict(query)
 
 
@@ -72,26 +79,28 @@ def add_node(data):
 
 
 def get_status(name):
-    query = session.query(Node).filter_by(name=name).first()
+    query = get_new_session().query(Node).filter_by(name=name).first()
     return query.status
 
 
 def get_network(name):
-    query = session.query(Node).filter_by(name=name).first()
+    query = get_new_session().query(Node).filter_by(name=name).first()
     return query.network
 
 
 def update_status(name, status):
-    query = session.query(Node).filter_by(name=name).first()
+    s = get_new_session()
+    query = s.query(Node).filter_by(name=name).first()
     query.status = status
-    session.commit()
+    s.commit()
 
 
 def get_max_node_port():
-    query = session.query(func.max(Node.node_port)).scalar()
+    query = get_new_session().query(func.max(Node.node_port)).scalar()
     return query
 
 
 def remove_node(name):
-    session.query(Node).filter_by(name=name).delete()
-    session.commit()
+    s = get_new_session()
+    s.query(Node).filter_by(name=name).delete()
+    s.commit()
