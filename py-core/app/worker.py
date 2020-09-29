@@ -1,6 +1,8 @@
 import redis
 import time
 import logging
+import secrets
+import sys
 
 from util.app_functions import setup_job_queue_server
 from rq import Worker, Queue, Connection
@@ -23,12 +25,25 @@ logging.basicConfig(filename=LOGGING_FILE_PATH,
 
 listen = ['default']
 
-redis_url = 'redis://localhost:6379'
+redis_url = 'localhost'
+port = 6379
 
-conn = redis.from_url(redis_url)
+password_file = open("redis_password.txt", "r")
+
+password = password_file.read().strip()
+
+try:
+    conn = redis.Redis(
+        host=redis_url,
+        port=port,
+        password=password
+    )
+except:
+    print("Connection Error to Redis")
+    exit(1)
 
 if __name__ == '__main__':
-    setup_job_queue_server()
+    setup_job_queue_server(password)
     time.sleep(1)
     with Connection(conn):
         worker = Worker(list(map(Queue, listen)))
