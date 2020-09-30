@@ -201,7 +201,7 @@ def get_logs():
 @app.route("/get_cpu_data")
 def get_cpu():
     cpu_data.append(psutil.cpu_percent())
-    if len(cpu_data) > 1000:
+    if len(cpu_data) > 300:
         cpu_data.pop(0)
     return jsonify(cpu=cpu_data)
 
@@ -209,7 +209,7 @@ def get_cpu():
 @app.route("/get_ram_data")
 def get_ram():
     ram_data.append(psutil.virtual_memory().percent)
-    if len(ram_data) > 1000:
+    if len(ram_data) > 300:
         ram_data.pop(0)
     return jsonify(ram=ram_data)
 

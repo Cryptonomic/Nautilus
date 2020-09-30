@@ -9,6 +9,11 @@ body {
     right: 0px;
     height: 50px;
 }
+#header-spacer {
+    position: relative;
+    display: block;
+    height: 50px;
+}
 #nc-footer {
     position: absolute;
     background-color: #333333;
@@ -16,6 +21,48 @@ body {
     left: 0px;
     right: 0px;
     height: 100px;
+}
+#system-graphs {
+    position: relative;
+    display: block;
+    height: 500px;
+    margin: 40px 40px 40px;
+    border-radius: 25px;
+    background-color: #444444;
+    padding: 10px;
+}
+.homepage-graph {
+    position: relative;
+    display: block;
+    height: 400px;
+    width: 1000px;
+}
+.graph-container {
+    position: relative;
+    border-style: solid;
+    border-color: black;
+    width: 1000px;
+}
+#cpu-graph-container {
+    position: relative;
+    display: block;
+    top: 20px;
+    left: 100px;
+    float: left;
+}
+#ram-graph-container {
+    position: relative;
+    display: block;
+    top: 20px;
+    right: 100px;
+    float: right;
+}
+.graph-title {
+    position: relative;
+    text-align: center;
+    font-family: "Raleway", 'sans-serif';
+    font-size: 20px;
+    color: #9B51E0;
 }
 .title {
     position: relative;
@@ -33,16 +80,32 @@ body {
 }
 #start-button-container {
     position: relative;
-    top: 1000px;
+    display: block;
+    width: 500px;
+    margin: auto;
 }
 .button {
     background-color: #9B51E0;
     text-align: center;
     font-family: "Raleway", 'sans-serif';
     color: white;
-    border-radius: 10px;
+    border-radius: 25px;
     padding: 10px;
 }
 .button:hover {
     background-color: red;
+}
+#nodes {
+    position: relative;
+    top: 250px;
+    left: 20px;
+    right: 20px;
+}
+.node-container {
+    position: relative;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    border-radius: 20px;
+    background-color: lightgreen;
 }

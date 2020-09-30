@@ -5,8 +5,23 @@
 {% endblock %}
 
 {% block content %}
+    <div id="system-graphs">
+        <div class="graph-container" id="cpu-graph-container">
+            <div class="graph-title">
+                <span>CPU Usage:</span>
+            </div>
+            <br>
+            <svg class="homepage-graph" id="cpu-graph"></svg>
+        </div>
+        <div class="graph-container" id="ram-graph-container">
+            <div class="graph-title">
+                <span>RAM Usage:</span>
+            </div>
+            <br>
+            <svg class="homepage-graph" id="ram-graph"></svg>
+        </div>
+    </div>
     {% if not nodes %}
-{#        <img src="../static/img/squid.png">#}
         <div id="start-node-label">
             <span>What are you waiting for?</span>
         </div>
@@ -25,4 +40,88 @@
         </div>
     Start a new node <a href="/node_setup">here</a>!
     {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const GRAPH_HEIGHT = 400;
+        const GRAPH_WIDTH = 1000;
+
+        let cpuSvg = d3.select("#cpu-graph");
+        let ramSvg = d3.select("#ram-graph");
+
+        let yScale = d3.scaleLinear()
+                .domain([0, 1])
+                .range([0, GRAPH_HEIGHT]);
+
+        let yAxis = d3.axisLeft(yScale);
+
+        cpuSvg.append("g").call(yAxis);
+        ramSvg.append("g").call(yAxis);
+
+        const generateCPUGraph = function(cpu_data) {
+
+            let svg = d3.select("#cpu-graph");
+
+            let xScale = d3.scaleBand()
+                .domain(d3.range(cpu_data.length))
+                .range([0, GRAPH_WIDTH]);
+
+            let yScale = d3.scaleLinear()
+                .domain([0, 100])
+                .range([0, GRAPH_HEIGHT]);
+
+            const bar = svg.selectAll("g")
+                .data(cpu_data) //Attach bars to Y-Axis data
+                .join("g")
+                    .attr("transform", (d, i) => `translate(${xScale(i)}, ${GRAPH_HEIGHT - yScale(d)})`);
+
+            bar.append("rect")
+                .attr("fill", "#9B51E0")
+                .attr("width", xScale.bandwidth() - 1) // Sets a padding of one pixel between bars
+                .attr("height", yScale);
+        }
+
+        const generateRAMGraph = function(ram_data) {
+            let svg = d3.select("#ram-graph");
+
+            let xScale = d3.scaleBand()
+                .domain(d3.range(ram_data.length))
+                .range([0, GRAPH_WIDTH]);
+
+            let yScale = d3.scaleLinear()
+                .domain([0, 100])
+                .range([0, GRAPH_HEIGHT]);
+
+            const bar = svg.selectAll("g")
+                .data(ram_data) //Attach bars to Y-Axis data
+                .join("g")
+                    .attr("transform", (d, i) => `translate(${xScale(i)}, ${GRAPH_HEIGHT - yScale(d)})`);
+
+            bar.append("rect")
+                .attr("fill", "#9B51E0")
+                .attr("width", xScale.bandwidth() - 1) // Sets a padding of one pixel between bars
+                .attr("height", yScale);
+        }
+
+        setInterval(function() {
+            let cpu_data = [];
+            let ram_data = [];
+            $.getJSON('http://localhost:5000/get_cpu_data', {},
+                function(data) {
+                    cpu_data = data["cpu"]
+                    generateCPUGraph(cpu_data);
+                }
+            );
+            $.getJSON('http://localhost:5000/get_ram_data', {},
+                function(data) {
+                    ram_data = data["ram"]
+                    generateRAMGraph(ram_data);
+                }
+            );
+            generateCPUGraph(cpu_data);
+            generateRAMGraph(ram_data);
+        }, 1000)
+
+    </script>
 {% endblock %}
