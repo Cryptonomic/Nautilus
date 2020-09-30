@@ -74,13 +74,15 @@ body {
 }
 #start-node-label {
     position: relative;
-    top: 500px;
+    color: white;
     text-align: center;
-    font-family: "cursive";
+    font-family: "Rouge Script", "cursive";
+    font-size: 50px;
 }
 #start-button-container {
     position: relative;
     display: block;
+    top: 50px;
     width: 500px;
     margin: auto;
 }
@@ -93,7 +95,7 @@ body {
     padding: 10px;
 }
 .button:hover {
-    background-color: red;
+    background-color: #BB6BD9;
 }
 #nodes {
     position: relative;
