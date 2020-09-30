@@ -33,12 +33,18 @@
     {% else %}
         <div id="nodes">
             {% for node in nodes %}
-                <div class="node-container">
-                    <a href="/node?name={{ node }}">Node "{{ node }}"</a>
-                </div>
+                <a href="/node?name={{ node }}">
+                    <div class="node-container">
+                        {{ node }}
+                    </div>
+                </a>
             {% endfor %}
+            <a href="/node_setup">
+                <div class="node-container" id="start-button">
+                    <span>Start New Node</span>
+                </div>
+            </a>
         </div>
-    Start a new node <a href="/node_setup">here</a>!
     {% endif %}
 {% endblock %}
 
