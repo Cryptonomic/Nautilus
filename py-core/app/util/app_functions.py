@@ -1,3 +1,4 @@
+import os
 import socket
 import docker
 from conseil import conseil
@@ -25,20 +26,24 @@ def get_next_port(num_ports: int):
     return output
 
 
-def setup_job_queue_server():
+def setup_job_queue_server(password: str):
+    print(password)
+    setup = True
     try:
         ports = dict()
         ports["6379"] = "6379"
         docker_client = docker.from_env()
         docker_client.containers.run("redis",
-                                     "redis-server",
+                                     "redis-server --requirepass " + password,
                                      auto_remove=True,
                                      detach=True,
                                      ports=ports,
                                      name="nautilus-core-redis"
                                      )
     except docker.errors.APIError as e:
-        bruh = True
+        print(e)
+        setup = False
+    return setup
 
 
 def get_latest_block_level(network: str):
