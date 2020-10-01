@@ -23,6 +23,9 @@ a {
     display: block;
     height: 50px;
 }
+#footer-spacer {
+    height: 100px;
+}
 #nc-footer {
     position: relative;
     background-color: #333333;
@@ -30,9 +33,6 @@ a {
     width: 100%;
     height: 100px;
 }
-/*#footer-spacer {*/
-/*    height: 100px;*/
-/*}*/
 #content {
     display: block;
     position: relative;
@@ -194,4 +194,56 @@ a {
     display: block;
     width: 100%;
     font-size: 15px;
+}
+#node-logs {
+    position: relative;
+    display: block;
+    height: 500px;
+    margin: 40px 40px 40px;
+    border-radius: 25px 25px 0px 0px;
+    background-color: #444444;
+    padding: 10px;
+}
+#log-screen {
+    position: relative;
+    display: block;
+    padding: 10px;
+    text-align: left;
+    color: blueviolet;
+    background-color: black;
+    border-style: none;
+    width: 95%;
+    margin: 40px auto 0 auto;
+    height: 400px;
+    resize: none;
+}
+#log-options-container {
+    position: relative;
+    display: block;
+    top: 0;
+    width: 95%;
+    margin: auto;
+}
+tr, tbody {
+    display: block;
+    width: 100%;
+}
+.log-screen-options {
+    font-family: "Raleway", 'sans-serif';
+    text-align: center;
+    height: 40px;
+    width: 20%;
+    background-color: #4F4F4F;
+    white-space: pre-wrap;
+}
+.log-screen-options:hover {
+    background-color: #333333;
+}
+#node-settings-container {
+    margin: auto;
+    width: 50%;
+}
+.node-button-holder {
+    margin: auto;
+    width: 50%;
 }
