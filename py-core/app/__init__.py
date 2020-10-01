@@ -65,7 +65,8 @@ def node_start_page():
     logging.debug("Node options retrieved from user.")
 
     # Checking if there are any problems with the user input
-    if p_name is None or p_history_mode is None or p_network is None:
+    if p_name == "None" or p_history_mode == "None" or p_network == "None" \
+            or p_name == "" or p_history_mode == "" or p_network == "":
         logging.warning("Not all form inputs filled out.")
         flash("Please fill in all of the options.", "error")
         return render_template("node_options.html")

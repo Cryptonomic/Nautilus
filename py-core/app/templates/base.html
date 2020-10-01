@@ -25,8 +25,11 @@
             {# This just exists to add space underneath the header so elements don't get hidden underneath it #}
         </div>
 
-        {% block content %}
-        {% endblock %}
+        <div id="content">
+            {% block content %}
+            {% endblock %}
+            <div id="footer-spacer"></div>
+        </div>
 
         <div id="nc-footer">
         </div>
