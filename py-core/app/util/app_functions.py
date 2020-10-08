@@ -4,8 +4,7 @@ import docker
 from conseil import conseil
 
 from util.database_functions import *
-from util.tezos_node_functions import get_node_logs
-
+from util.tezos_node_functions import get_container_logs
 
 STARTING_PORT_LOCATION = 50000
 
@@ -53,7 +52,7 @@ def get_latest_block_level(network: str):
 
 
 def parse_logs(name: str):
-    logs = get_node_logs(name)
+    logs = get_container_logs(name)["tezos"]
     log_lines = logs.splitlines()
     block_level = 0
     network = get_network(name)
