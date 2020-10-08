@@ -222,19 +222,23 @@ a {
     display: block;
     top: 0;
     width: 95%;
+    height: 40px;
     margin: auto;
+    text-align: center;
 }
 tr, tbody {
     display: block;
     width: 100%;
+    height: 100%;
 }
 .log-screen-options {
-    font-family: "Raleway", 'sans-serif';
-    text-align: center;
+    display: table-cell;
     height: 40px;
     width: 20%;
+    font-family: "Raleway", 'sans-serif';
+    text-align: center;
+    vertical-align: center;
     background-color: #4F4F4F;
-    white-space: pre-wrap;
 }
 .log-screen-options:hover {
     background-color: #333333;
@@ -246,4 +250,9 @@ tr, tbody {
 .node-button-holder {
     margin: auto;
     width: 50%;
+}
+#logging-settings {
+    display: block;
+    position: relative;
+    max-height: 40px;
 }

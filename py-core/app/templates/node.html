@@ -13,27 +13,32 @@
         <textarea readonly id="log-screen">
             Loading Logs...
         </textarea>
-        <table id="log-options-container">
-            <tr>
-                <td class="log-screen-options" id="tezos">
-                    Tezos Node Logs
-                </td>
-                {% if node['history_mode'] == 'archive' and node['network'] != 'dalphanet'%}
-                    <td class="log-screen-options" id="arronax">
-                        Arronax Logs
+        <div id="logging-settings">
+            <table id="log-options-container">
+                <tr>
+                    <td class="log-screen-options" id="tezos">
+                        Tezos Node Logs
                     </td>
-                    <td class="log-screen-options" id="conseil">
-                        Conseil API Logs
-                    </td>
-                    <td class="log-screen-options" id="lorre">
-                        Conseil Lorre Logs
-                    </td>
-                    <td class="log-screen-options" id="postgres">
-                        Conseil Postgres Logs
-                    </td>
-                {% endif %}
-            </tr>
-        </table>
+                    {% if node['history_mode'] == 'archive' and node['network'] != 'dalphanet'%}
+                        <td class="log-screen-options" id="arronax">
+                            Arronax Logs
+                        </td>
+                        <td class="log-screen-options" id="conseil">
+                            Conseil API Logs
+                        </td>
+                        <td class="log-screen-options" id="lorre">
+                            Conseil Lorre Logs
+                        </td>
+                        <td class="log-screen-options" id="postgres">
+                            Conseil Postgres Logs
+                        </td>
+                        <td class="log-screen-options">
+
+                        </td>
+                    {% endif %}
+                </tr>
+            </table>
+        </div>
     </div>
     <div id="node-settings-container">
         <div class="option-box" id="node-info">
