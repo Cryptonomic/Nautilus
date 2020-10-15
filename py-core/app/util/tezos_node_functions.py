@@ -3,6 +3,7 @@ import tarfile
 import os
 import shutil
 import logging
+import docker
 
 from util.app_functions import *
 
@@ -160,38 +161,13 @@ def restart_node(name):
               )
 
 
-def get_node_logs(name):
-    os.system(SCRIPT_FILE_PATH +
-              "save_node_logs.sh " +
-              name
-              )
-    logfile = open(DOCKER_COMPOSE_FILE_PATH +
-                   name +
-                   "/" +
-                   "log.tzlog",
-                   "r"
-                   )
-    output = logfile.read()
-    logfile.close()
-    return output
-
-
-def read_file(path):
-    file = open(path, "r")
-    output = file.read()
-    file.close()
-    return output
-
-
 def get_container_logs(name):
-    os.system(SCRIPT_FILE_PATH +
-              "save_node_logs.sh " +
-              name
-              )
+    docker_client = docker.from_env()
     output = dict()
-    output["conseil"] = read_file(DOCKER_COMPOSE_FILE_PATH + name + "/conseil-log.tzlog")
-    output["lorre"] = read_file(DOCKER_COMPOSE_FILE_PATH + name + "/lorre-log.tzlog")
-    output["tezos"] = read_file(DOCKER_COMPOSE_FILE_PATH + name + "/node-log.tzlog")
-    output["arronax"] = read_file(DOCKER_COMPOSE_FILE_PATH + name + "/arronax-log.tzlog")
-    output["postgres"] = read_file(DOCKER_COMPOSE_FILE_PATH + name + "/postgres-log.tzlog")
+    output["conseil"] = str(docker_client.containers.get(name + "_conseil-api_1").logs(tail=100))
+    output["lorre"] = str(docker_client.containers.get(name + "_conseil-lorre_1").logs(tail=100))
+    output["tezos"] = str(docker_client.containers.get(name + "_tezos-node_1").logs(tail=100))
+    output["arronax"] = str(docker_client.containers.get(name + "_arronax_1").logs(tail=100))
+    output["postgres"] = str(docker_client.containers.get(name + "_conseil-postgres_1").logs(tail=100))
+    docker_client.close()
     return output

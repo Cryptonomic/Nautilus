@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+
+        {#    STYLING LINKS    #}
+        <link href="https://fonts.googleapis.com/css2?family=Raleway&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Rouge+Script&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/stylesheet.css') }}">
+
+        {#    CDN LINKS    #}
+        <script src="https://d3js.org/d3.v6.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+
+        <title>{% block title %}{% endblock %}</title>
+    </head>
+    <body>
+
+    <a href="/" id="header-link">
+        <div id="nc-header">
+            <div class="title">
+                <span>Nautilus Core</span>
+            </div>
+        </div>
+    </a>
+    <div id="header-spacer">
+            {# This just exists to add space underneath the header so elements don't get hidden underneath it #}
+    </div>
+
+        <div id="content">
+            {% block content %}
+            {% endblock %}
+            <div id="footer-spacer"></div>
+        </div>
+
+        <div id="nc-footer">
+        </div>
+
+        {% block scripts  %}
+        {% endblock %}
+
+    </body>
+</html>

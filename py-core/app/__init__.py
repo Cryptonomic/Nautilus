@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, flash, jsonify
 import rq
 import os
 import logging
+import psutil
 import json
 
 from worker import conn
@@ -24,6 +25,10 @@ LOGGING_FORMAT = "<<%(levelname)s>> %(asctime)s | %(message)s"
 logging.basicConfig(filename=LOGGING_FILE_PATH,
                     format=LOGGING_FORMAT,
                     level=logging.DEBUG)
+
+# Stores CPU Usage data for this instance of the app
+cpu_data = []
+ram_data = []
 
 
 @app.route("/")
@@ -60,7 +65,8 @@ def node_start_page():
     logging.debug("Node options retrieved from user.")
 
     # Checking if there are any problems with the user input
-    if p_name is None or p_history_mode is None or p_network is None:
+    if p_name == "None" or p_history_mode == "None" or p_network == "None" \
+            or p_name == "" or p_history_mode == "" or p_network == "":
         logging.warning("Not all form inputs filled out.")
         flash("Please fill in all of the options.", "error")
         return render_template("node_options.html")
@@ -186,11 +192,28 @@ def node_rpc_page():
 def get_logs():
     name = str(request.args.get("name"))
     data = node_functions.get_container_logs(name)
-    return jsonify(arronax=data["arronax"],
-                   conseil=data['conseil'],
-                   lorre=data['lorre'],
-                   postgres=data['postgres'],
-                   tezos=data['tezos'])
+    return jsonify(arronax=data["arronax"].replace("\\n", "&#013;"),
+                   conseil=data['conseil'].replace("\\n", "&#013;"),
+                   lorre=data['lorre'].replace("\\n", "&#013;"),
+                   postgres=data['postgres'].replace("\\n", "&#013;"),
+                   tezos=data['tezos'].replace("\\n", "&#013;")
+                   )
+
+
+@app.route("/get_cpu_data")
+def get_cpu():
+    cpu_data.append(psutil.cpu_percent())
+    if len(cpu_data) > 300:
+        cpu_data.pop(0)
+    return jsonify(cpu=cpu_data)
+
+
+@app.route("/get_ram_data")
+def get_ram():
+    ram_data.append(psutil.virtual_memory().percent)
+    if len(ram_data) > 300:
+        ram_data.pop(0)
+    return jsonify(ram=ram_data)
 
 
 if __name__ == "__main__":

@@ -1,67 +1,164 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Node</title>
-    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
-</head>
-<body>
+{% extends "base.html" %}
 
-    <center><h1>Viewing Node "{{ node['name'] }}"</h1></center>
+{% block title %}
+    Node {{ node['name'] }}
+{% endblock %}
 
-    <br>
+{% block content %}
 
-    <h4>History Mode: {{ node['history_mode'] }}</h4>
-    <h4>Network: {{ node['network'] }}</h4>
+    <div class="title">
+        <h1>Viewing Node: {{ node['name'] }}</h1>
+    </div>
+    <div id="node-logs">
+        <textarea readonly id="log-screen">
+            Loading Logs...
+        </textarea>
+        <div id="logging-settings">
+            <table id="log-options-container">
+                <tr>
+                    <td class="log-screen-options" id="tezos">
+                        Tezos Node Logs
+                    </td>
+                    {% if node['history_mode'] == 'archive' and node['network'] != 'dalphanet'%}
+                        <td class="log-screen-options" id="arronax">
+                            Arronax Logs
+                        </td>
+                        <td class="log-screen-options" id="conseil">
+                            Conseil API Logs
+                        </td>
+                        <td class="log-screen-options" id="lorre">
+                            Conseil Lorre Logs
+                        </td>
+                        <td class="log-screen-options" id="postgres">
+                            Conseil Postgres Logs
+                        </td>
+                        <td class="log-screen-options">
 
-    Status: {{ node['status'] }} <br>
-    Tezos-Node RPC Port: {{ node['node_port'] }} <br>
-    {% if node['history_mode'] == 'archive' %}
-        Conseil Port: {{ node['conseil_port'] }} <br>
-        Arronax Port: {{ node['arronax_port'] }} <br>
-    {% endif %}
+                        </td>
+                    {% endif %}
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div id="node-settings-container">
+        <div class="option-box" id="node-info">
+            <br>
+            <h3>Node Info</h3>
+            <br>
+            Network : {{ node['network'] }}
+            <br>
+            <br>
+            History Mode : {{ node['history_mode'] }}
+            <br>
+            <br>
+            Status : {{ node['status'] }}
+            <br>
+            <br>
+        </div>
+        <div class="option-box" id="node-interactions">
+            <br>
+            <h3>Node Interactions</h3>
+            <br>
+            Tezos-Node RPC Port : <a href="http://localhost:{{ node['node_port'] }}">{{ node['node_port'] }}</a>
+            <br>
+            <br>
+            {% if node['history_mode'] == 'archive' and node['network'] != 'dalphanet' %}
+                Conseil Port : {{ node['conseil_port'] }}
+                <br>
+                <br>
+                Conseil API Key : 'conseil'
+                <br>
+                <br>
+                Arronax Port : {{ node['arronax_port'] }}
+                <br>
+                <br>
+                <div class="node-button-holder">
+                    <a href="http://localhost:{{ node['arronax_port'] }}">
+                       <div class="button">
+                            Query with Arronax
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
+            <br>
+            <br>
+        </div>
+        <div class="option-box" id="node-options">
+            <br>
+            <h3>Node Options</h3>
+            <br>
+            <div class="node-button-holder">
+                {% if node['status'] != 'stopped' %}
+                    <a href="/stop_node?name={{node['name']}}">
+                        <div class="button">
+                            Stop Node
+                        </div>
+                    </a>
+                    <br>
+                    <br>
+                {% endif %}
+                <a href="/restart_node?name={{node['name']}}">
+                    <div class="button">
+                        Restart Node
+                    </div>
+                </a>
+                <br>
+                <br>
+                <a href="/delete_node?name={{node['name']}}">
+                    <div class="button">
+                        Delete Node
+                    </div>
+                </a>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
 
-    <h4>Actions</h4>
-    {% if node['status'] == 'running' %}
-        <a href="http://localhost:{{node['arronax_port']}}" target="_blank">Query Node With Arronax</a> <br> <br>
-<!--        <a href="/rpc?name={{node['name']}}">Query with RPC</a> <br> <br>-->
-        <a href="/stop_node?name={{node['name']}}">Stop Node</a> <br> <br>
-        <a href="/delete_node?name={{node['name']}}">Delete Node</a> <br> <br>
-        <a href="/restart_node?name={{node['name']}}">Restart Node</a> <br> <br>
-    {% else %}
-        <a href="/stop_node?name={{node['name']}}">Stop Node</a> <br> <br>
-        <a href="/restart_node?name={{node['name']}}">Restart Node</a> <br> <br>
-        <a href="/delete_node?name={{node['name']}}">Delete Node</a> <br> <br>
-    {% endif %}
+{% endblock %}
 
-    <h3>Tezos Node Logs</h3>
-    <textarea id="tezos-node-logs"></textarea>
-    {% if node['history_mode'] == 'archive' %}
-        <h3>Conseil API Logs</h3>
-        <textarea id="conseil-api-logs"></textarea>
-        <h3>Conseil Lorre Logs</h3>
-        <textarea id="conseil-lorre-logs"></textarea>
-        <h3>Conseil Postgres Logs</h3>
-        <textarea id="conseil-postgres-logs"></textarea>
-        <h3>Arronax Logs</h3>
-        <textarea id="arronax-logs"></textarea>
-    {% endif %}
-
-    <br>
-    <a href="/">Back to Main Menu</a>
-
+{% block scripts %}
     <script>
-        setInterval(function() {
+
+        let currentLog = "tezos";
+        document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+
+        document.getElementById("tezos").addEventListener("click", function () {
+           document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+           currentLog = "tezos";
+           document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+        });
+        {% if node['history_mode'] == 'archive' and node['network'] != 'dalphanet' %}
+            document.getElementById("conseil").addEventListener("click", function () {
+                document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+                currentLog = "conseil";
+                document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+            });
+            document.getElementById("lorre").addEventListener("click", function () {
+                document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+                currentLog = "lorre";
+                document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+            });
+            document.getElementById("arronax").addEventListener("click", function () {
+                document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+                currentLog = "arronax";
+                document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+            });
+            document.getElementById("postgres").addEventListener("click", function () {
+                document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+                currentLog = "postgres";
+                document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+            });
+        {% endif %}
+
+        let getLogs = function() {
             $.getJSON('http://localhost:5000/get_logs', {
                 name: "{{node['name']}}",
             }, function(data) {
-                document.getElementById("tezos-node-logs").innerText = data.tezos
-                document.getElementById("conseil-api-logs").innerText = data.conseil
-                document.getElementById("conseil-lorre-logs").innerText = data.lorre
-                document.getElementById("conseil-postgres-logs").innerText = data.postgres
-                document.getElementById("arronax-logs").innerText = data.arronax
+                document.getElementById("log-screen").innerHTML = data[currentLog];
             });
-        }, 100)
+        }
+
+        setInterval(getLogs, 1000)
     </script>
-</body>
-</html>
+{% endblock %}
