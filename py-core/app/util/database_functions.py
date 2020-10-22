@@ -66,6 +66,7 @@ def get_node_data(name):
 
 
 def add_node(data):
+    s = get_new_session()
     node = Node(name=data["name"],
                 arronax_port=data["arronax_port"],
                 conseil_port=data["conseil_port"],
@@ -74,8 +75,8 @@ def add_node(data):
                 history_mode=data["history_mode"],
                 status=data["status"]
                 )
-    session.add(node)
-    session.commit()
+    s.add(node)
+    s.commit()
 
 
 def get_status(name):
