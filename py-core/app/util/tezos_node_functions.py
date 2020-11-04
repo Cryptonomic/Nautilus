@@ -4,6 +4,7 @@ import os
 import shutil
 import logging
 import docker
+import yaml
 
 from util.app_functions import *
 
@@ -33,9 +34,6 @@ logging.basicConfig(filename=LOGGING_FILE_PATH,
 
 
 def create_node(data):
-
-    data_location = DOCKER_COMPOSE_FILE_PATH + data["name"]
-    filename = ""
 
     # Start Node
     if data["restore"]:
@@ -129,81 +127,18 @@ def create_new_node_directory(data):
 
 
 def remove_node_options(data, file_text):
+    yaml_object = yaml.load(file_text, Loader=yaml.BaseLoader)
     if data["network"] != "dalphanet":
+
         if data["arronax_port"] == 0:
-            file_text = file_text.replace(
-                """
-arronax:
-  image: arronax
-  restart: always
-  ports:
-    - "3080:80"
-  networks:
-    - tezos
-  logging:
-    driver: "json-file" 
-                """, "")
+            yaml_object["services"].pop("arronax", None)
+
         if data["conseil_port"] == 0:
-            file_text = file_text.replace(
-                """
-conseil-postgres:
-  image: postgres:11.6
-  restart: always
-  environment:
-    POSTRGES_PASSWORD: "password"
-    POSTGRES_USER: "conseil"
-    POSTGRES_DB: "conseil"
-    POSTGRES_INITDB_ARGS: "--lc-collate=en_US.UTF-8 -E UTF8"
-  expose:
-    - 5423
-  networks:
-    - tezos
-  volumes:
-    - ../../data/conseil.sql:/docker-entrypoint-initdb.d/conseil.sql
-  logging:
-    driver: "json-file"
+            yaml_object["services"].pop("conseil-postgres", None)
+            yaml_object["services"].pop("conseil-lorre", None)
+            yaml_object["services"].pop("conseil-api", None)
 
-conseil-lorre:
-  image: cryptonomictech/conseil:latest
-  restart: always
-  environment:
-    DB_Host: "conseil-postgres"
-    DB_Port : 5432
-    DB_User: "conseil"
-    DB_Password: "password"
-    DB_Database: "conseil"
-    XTZ_Host: "tezos-node"
-    XTZ_Port: 8732
-    XTZ_Network": "TEZOS NETWORK"
-  command: "conseil-lorre"
-  networks:
-    - tezos
-  logging:
-    driver: "json-file"
-
-conseil-api:
-  image: cryptonomictech/conseil:latest
-  restart: always
-  environment:
-    DB_Host: "conseil-postgres"
-    DB_Port: 5432
-    DB_User: "conseil"
-    DB_Password: "password"
-    DB_Database: "conseil"
-    XTZ_Host: "tezos-node"
-    XTZ_Port: 8732
-    XTZ_Network: "TEZOS NETWORK"
-  command: "conseil-api"
-  ports:
-    - "4080:80"
-  expose:
-    - 80
-  networks:
-    - tezos
-  logging:
-    driver: "json-file"
-            """, " ")
-    return file_text
+    return yaml.dump(yaml_object)
 
 
 def parse_node_docker_compose_file(data):
@@ -211,36 +146,33 @@ def parse_node_docker_compose_file(data):
     node_docker_compose_text_file = file.read()
     file.close()
 
-    node_docker_compose_text_file = node_docker_compose_text_file.replace("\"NODE START COMMAND\"",
-                        "\"tezos-node --cors-header='content-type' --cors-origin='*' --history-mode {} --network {} --rpc-addr 0.0.0.0:8732\""
-                        .format(
+    yaml_object = yaml.load(node_docker_compose_text_file, Loader=yaml.BaseLoader)
+
+    yaml_object["services"]["tezos-node"]["command"] = \
+        "tezos-node --cors-header='content-type' --cors-origin='*' --history-mode {} --network {} --rpc-addr 0.0.0.0:8732".format(
                             data["history_mode"],
                             data["network"]
                         )
-                        )
 
     if data["network"] != "dalphanet":
-        node_docker_compose_text_file = node_docker_compose_text_file.replace("\"TEZOS NETWORK\"",
-                            "\"{}\"".format(data["network"])
-                            )
-        node_docker_compose_text_file = node_docker_compose_text_file.replace("image: arronax",
-                            "image: arronax-{}".format(data["network"])
-                            )
-        node_docker_compose_text_file = node_docker_compose_text_file.replace("\"3080:80\"",
-                            "\"{}:80\"".format(data["arronax_port"])
-                            )
-        node_docker_compose_text_file = node_docker_compose_text_file.replace("\"4080:80\"",
-                            "\"{}:80\"".format(data["conseil_port"])
-                            )
+        yaml_object["services"]["conseil-lorre"]["environment"]["XTZ_Network"] = "{}".format(data["network"])
 
-    node_docker_compose_text_file = node_docker_compose_text_file.replace("\"8732:8732\"",
-                        "\"{}:8732\"".format(data["node_port"])
-                        )
+        yaml_object["services"]["conseil-api"]["environment"]["XTZ_Network"] = "{}".format(data["network"])
 
-    if data["history_mode"] == "archive":
-        node_docker_compose_text_file = node_docker_compose_text_file.replace("./tezos-data:/var/run/tezos",
-                            "./{}:/var/run/tezos".format("tezos-node_data-dir")
-                            )
+        yaml_object["services"]["arronax"]["image"] = "arronax-{}".format(data["network"])
+
+        yaml_object["services"]["arronax"]["ports"] = ["{}:80".format(data["arronax_port"])]
+
+        yaml_object["services"]["conseil-api"]["ports"] = ["{}:80".format(data["conseil_port"])]
+
+    yaml_object["services"]["tezos-node"]["ports"] = ["{}:8732".format(data["node_port"])]
+
+    if data["restore"] and data["history_mode"] == "archive":
+        yaml_object["services"]["tezos-node"]["volumes"] = ["./{}:/var/run/tezos".format("tezos-node_data-dir")]
+
+    node_docker_compose_text_file = yaml.dump(yaml_object)
+
+    node_docker_compose_text_file = remove_node_options(data, node_docker_compose_text_file)
 
     file = open(DOCKER_COMPOSE_FILE_PATH + data["name"] + "/docker-compose.yml", "w")
     file.write(node_docker_compose_text_file)
@@ -272,10 +204,22 @@ def restart_node(name):
 def get_container_logs(name):
     docker_client = docker.from_env()
     output = dict()
-    output["conseil"] = str(docker_client.containers.get(name + "_conseil-api_1").logs(tail=100))
-    output["lorre"] = str(docker_client.containers.get(name + "_conseil-lorre_1").logs(tail=100))
-    output["tezos"] = str(docker_client.containers.get(name + "_tezos-node_1").logs(tail=100))
-    output["arronax"] = str(docker_client.containers.get(name + "_arronax_1").logs(tail=100))
-    output["postgres"] = str(docker_client.containers.get(name + "_conseil-postgres_1").logs(tail=100))
-    docker_client.close()
+    try:
+        output["conseil"] = str(docker_client.containers.get(name + "_conseil-api_1").logs(tail=100))
+        output["postgres"] = str(docker_client.containers.get(name + "_conseil-postgres_1").logs(tail=100))
+        output["lorre"] = str(docker_client.containers.get(name + "_conseil-lorre_1").logs(tail=100))
+    except:
+        output["conseil"] = "Getting Logs..."
+        output["postgres"] = "Getting Logs..."
+        output["lorre"] = "Getting Logs..."
+    try:
+        output["tezos"] = str(docker_client.containers.get(name + "_tezos-node_1").logs(tail=100))
+    except:
+        output['tezos'] = "Getting Logs..."
+    try:
+        output["arronax"] = str(docker_client.containers.get(name + "_arronax_1").logs(tail=100))
+    except:
+        output["arronax"] = "Getting Logs..."
+    finally:
+        docker_client.close()
     return output

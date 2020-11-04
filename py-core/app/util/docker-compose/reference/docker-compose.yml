@@ -10,8 +10,6 @@ services:
     expose:
       - 8732
     command: "NODE START COMMAND"
-    networks:
-      - tezos
     logging:
       driver: "json-file"
 
@@ -25,8 +23,6 @@ services:
       POSTGRES_INITDB_ARGS: "--lc-collate=en_US.UTF-8 -E UTF8"
     expose:
       - 5423
-    networks:
-      - tezos
     volumes:
       - ../../data/conseil.sql:/docker-entrypoint-initdb.d/conseil.sql
     logging:
@@ -45,8 +41,6 @@ services:
       XTZ_Port: 8732
       XTZ_Network": "TEZOS NETWORK"
     command: "conseil-lorre"
-    networks:
-      - tezos
     logging:
       driver: "json-file"
 
@@ -67,8 +61,6 @@ services:
       - "4080:80"
     expose:
       - 80
-    networks:
-      - tezos
     logging:
       driver: "json-file"
 
@@ -77,10 +69,5 @@ services:
     restart: always
     ports:
       - "3080:80"
-    networks:
-      - tezos
     logging:
       driver: "json-file"
-
-networks:
-  tezos:

@@ -76,7 +76,7 @@ def node_start_page():
         flash("The name you have provided is already being used.", "error")
         return render_template("node_options.html")
 
-    if p_network == "dalphanet" or p_network == "delphinet":
+    if p_network == "dalphanet":
         p_snapshot_restore = False
 
     logging.debug("Getting next available port.")
@@ -92,6 +92,16 @@ def node_start_page():
     data["history_mode"] = p_history_mode
     data["restore"] = p_snapshot_restore
     data["status"] = "starting"
+
+    if not request.args.get("arronax"):
+        data["arronax_port"] = 0
+
+    if not request.args.get("conseil"):
+        data["conseil_port"] = 0
+
+    if data["history_mode"] != "archive":
+        data["arronax_port"] = 0
+        data["conseil_port"] = 0
 
     # Add node to database
     logging.debug("Adding node to database.")
