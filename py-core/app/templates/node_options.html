@@ -70,17 +70,17 @@
             <br>
             <div class="radio-button-holder">
                 <label>
-                    <input type="radio" name="mode" value="full">
+                    <input type="radio" name="mode" value="full" id="fullModeSelection">
                     Full
                 </label>
                 <br>
                 <label>
-                    <input type="radio" name="mode" value="experimental-rolling">
+                    <input type="radio" name="mode" value="experimental-rolling" id="rollingModeSelection">
                     Rolling
                 </label>
                 <br>
                 <label>
-                    <input type="radio" name="mode" value="archive">
+                    <input type="radio" name="mode" value="archive" id="archiveModeSelection">
                     Archive
                 </label>
                 <br>
@@ -108,8 +108,25 @@
                 <br>
                 <br>
                     <i>
-                        NOTE 2: This option is not available with Delphinet and dalphanet (yet)
+                        NOTE 2: This option is not available with Dalphanet (yet)
                     </i>
+                <br>
+                <br>
+                <i>
+                    The following options can only be selected for Archive Nodes.
+                </i>
+                <br>
+                <br>
+                <label>
+                    <input type="checkbox" name="arronax" id="startArronax" disabled="disabled">
+                    Install Arronax with Node
+                </label>
+                <br>
+                <br>
+                <label>
+                    <input type="checkbox" name="conseil" id="startConseil" disabled="disabled">
+                    Install Conseil with Node
+                </label>
                 <br>
                 <br>
             </div>
@@ -119,4 +136,57 @@
     <br>
     <br>
     <br>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+
+        var archiveModeSelection = document.getElementById("archiveModeSelection")
+        var fullModeSelection = document.getElementById("fullModeSelection")
+        var rollingModeSelection = document.getElementById("rollingModeSelection")
+
+        var startArronax = document.getElementById("startArronax")
+        var startConseil = document.getElementById("startConseil")
+
+        archiveModeSelection.addEventListener("change", function () {
+            if(archiveModeSelection.checked) {
+                startArronax.disabled = false
+                startConseil.disabled = false
+                startArronax.checked = true
+                startConseil.checked = true
+            }
+        })
+
+        fullModeSelection.addEventListener("change", function () {
+            if(fullModeSelection.checked) {
+                startArronax.checked = false
+                startConseil.checked = false
+                startArronax.disabled = "disabled"
+                startConseil.disabled = "disabled"
+            }
+        })
+
+        rollingModeSelection.addEventListener("change", function () {
+            if(rollingModeSelection.checked) {
+                startArronax.checked = false
+                startConseil.checked = false
+                startArronax.disabled = "disabled"
+                startConseil.disabled = "disabled"
+            }
+        })
+
+        startArronax.addEventListener("change", function () {
+            if(startArronax.checked) {
+                startConseil.checked = true
+            }
+        })
+
+        startConseil.addEventListener("change", function () {
+            if(!startConseil.checked) {
+                startArronax.checked = false
+            }
+        })
+
+
+    </script>
 {% endblock %}
