@@ -201,25 +201,26 @@ def restart_node(name):
               )
 
 
-def get_container_logs(name):
+def get_container_logs(data):
     docker_client = docker.from_env()
     output = dict()
+    name = data["name"]
+
     try:
         output["conseil"] = str(docker_client.containers.get(name + "_conseil-api_1").logs(tail=100))
         output["postgres"] = str(docker_client.containers.get(name + "_conseil-postgres_1").logs(tail=100))
         output["lorre"] = str(docker_client.containers.get(name + "_conseil-lorre_1").logs(tail=100))
     except:
-        output["conseil"] = "Getting Logs..."
-        output["postgres"] = "Getting Logs..."
-        output["lorre"] = "Getting Logs..."
-    try:
-        output["tezos"] = str(docker_client.containers.get(name + "_tezos-node_1").logs(tail=100))
-    except:
-        output['tezos'] = "Getting Logs..."
+        output["conseil"] = "Loading Logs..."
+        output["postgres"] = "Loading Logs..."
+        output["lorre"] = "Loading Logs..."
+
     try:
         output["arronax"] = str(docker_client.containers.get(name + "_arronax_1").logs(tail=100))
     except:
-        output["arronax"] = "Getting Logs..."
-    finally:
-        docker_client.close()
+        output["arronax"] = "Loading Logs..."
+
+    output["tezos"] = str(docker_client.containers.get(name + "_tezos-node_1").logs(tail=100))
+
+    docker_client.close()
     return output

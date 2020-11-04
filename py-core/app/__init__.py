@@ -201,7 +201,8 @@ def node_rpc_page():
 @app.route("/get_logs")
 def get_logs():
     name = str(request.args.get("name"))
-    data = node_functions.get_container_logs(name)
+    data = db.get_node_data(name)
+    data = node_functions.get_container_logs(data)
     return jsonify(arronax=data["arronax"].replace("\\n", "&#013;"),
                    conseil=data['conseil'].replace("\\n", "&#013;"),
                    lorre=data['lorre'].replace("\\n", "&#013;"),

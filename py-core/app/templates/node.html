@@ -137,26 +137,30 @@
            document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
         });
         {% if node['history_mode'] == 'archive' and node['network'] != 'dalphanet' %}
-            document.getElementById("conseil").addEventListener("click", function () {
-                document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
-                currentLog = "conseil";
-                document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
-            });
-            document.getElementById("lorre").addEventListener("click", function () {
-                document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
-                currentLog = "lorre";
-                document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
-            });
-            document.getElementById("arronax").addEventListener("click", function () {
-                document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
-                currentLog = "arronax";
-                document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
-            });
-            document.getElementById("postgres").addEventListener("click", function () {
-                document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
-                currentLog = "postgres";
-                document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
-            });
+            {% if node['conseil_port'] != 0 %}
+                document.getElementById("conseil").addEventListener("click", function () {
+                    document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+                    currentLog = "conseil";
+                    document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+                });
+                document.getElementById("lorre").addEventListener("click", function () {
+                    document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+                    currentLog = "lorre";
+                    document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+                });
+                document.getElementById("postgres").addEventListener("click", function () {
+                    document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+                    currentLog = "postgres";
+                    document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+                });
+            {% endif %}
+            {% if node['arronax_port'] != 0 %}
+                document.getElementById("arronax").addEventListener("click", function () {
+                    document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+                    currentLog = "arronax";
+                    document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+                });
+            {% endif %}
         {% endif %}
 
         let getLogs = function() {
