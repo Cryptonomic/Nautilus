@@ -34,14 +34,22 @@ services:
     image: cryptonomictech/conseil:latest
     restart: always
     environment:
-      DB_Host: "conseil-postgres"
-      DB_Port : 5432
-      DB_User: "conseil"
-      DB_Password: "password"
-      DB_Database: "conseil"
-      XTZ_Host: "tezos-node"
-      XTZ_Port: 8732
-      XTZ_Network": "TEZOS NETWORK"
+      CONSEIL_API_DB_URL: "jdbc:postgresql://conseil-postgres:5432/conseil"
+      CONSEIL_API_DB_USER: "conseil"
+      CONSEIL_API_DB_PASSWORD: "password"
+      CONSEIL_API_DB_NAME: "conseil"
+      CONSEIL_LORRE_DB_URL: "jdbc:postgresql://conseil-postgres:5432/conseil"
+      CONSEIL_LORRE_DB_USER: "conseil"
+      CONSEIL_LORRE_DB_PASSWORD: "password"
+      CONSEIL_LORRE_DB_NAME: "conseil"
+      CONSEIL_XTZ_NODE_HOSTNAME: "tezos-node"
+      CONSEIL_XTZ_NODE_PORT: 8732
+      CONSEIL_XTZ_NETWORK: "TEZOS NETWORK"
+      CONSEIL_XTZ_ENABLED: "true"
+      LORRE_RUNNER_PLATFORM: "tezos"
+      LORRE_RUNNER_NETWORK: "TEZOS NETWORK"
+      JVM_XMX: "4G"
+      CONSEIL_API_KEY: "conseil"
     command: "conseil-lorre"
     logging:
       driver: "json-file"
@@ -50,14 +58,20 @@ services:
     image: cryptonomictech/conseil:latest
     restart: always
     environment:
-      DB_Host: "conseil-postgres"
-      DB_Port: 5432
-      DB_User: "conseil"
-      DB_Password: "password"
-      DB_Database: "conseil"
-      XTZ_Host: "tezos-node"
-      XTZ_Port: 8732
-      XTZ_Network: "TEZOS NETWORK"
+      CONSEIL_API_DB_URL: "jdbc:postgresql://conseil-postgres:5432/conseil"
+      CONSEIL_API_DB_USER: "conseil"
+      CONSEIL_API_DB_PASSWORD: "password"
+      CONSEIL_API_DB_NAME: "conseil"
+      CONSEIL_LORRE_DB_URL: "jdbc:postgresql://conseil-postgres:5432/conseil"
+      CONSEIL_LORRE_DB_USER: "conseil"
+      CONSEIL_LORRE_DB_PASSWORD: "password"
+      CONSEIL_LORRE_DB_NAME: "conseil"
+      CONSEIL_XTZ_NODE_HOSTNAME: "tezos-node"
+      CONSEIL_XTZ_NODE_PORT: 8732
+      CONSEIL_XTZ_NETWORK: "TEZOS NETWORK"
+      CONSEIL_XTZ_ENABLED: "true"
+      JVM_XMX: "4G"
+      CONSEIL_API_KEY: "conseil"
     command: "conseil-api"
     ports:
       - "4080:80"

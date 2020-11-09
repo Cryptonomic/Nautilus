@@ -155,9 +155,11 @@ def parse_node_docker_compose_file(data):
                         )
 
     if data["network"] != "dalphanet":
-        yaml_object["services"]["conseil-lorre"]["environment"]["XTZ_Network"] = "{}".format(data["network"])
+        yaml_object["services"]["conseil-lorre"]["environment"]["CONSEIL_XTZ_NETWORK"] = data["network"]
+        
+        yaml_object["services"]["conseil-lorre"]["environment"]["LORRE_RUNNER_NETWORK"] = data["network"]
 
-        yaml_object["services"]["conseil-api"]["environment"]["XTZ_Network"] = "{}".format(data["network"])
+        yaml_object["services"]["conseil-api"]["environment"]["CONSEIL_XTZ_NETWORK"] = data["network"]
 
         yaml_object["services"]["arronax"]["image"] = "arronax-{}".format(data["network"])
 
