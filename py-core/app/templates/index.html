@@ -50,11 +50,32 @@
 
 {% block scripts %}
     <script>
-        const GRAPH_HEIGHT = 400;
-        const GRAPH_WIDTH = 1000;
-
         let cpuSvg = d3.select("#cpu-graph");
         let ramSvg = d3.select("#ram-graph");
+
+        let GRAPH_HEIGHT = document.getElementById("ram-graph-container").offsetHeight - 20;
+        let GRAPH_WIDTH = document.getElementById("ram-graph-container").offsetWidth - 6;
+
+        window.onresize = function (){
+            GRAPH_HEIGHT = document.getElementById("ram-graph-container").offsetHeight - 20;
+            GRAPH_WIDTH = document.getElementById("ram-graph-container").offsetWidth - 6;
+
+            cpuSvg.style("width", GRAPH_WIDTH + "px")
+              .style("height", GRAPH_HEIGHT + "px")
+
+            ramSvg.style("width", GRAPH_WIDTH + "px")
+              .style("height", GRAPH_HEIGHT + "px")
+
+            d3.select("#system-graphs").style("height", GRAPH_HEIGHT + 40 + "px");
+        }
+
+        cpuSvg.style("width", GRAPH_WIDTH + "px")
+              .style("height", GRAPH_HEIGHT + "px")
+
+        ramSvg.style("width", GRAPH_WIDTH + "px")
+              .style("height", GRAPH_HEIGHT + "px")
+
+        d3.select("#system-graphs").style("height", GRAPH_HEIGHT + 40 + "px");
 
         let yScale = d3.scaleLinear()
                 .domain([0, 1])

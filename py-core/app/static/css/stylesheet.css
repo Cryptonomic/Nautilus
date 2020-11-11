@@ -53,36 +53,32 @@ a {
 #system-graphs {
     position: relative;
     display: block;
-    height: 500px;
-    margin: 40px 40px 40px;
+    margin: 2% 2% 2%;
     border-radius: 25px;
     background-color: #444444;
-    padding: 10px;
+    padding: 2%;
+    height: 200px;
 }
 .homepage-graph {
     position: relative;
     display: block;
-    height: 400px;
-    width: 1000px;
 }
 .graph-container {
     position: relative;
     border-style: solid;
     border-color: black;
-    width: 1000px;
+    width: 40%;
 }
 #cpu-graph-container {
     position: relative;
     display: block;
-    top: 20px;
-    left: 100px;
+    margin: auto;
     float: left;
 }
 #ram-graph-container {
     position: relative;
     display: block;
-    top: 20px;
-    right: 100px;
+    margin: auto;
     float: right;
 }
 .graph-title {
