@@ -165,7 +165,7 @@ def parse_node_docker_compose_file(data):
 
         yaml_object["services"]["arronax"]["ports"] = ["{}:80".format(data["arronax_port"])]
 
-        yaml_object["services"]["conseil-api"]["ports"] = ["{}:80".format(data["conseil_port"])]
+        yaml_object["services"]["conseil-api"]["ports"] = ["{}:1337".format(data["conseil_port"])]
 
     yaml_object["services"]["tezos-node"]["ports"] = ["{}:8732".format(data["node_port"])]
 
