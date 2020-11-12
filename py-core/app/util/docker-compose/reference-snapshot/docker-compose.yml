@@ -50,6 +50,7 @@ services:
       LORRE_RUNNER_NETWORK: "TEZOS NETWORK"
       JVM_XMX: "4G"
       CONSEIL_API_KEY: "conseil"
+      CONSEIL_XTZ_NODE_PATH_PREFIX: "TEZOS PREFIX"
     command: "conseil-lorre"
     logging:
       driver: "json-file"
@@ -72,6 +73,7 @@ services:
       CONSEIL_XTZ_ENABLED: "true"
       JVM_XMX: "4G"
       CONSEIL_API_KEY: "conseil"
+      CONSEIL_XTZ_NODE_PATH_PREFIX: "TEZOS PREFIX"
     command: "conseil-api"
     ports:
       - "4080:80"

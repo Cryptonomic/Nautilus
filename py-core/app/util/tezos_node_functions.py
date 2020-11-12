@@ -161,6 +161,10 @@ def parse_node_docker_compose_file(data):
 
         yaml_object["services"]["conseil-api"]["environment"]["CONSEIL_XTZ_NETWORK"] = data["network"]
 
+        yaml_object["services"]["conseil-api"]["environment"]["CONSEIL_XTZ_NODE_PATH_PREFIX"] = ""
+
+        yaml_object["services"]["conseil-lorre"]["environment"]["CONSEIL_XTZ_NODE_PATH_PREFIX"] = ""
+
         yaml_object["services"]["arronax"]["image"] = "arronax-{}".format(data["network"])
 
         yaml_object["services"]["arronax"]["ports"] = ["{}:80".format(data["arronax_port"])]
