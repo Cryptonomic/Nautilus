@@ -129,16 +129,6 @@
                 </label>
                 <br>
                 <br>
-                <label>
-                    Conseil Docker Image:
-                    <input type="text" name="conseil-image" id="conseilImage" disabled="disabled" value="cryptonomictech/conseil:latest">
-                </label>
-                <i>
-                    NOTE: Using a different version of Conseil may lead to Conseil and Lorre not starting properly...
-                    You may have to edit the built-in docker-compose configuration
-                </i>
-                <br>
-                <br>
             </div>
         </div>
         <button type="submit" id="submit-button" class="button">Submit</button>
@@ -158,15 +148,12 @@
         var startArronax = document.getElementById("startArronax")
         var startConseil = document.getElementById("startConseil")
 
-        var conseilImage = document.getElementById("conseilImage")
-
         archiveModeSelection.addEventListener("change", function () {
             if(archiveModeSelection.checked) {
                 startArronax.disabled = false
                 startConseil.disabled = false
                 startArronax.checked = true
                 startConseil.checked = true
-                conseilImage.disabled = false
             }
         })
 
@@ -176,7 +163,6 @@
                 startConseil.checked = false
                 startArronax.disabled = "disabled"
                 startConseil.disabled = "disabled"
-                conseilImage.disabled = "disabled"
             }
         })
 
@@ -186,7 +172,6 @@
                 startConseil.checked = false
                 startArronax.disabled = "disabled"
                 startConseil.disabled = "disabled"
-                conseilImage.disabled = "disabled"
             }
         })
 
