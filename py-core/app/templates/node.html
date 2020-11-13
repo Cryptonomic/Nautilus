@@ -20,21 +20,25 @@
                         Tezos Node Logs
                     </td>
                     {% if node['history_mode'] == 'archive' and node['network'] != 'dalphanet'%}
-                        <td class="log-screen-options" id="arronax">
-                            Arronax Logs
-                        </td>
-                        <td class="log-screen-options" id="conseil">
-                            Conseil API Logs
-                        </td>
-                        <td class="log-screen-options" id="lorre">
-                            Conseil Lorre Logs
-                        </td>
-                        <td class="log-screen-options" id="postgres">
-                            Conseil Postgres Logs
-                        </td>
-                        <td class="log-screen-options">
+                        {% if node['conseil_port'] != 0 %}
+                            <td class="log-screen-options" id="conseil">
+                                Conseil API Logs
+                            </td>
+                            <td class="log-screen-options" id="lorre">
+                                Conseil Lorre Logs
+                            </td>
+                            <td class="log-screen-options" id="postgres">
+                                Conseil Postgres Logs
+                            </td>
+                        {% endif %}
+                        {% if node['arronax_port'] != 0 %}
+                            <td class="log-screen-options" id="arronax">
+                                Arronax Logs
+                            </td>
+                            <td class="log-screen-options">
 
-                        </td>
+                            </td>
+                        {% endif %}
                     {% endif %}
                 </tr>
             </table>
@@ -63,22 +67,26 @@
             <br>
             <br>
             {% if node['history_mode'] == 'archive' and node['network'] != 'dalphanet' %}
-                Conseil Port : {{ node['conseil_port'] }}
-                <br>
-                <br>
-                Conseil API Key : 'conseil'
-                <br>
-                <br>
-                Arronax Port : {{ node['arronax_port'] }}
-                <br>
-                <br>
-                <div class="node-button-holder">
-                    <a href="http://localhost:{{ node['arronax_port'] }}">
-                       <div class="button">
-                            Query with Arronax
-                        </div>
-                    </a>
-                </div>
+                {% if node['conseil_port'] != 0 %}
+                    Conseil Port : {{ node['conseil_port'] }}
+                    <br>
+                    <br>
+                    Conseil API Key : 'conseil'
+                    <br>
+                    <br>
+                {% endif %}
+                {% if node['arronax_port'] != 0 %}
+                    Arronax Port : {{ node['arronax_port'] }}
+                    <br>
+                    <br>
+                    <div class="node-button-holder">
+                        <a href="http://localhost:{{ node['arronax_port'] }}">
+                           <div class="button">
+                                Query with Arronax
+                            </div>
+                        </a>
+                    </div>
+                {% endif %}
             {% endif %}
             <br>
             <br>
@@ -129,26 +137,30 @@
            document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
         });
         {% if node['history_mode'] == 'archive' and node['network'] != 'dalphanet' %}
-            document.getElementById("conseil").addEventListener("click", function () {
-                document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
-                currentLog = "conseil";
-                document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
-            });
-            document.getElementById("lorre").addEventListener("click", function () {
-                document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
-                currentLog = "lorre";
-                document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
-            });
-            document.getElementById("arronax").addEventListener("click", function () {
-                document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
-                currentLog = "arronax";
-                document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
-            });
-            document.getElementById("postgres").addEventListener("click", function () {
-                document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
-                currentLog = "postgres";
-                document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
-            });
+            {% if node['conseil_port'] != 0 %}
+                document.getElementById("conseil").addEventListener("click", function () {
+                    document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+                    currentLog = "conseil";
+                    document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+                });
+                document.getElementById("lorre").addEventListener("click", function () {
+                    document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+                    currentLog = "lorre";
+                    document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+                });
+                document.getElementById("postgres").addEventListener("click", function () {
+                    document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+                    currentLog = "postgres";
+                    document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+                });
+            {% endif %}
+            {% if node['arronax_port'] != 0 %}
+                document.getElementById("arronax").addEventListener("click", function () {
+                    document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+                    currentLog = "arronax";
+                    document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+                });
+            {% endif %}
         {% endif %}
 
         let getLogs = function() {

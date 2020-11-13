@@ -9,14 +9,25 @@ a {
 #nc-header {
     position: fixed;
     background-color: #333333;
-    top: 0px;
-    left: 0px;
-    right: 0px;
+    top: 0;
+    left: 0;
+    right: 0;
     height: 50px;
 
-    box-shadow: 0px 0px 8px black;
+    box-shadow: 0 0 8px black;
 
     z-index: 1;
+}
+#help_icon {
+    display: block;
+    position: relative;
+    height: 40px;
+    width: 40px;
+
+    color: #9B51E0;
+}
+#header-link {
+    color: #9B51E0;
 }
 #header-spacer {
     position: relative;
@@ -24,54 +35,50 @@ a {
     height: 50px;
 }
 #footer-spacer {
-    height: 100px;
+    height: 225px;
 }
 #nc-footer {
     position: relative;
     background-color: #333333;
-    bottom: 0%;
+    bottom: 0;
     width: 100%;
-    height: 100px;
+    height: 225px;
 }
 #content {
     display: block;
     position: relative;
     min-height: 100%;
-    margin-bottom: -100px;
+    margin-bottom: -225px;
 }
 #system-graphs {
     position: relative;
     display: block;
-    height: 500px;
-    margin: 40px 40px 40px;
+    margin: 2% 2% 2%;
     border-radius: 25px;
     background-color: #444444;
-    padding: 10px;
+    padding: 2%;
+    height: 200px;
 }
 .homepage-graph {
     position: relative;
     display: block;
-    height: 400px;
-    width: 1000px;
 }
 .graph-container {
     position: relative;
     border-style: solid;
     border-color: black;
-    width: 1000px;
+    width: 40%;
 }
 #cpu-graph-container {
     position: relative;
     display: block;
-    top: 20px;
-    left: 100px;
+    margin: auto;
     float: left;
 }
 #ram-graph-container {
     position: relative;
     display: block;
-    top: 20px;
-    right: 100px;
+    margin: auto;
     float: right;
 }
 .graph-title {
@@ -200,7 +207,7 @@ a {
     display: block;
     height: 500px;
     margin: 40px 40px 40px;
-    border-radius: 25px 25px 0px 0px;
+    border-radius: 25px 25px 0 0;
     background-color: #444444;
     padding: 10px;
 }
@@ -255,4 +262,41 @@ tr, tbody {
     display: block;
     position: relative;
     max-height: 40px;
+}
+#footer-main-text {
+    display: inline-block;
+    font-family: "Raleway", 'sans-serif';
+    font-weight: bolder;
+    font-size: large;
+    color: grey;
+    margin-left: 1%;
+    margin-top: 1%;
+    margin-bottom: 1%;
+}
+#footer-links-table {
+    display: block;
+    font-family: "Raleway", 'sans-serif';
+}
+.footer-link {
+    color: #9B51E0;
+}
+.footer-link:hover {
+    color: #BB6BD9;
+}
+.footer-link-element {
+    width: 350px;
+    text-align: left;
+}
+.footer-link-row {
+    display: inline-block;
+    margin-left: 2%;
+    margin-right: 2%;
+}
+.footer-link-head {
+    display: inline-block;
+    font-weight: bold;
+    color: grey;
+    font-family: "Raleway", 'sans-serif';
+    margin-left: 1%;
+    margin-bottom: 0.25%;
 }

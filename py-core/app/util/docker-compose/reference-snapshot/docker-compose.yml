@@ -10,8 +10,6 @@ services:
     expose:
       - 8732
     command: "NODE START COMMAND"
-    networks:
-      - tezos
     volumes:
       - ./tezos-data:/var/run/tezos
     logging:
@@ -27,8 +25,6 @@ services:
       POSTGRES_INITDB_ARGS: "--lc-collate=en_US.UTF-8 -E UTF8"
     expose:
       - 5423
-    networks:
-      - tezos
     volumes:
       - ../../data/conseil.sql:/docker-entrypoint-initdb.d/conseil.sql
     logging:
@@ -38,17 +34,24 @@ services:
     image: cryptonomictech/conseil:latest
     restart: always
     environment:
-      DB_Host: "conseil-postgres"
-      DB_Port : 5432
-      DB_User: "conseil"
-      DB_Password: "password"
-      DB_Database: "conseil"
-      XTZ_Host: "tezos-node"
-      XTZ_Port: 8732
-      XTZ_Network": "TEZOS NETWORK"
+      CONSEIL_API_DB_URL: "jdbc:postgresql://conseil-postgres:5432/conseil"
+      CONSEIL_API_DB_USER: "conseil"
+      CONSEIL_API_DB_PASSWORD: "password"
+      CONSEIL_API_DB_NAME: "conseil"
+      CONSEIL_LORRE_DB_URL: "jdbc:postgresql://conseil-postgres:5432/conseil"
+      CONSEIL_LORRE_DB_USER: "conseil"
+      CONSEIL_LORRE_DB_PASSWORD: "password"
+      CONSEIL_LORRE_DB_NAME: "conseil"
+      CONSEIL_XTZ_NODE_HOSTNAME: "tezos-node"
+      CONSEIL_XTZ_NODE_PORT: 8732
+      CONSEIL_XTZ_NETWORK: "TEZOS NETWORK"
+      CONSEIL_XTZ_ENABLED: "true"
+      LORRE_RUNNER_PLATFORM: "tezos"
+      LORRE_RUNNER_NETWORK: "TEZOS NETWORK"
+      JVM_XMX: "4G"
+      CONSEIL_API_KEY: "conseil"
+      CONSEIL_XTZ_NODE_PATH_PREFIX: "TEZOS PREFIX"
     command: "conseil-lorre"
-    networks:
-      - tezos
     logging:
       driver: "json-file"
 
@@ -56,21 +59,26 @@ services:
     image: cryptonomictech/conseil:latest
     restart: always
     environment:
-      DB_Host: "conseil-postgres"
-      DB_Port: 5432
-      DB_User: "conseil"
-      DB_Password: "password"
-      DB_Database: "conseil"
-      XTZ_Host: "tezos-node"
-      XTZ_Port: 8732
-      XTZ_Network: "TEZOS NETWORK"
+      CONSEIL_API_DB_URL: "jdbc:postgresql://conseil-postgres:5432/conseil"
+      CONSEIL_API_DB_USER: "conseil"
+      CONSEIL_API_DB_PASSWORD: "password"
+      CONSEIL_API_DB_NAME: "conseil"
+      CONSEIL_LORRE_DB_URL: "jdbc:postgresql://conseil-postgres:5432/conseil"
+      CONSEIL_LORRE_DB_USER: "conseil"
+      CONSEIL_LORRE_DB_PASSWORD: "password"
+      CONSEIL_LORRE_DB_NAME: "conseil"
+      CONSEIL_XTZ_NODE_HOSTNAME: "tezos-node"
+      CONSEIL_XTZ_NODE_PORT: 8732
+      CONSEIL_XTZ_NETWORK: "TEZOS NETWORK"
+      CONSEIL_XTZ_ENABLED: "true"
+      JVM_XMX: "4G"
+      CONSEIL_API_KEY: "conseil"
+      CONSEIL_XTZ_NODE_PATH_PREFIX: "TEZOS PREFIX"
     command: "conseil-api"
     ports:
       - "4080:80"
     expose:
       - 80
-    networks:
-      - tezos
     logging:
       driver: "json-file"
 
@@ -79,10 +87,5 @@ services:
     restart: always
     ports:
       - "3080:80"
-    networks:
-      - tezos
     logging:
       driver: "json-file"
-
-networks:
-  tezos:

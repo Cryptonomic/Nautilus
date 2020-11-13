@@ -41,7 +41,6 @@ BEGIN
 END;
 $$;
 
-
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -88,7 +87,7 @@ CREATE TABLE tezos.governance (
     voting_period integer NOT NULL,
     voting_period_kind character varying NOT NULL,
     cycle integer,
-    level integer,
+    level bigint,
     block_hash character varying NOT NULL,
     proposal_hash character varying NOT NULL,
     yay_count integer,
@@ -104,7 +103,9 @@ CREATE TABLE tezos.governance (
     block_yay_rolls numeric,
     block_nay_rolls numeric,
     block_pass_rolls numeric,
-    PRIMARY KEY (block_hash, proposal_hash, voting_period_kind)
+    invalidated_asof timestamp,
+    fork_id character varying NOT NULL,
+    PRIMARY KEY (block_hash, proposal_hash, voting_period_kind, fork_id)
 );
 
 CREATE INDEX governance_block_hash_idx ON tezos.governance USING btree (block_hash);
@@ -113,7 +114,7 @@ CREATE INDEX governance_proposal_hash_idx ON tezos.governance USING btree (propo
 
 
 CREATE TABLE tezos.processed_chain_events (
-    event_level numeric,
+    event_level bigint,
     event_type char varying,
     PRIMARY KEY (event_level, event_type)
 );
@@ -135,9 +136,11 @@ CREATE TABLE tezos.token_balances (
     address text NOT NULL,
     balance numeric NOT NULL,
     block_id character varying NOT NULL,
-    block_level numeric DEFAULT '-1'::integer NOT NULL,
+    block_level bigint DEFAULT '-1'::integer NOT NULL,
     asof timestamp without time zone NOT NULL,
-    PRIMARY KEY (token_id, address, block_level)
+    invalidated_asof timestamp,
+    fork_id character varying NOT NULL,
+    PRIMARY KEY (token_id, address, block_level, fork_id)
 );
 
 CREATE TABLE tezos.tezos_names (
@@ -163,13 +166,17 @@ CREATE TABLE tezos.accounts (
     script character varying,
     storage character varying,
     balance numeric NOT NULL,
-    block_level numeric DEFAULT '-1'::integer NOT NULL,
+    block_level bigint DEFAULT '-1'::integer NOT NULL,
     manager character varying, -- retro-compat from protocol 5+
     spendable boolean, -- retro-compat from protocol 5+
     delegate_setable boolean, -- retro-compat from protocol 5+
     delegate_value char varying, -- retro-compat from protocol 5+
     is_baker boolean NOT NULL DEFAULT false,
-    is_activated boolean NOT NULL DEFAULT false
+    is_activated boolean NOT NULL DEFAULT false,
+    invalidated_asof timestamp,
+    fork_id character varying NOT NULL,
+    script_hash character varying,
+    PRIMARY KEY (account_id, fork_id)
 );
 
 
@@ -179,13 +186,16 @@ CREATE TABLE tezos.accounts_history (
     counter integer,
     storage character varying,
     balance numeric NOT NULL,
-    block_level numeric DEFAULT '-1'::integer NOT NULL,
+    block_level bigint DEFAULT '-1'::integer NOT NULL,
     delegate_value char varying, -- retro-compat from protocol 5+
     asof timestamp without time zone NOT NULL,
     is_baker boolean NOT NULL DEFAULT false,
     cycle integer,
     is_activated boolean NOT NULL DEFAULT false,
-    is_active_baker boolean
+    is_active_baker boolean,
+    invalidated_asof timestamp,
+    fork_id character varying NOT NULL,
+    script_hash character varying
 );
 
 CREATE INDEX ix_account_id ON tezos.accounts_history USING btree (account_id);
@@ -197,7 +207,7 @@ CREATE INDEX ix_account_id ON tezos.accounts_history USING btree (account_id);
 CREATE TABLE tezos.accounts_checkpoint (
     account_id character varying NOT NULL,
     block_id character varying NOT NULL,
-    block_level integer DEFAULT '-1'::integer NOT NULL,
+    block_level bigint DEFAULT '-1'::integer NOT NULL,
     asof timestamp with time zone NOT NULL,
     cycle integer
 );
@@ -209,12 +219,15 @@ CREATE TABLE tezos.accounts_checkpoint (
 
 CREATE TABLE tezos.baking_rights (
     block_hash character varying,
-    level integer NOT NULL,
+    block_level bigint NOT NULL,
     delegate character varying NOT NULL,
     priority integer NOT NULL,
     estimated_time timestamp without time zone,
     cycle integer,
-    governance_period integer
+    governance_period integer,
+    invalidated_asof timestamp,
+    fork_id character varying NOT NULL,
+    PRIMARY KEY (block_level, delegate, fork_id)
 );
 
 
@@ -230,15 +243,17 @@ CREATE TABLE tezos.balance_updates (
     kind character varying NOT NULL,
     account_id character varying NOT NULL,
     change numeric NOT NULL,
-    level numeric,
+    level bigint,
     category character varying,
     operation_group_hash character varying,
     block_id character varying NOT NULL,
-    block_level integer NOT NULL,
+    block_level bigint NOT NULL,
     cycle integer,
-    period integer
+    period integer,
+    invalidated_asof timestamp,
+    fork_id character varying NOT NULL,
+    PRIMARY KEY (id, fork_id)
 );
-
 
 --
 -- Name: balance_updates_id_seq; Type: SEQUENCE; Schema: tezos; Owner: -
@@ -264,7 +279,7 @@ ALTER SEQUENCE tezos.balance_updates_id_seq OWNED BY tezos.balance_updates.id;
 --
 
 CREATE TABLE tezos.blocks (
-    level integer NOT NULL,
+    level bigint NOT NULL,
     proto integer NOT NULL,
     predecessor character varying NOT NULL,
     "timestamp" timestamp without time zone NOT NULL,
@@ -280,7 +295,7 @@ CREATE TABLE tezos.blocks (
     active_proposal character varying,
     baker character varying,
     consumed_gas numeric,
-    meta_level integer,
+    meta_level bigint,
     meta_level_position integer,
     meta_cycle integer,
     meta_cycle_position integer,
@@ -290,9 +305,11 @@ CREATE TABLE tezos.blocks (
     utc_year integer NOT NULL,
     utc_month integer NOT NULL,
     utc_day integer NOT NULL,
-    utc_time character varying NOT NULL
+    utc_time character varying NOT NULL,
+    invalidated_asof timestamp,
+    fork_id character varying NOT NULL,
+    UNIQUE (hash, fork_id)
 );
-
 
 --
 -- Name: bakers; Type: TABLE; Schema: tezos; Owner: -
@@ -308,9 +325,12 @@ CREATE TABLE tezos.bakers (
     rolls integer DEFAULT 0 NOT NULL,
     deactivated boolean NOT NULL,
     grace_period integer NOT NULL,
-    block_level integer DEFAULT '-1'::integer NOT NULL,
+    block_level bigint DEFAULT '-1'::integer NOT NULL,
     cycle integer,
-    period integer
+    period integer,
+    invalidated_asof timestamp,
+    fork_id character varying NOT NULL,
+    PRIMARY KEY (pkh, fork_id)
 );
 
 --
@@ -327,12 +347,13 @@ CREATE TABLE tezos.bakers_history (
     rolls integer DEFAULT 0 NOT NULL,
     deactivated boolean NOT NULL,
     grace_period integer NOT NULL,
-    block_level integer DEFAULT '-1'::integer NOT NULL,
+    block_level bigint DEFAULT '-1'::integer NOT NULL,
     cycle integer,
     period integer,
-    asof timestamp without time zone NOT NULL
+    asof timestamp without time zone NOT NULL,
+    invalidated_asof timestamp,
+    fork_id character varying NOT NULL
 );
-
 
 --
 -- Name: bakers_checkpoint; Type: TABLE; Schema: tezos; Owner: -
@@ -341,7 +362,7 @@ CREATE TABLE tezos.bakers_history (
 CREATE TABLE tezos.bakers_checkpoint (
     delegate_pkh character varying NOT NULL,
     block_id character varying NOT NULL,
-    block_level integer DEFAULT '-1'::integer NOT NULL,
+    block_level bigint DEFAULT '-1'::integer NOT NULL,
     cycle integer,
     period integer
 );
@@ -353,15 +374,17 @@ CREATE TABLE tezos.bakers_checkpoint (
 
 CREATE TABLE tezos.endorsing_rights (
     block_hash character varying,
-    level integer NOT NULL,
+    block_level bigint NOT NULL,
     delegate character varying NOT NULL,
     slot integer NOT NULL,
     estimated_time timestamp without time zone,
     cycle integer,
     governance_period integer,
-    endorsed_block integer
+    endorsed_block bigint,
+    invalidated_asof timestamp,
+    fork_id character varying NOT NULL,
+    PRIMARY KEY (block_level, delegate, slot, fork_id)
 );
-
 
 --
 -- Name: fees; Type: TABLE; Schema: tezos; Owner: -
@@ -374,7 +397,9 @@ CREATE TABLE tezos.fees (
     "timestamp" timestamp without time zone NOT NULL,
     kind character varying NOT NULL,
     cycle integer,
-    level integer
+    level bigint,
+    invalidated_asof timestamp,
+    fork_id character varying NOT NULL
 );
 
 
@@ -389,9 +414,11 @@ CREATE TABLE tezos.operation_groups (
     branch character varying NOT NULL,
     signature character varying,
     block_id character varying NOT NULL,
-    block_level integer NOT NULL
+    block_level bigint NOT NULL,
+    invalidated_asof timestamp,
+    fork_id character varying NOT NULL,
+    PRIMARY KEY (block_id, hash, fork_id)
 );
-
 
 --
 -- Name: operations; Type: TABLE; Schema: tezos; Owner: -
@@ -404,7 +431,7 @@ CREATE TABLE tezos.operations (
     operation_id integer NOT NULL,
     operation_group_hash character varying NOT NULL,
     kind character varying NOT NULL,
-    level integer,
+    level bigint ,
     delegate character varying,
     slots character varying,
     nonce character varying,
@@ -434,7 +461,7 @@ CREATE TABLE tezos.operations (
     paid_storage_size_diff numeric,
     originated_contracts character varying,
     block_hash character varying NOT NULL,
-    block_level integer NOT NULL,
+    block_level bigint NOT NULL,
     ballot character varying,
     internal boolean NOT NULL,
     period integer,
@@ -444,7 +471,10 @@ CREATE TABLE tezos.operations (
     utc_year integer NOT NULL,
     utc_month integer NOT NULL,
     utc_day integer NOT NULL,
-    utc_time character varying NOT NULL
+    utc_time character varying NOT NULL,
+    invalidated_asof timestamp,
+    fork_id character varying NOT NULL,
+    PRIMARY KEY (operation_id, fork_id)
 );
 
  CREATE INDEX ix_manager_pubkey ON tezos.operations USING btree (manager_pubkey);
@@ -491,6 +521,13 @@ CREATE TABLE tezos.originated_account_maps (
 
 CREATE INDEX accounts_maps_idx ON tezos.originated_account_maps USING btree (account_id);
 
+CREATE TABLE tezos.forks (
+    fork_id character varying PRIMARY KEY,
+    fork_level bigint NOT NULL,
+    fork_hash character varying NOT NULL,
+    head_level bigint NOT NULL,
+    "timestamp" timestamp without time zone NOT NULL
+);
 --
 -- Name: balance_updates id; Type: DEFAULT; Schema: tezos; Owner: -
 --
@@ -504,90 +541,34 @@ ALTER TABLE ONLY tezos.balance_updates ALTER COLUMN id SET DEFAULT nextval('tezo
 
 ALTER TABLE ONLY tezos.operations ALTER COLUMN operation_id SET DEFAULT nextval('tezos.operations_operation_id_seq'::regclass);
 
-
---
--- Name: operation_groups OperationGroups_pkey; Type: CONSTRAINT; Schema: tezos; Owner: -
---
-
-ALTER TABLE ONLY tezos.operation_groups
-    ADD CONSTRAINT "OperationGroups_pkey" PRIMARY KEY (block_id, hash);
-
-
---
--- Name: accounts accounts_pkey; Type: CONSTRAINT; Schema: tezos; Owner: -
---
-
-ALTER TABLE ONLY tezos.accounts
-    ADD CONSTRAINT accounts_pkey PRIMARY KEY (account_id);
-
-
---
--- Name: baking_rights baking_rights_pkey; Type: CONSTRAINT; Schema: tezos; Owner: -
---
-
-ALTER TABLE ONLY tezos.baking_rights
-    ADD CONSTRAINT baking_rights_pkey PRIMARY KEY (level, delegate);
-
-
---
--- Name: balance_updates balance_updates_key; Type: CONSTRAINT; Schema: tezos; Owner: -
---
-
-ALTER TABLE ONLY tezos.balance_updates
-    ADD CONSTRAINT balance_updates_key PRIMARY KEY (id);
-
-
---
--- Name: blocks blocks_hash_key; Type: CONSTRAINT; Schema: tezos; Owner: -
---
-
-ALTER TABLE ONLY tezos.blocks
-    ADD CONSTRAINT blocks_hash_key UNIQUE (hash);
-
-
---
--- Name: bakers bakers_pkey; Type: CONSTRAINT; Schema: tezos; Owner: -
---
-
-ALTER TABLE ONLY tezos.bakers
-    ADD CONSTRAINT bakers_pkey PRIMARY KEY (pkh);
-
-
---
--- Name: endorsing_rights endorsing_rights_pkey; Type: CONSTRAINT; Schema: tezos; Owner: -
---
-
-ALTER TABLE ONLY tezos.endorsing_rights
-    ADD CONSTRAINT endorsing_rights_pkey PRIMARY KEY (level, delegate, slot);
-
-
---
--- Name: operations operationId; Type: CONSTRAINT; Schema: tezos; Owner: -
---
-
-ALTER TABLE ONLY tezos.operations
-    ADD CONSTRAINT "operationId" PRIMARY KEY (operation_id);
-
-
 --
 -- Name: baking_rights_level_idx; Type: INDEX; Schema: tezos; Owner: -
 --
 
-CREATE INDEX baking_rights_level_idx ON tezos.baking_rights USING btree (level);
+CREATE INDEX baking_rights_level_idx ON tezos.baking_rights USING btree (block_level);
 
 CREATE INDEX baking_rights_delegate_idx ON tezos.baking_rights USING btree (delegate);
 
 CREATE INDEX ix_delegate_priority ON tezos.baking_rights USING btree (delegate, priority);
 
+CREATE INDEX ix_cycle ON tezos.baking_rights USING btree (cycle ASC NULLS LAST);
+
+CREATE INDEX ix_delegate_priority_cycle ON tezos.baking_rights USING btree
+    (delegate ASC NULLS LAST, priority ASC NULLS LAST, cycle ASC NULLS LAST);
+
 --
 -- Name: endorsing_rights_level_idx; Type: INDEX; Schema: tezos; Owner: -
 --
 
-CREATE INDEX endorsing_rights_level_idx ON tezos.endorsing_rights USING btree (level);
+CREATE INDEX endorsing_rights_level_idx ON tezos.endorsing_rights USING btree (block_level);
 
 CREATE INDEX endorsing_rights_delegate_idx ON tezos.endorsing_rights USING btree (delegate);
 
 CREATE INDEX ix_delegate_slot ON tezos.endorsing_rights USING btree (delegate, slot);
+
+CREATE INDEX ix_delegate_block_level ON tezos.endorsing_rights USING btree
+    (delegate ASC NULLS LAST, block_level ASC NULLS LAST);
+
 --
 -- Name: fki_block; Type: INDEX; Schema: tezos; Owner: -
 --
@@ -722,7 +703,10 @@ CREATE INDEX ix_balance_updates_block_level ON tezos.balance_updates USING btree
 --
 
 ALTER TABLE ONLY tezos.accounts
-    ADD CONSTRAINT accounts_block_id_fkey FOREIGN KEY (block_id) REFERENCES tezos.blocks(hash);
+    ADD CONSTRAINT accounts_block_id_fkey
+    FOREIGN KEY (block_id, fork_id)
+    REFERENCES tezos.blocks(hash, fork_id)
+    DEFERRABLE INITIALLY IMMEDIATE;
 
 
 --
@@ -730,24 +714,20 @@ ALTER TABLE ONLY tezos.accounts
 --
 
 ALTER TABLE ONLY tezos.operation_groups
-    ADD CONSTRAINT block FOREIGN KEY (block_id) REFERENCES tezos.blocks(hash);
-
-
---
--- TOC entry 2119 (class 2606 OID 99741)
--- Name: delegates_checkpoint delegate_checkpoint_block_id_fkey; Type: FK CONSTRAINT; Schema: tezos; Owner: -
---
-
-ALTER TABLE ONLY tezos.bakers_checkpoint
-    ADD CONSTRAINT baker_checkpoint_block_id_fkey FOREIGN KEY (block_id) REFERENCES tezos.blocks(hash);
-
+    ADD CONSTRAINT block
+    FOREIGN KEY (block_id, fork_id)
+    REFERENCES tezos.blocks(hash, fork_id)
+    DEFERRABLE INITIALLY IMMEDIATE;
 
 --
 -- Name: delegates delegates_block_id_fkey; Type: FK CONSTRAINT; Schema: tezos; Owner: -
 --
 
 ALTER TABLE ONLY tezos.bakers
-    ADD CONSTRAINT bakers_block_id_fkey FOREIGN KEY (block_id) REFERENCES tezos.blocks(hash);
+    ADD CONSTRAINT bakers_block_id_fkey
+    FOREIGN KEY (block_id, fork_id)
+    REFERENCES tezos.blocks(hash, fork_id)
+    DEFERRABLE INITIALLY IMMEDIATE;
 
 
 --
@@ -755,7 +735,11 @@ ALTER TABLE ONLY tezos.bakers
 --
 
 ALTER TABLE ONLY tezos.baking_rights
-    ADD CONSTRAINT fk_block_hash FOREIGN KEY (block_hash) REFERENCES tezos.blocks(hash) NOT VALID;
+    ADD CONSTRAINT bake_rights_block_fkey
+    FOREIGN KEY (block_hash, fork_id)
+    REFERENCES tezos.blocks(hash, fork_id)
+    NOT VALID
+    DEFERRABLE INITIALLY IMMEDIATE;
 
 
 --
@@ -763,7 +747,11 @@ ALTER TABLE ONLY tezos.baking_rights
 --
 
 ALTER TABLE ONLY tezos.endorsing_rights
-    ADD CONSTRAINT fk_block_hash FOREIGN KEY (block_hash) REFERENCES tezos.blocks(hash) NOT VALID;
+    ADD CONSTRAINT endorse_rights_block_fkey
+    FOREIGN KEY (block_hash, fork_id)
+    REFERENCES tezos.blocks(hash, fork_id)
+    NOT VALID
+    DEFERRABLE INITIALLY IMMEDIATE;
 
 
 --
@@ -771,7 +759,10 @@ ALTER TABLE ONLY tezos.endorsing_rights
 --
 
 ALTER TABLE ONLY tezos.operations
-    ADD CONSTRAINT fk_blockhashes FOREIGN KEY (block_hash) REFERENCES tezos.blocks(hash);
+    ADD CONSTRAINT fk_blockhashes
+    FOREIGN KEY (block_hash, fork_id)
+    REFERENCES tezos.blocks(hash, fork_id)
+    DEFERRABLE INITIALLY IMMEDIATE;
 
 
 --
@@ -779,7 +770,10 @@ ALTER TABLE ONLY tezos.operations
 --
 
 ALTER TABLE ONLY tezos.operations
-    ADD CONSTRAINT fk_opgroups FOREIGN KEY (operation_group_hash, block_hash) REFERENCES tezos.operation_groups(hash, block_id);
+    ADD CONSTRAINT fk_opgroups
+    FOREIGN KEY (operation_group_hash, block_hash, fork_id)
+    REFERENCES tezos.operation_groups(hash, block_id, fork_id)
+    DEFERRABLE INITIALLY IMMEDIATE;
 
 --
 -- PostgreSQL database dump complete
@@ -828,6 +822,7 @@ ALTER TABLE ONLY bitcoin.transactions
 
 CREATE TABLE bitcoin.inputs (
   txid text NOT NULL,
+  output_txid text, -- output id this input spends
   v_out integer,
   script_sig_asm text,
   script_sig_hex text,
@@ -852,3 +847,246 @@ CREATE TABLE bitcoin.outputs (
 
 ALTER TABLE ONLY bitcoin.outputs
   ADD CONSTRAINT bitcoin_outputs_txid_fkey FOREIGN KEY (txid) REFERENCES bitcoin.transactions(txid);
+
+CREATE OR REPLACE VIEW bitcoin.accounts AS
+SELECT
+  script_pub_key_addresses AS address,
+  SUM(
+    CASE WHEN bitcoin.inputs.output_txid IS NULL THEN
+      value
+    ELSE
+      0
+    END) AS value
+FROM
+  bitcoin.outputs
+  LEFT JOIN bitcoin.inputs ON bitcoin.outputs.txid = bitcoin.inputs.output_txid
+    AND bitcoin.outputs.n = bitcoin.inputs.v_out
+  GROUP BY
+    bitcoin.outputs.script_pub_key_addresses;
+
+CREATE SCHEMA ethereum;
+
+-- Table is based on eth_getBlockByHash from https://eth.wiki/json-rpc/API
+CREATE TABLE ethereum.blocks (
+  hash text NOT NULL PRIMARY KEY,
+  number integer NOT NULL,
+  difficulty text NOT NULL,
+  extra_data text NOT NULL,
+  gas_limit text NOT NULL,
+  gas_used text NOT NULL,
+  logs_bloom text NOT NULL,
+  miner text NOT NULL,
+  mix_hash text NOT NULL,
+  nonce text NOT NULL,
+  parent_hash text,
+  receipts_root text NOT NULL,
+  sha3_uncles text NOT NULL,
+  size text NOT NULL,
+  state_root text NOT NULL,
+  total_difficulty text NOT NULL,
+  transactions_root text NOT NULL,
+  uncles text,
+  timestamp timestamp without time zone NOT NULL
+);
+
+-- Table is based on eth_getTransactionByHash from https://eth.wiki/json-rpc/API
+CREATE TABLE ethereum.transactions (
+  hash text NOT NULL PRIMARY KEY,
+  block_hash text NOT NULL,
+  block_number integer NOT NULL,
+  "from" text NOT NULL,
+  gas text NOT NULL,
+  gas_price text NOT NULL,
+  input text NOT NULL,
+  nonce text NOT NULL,
+  "to" text,
+  transaction_index text NOT NULL,
+  value numeric NOT NULL, -- value in wei
+  v text NOT NULL,
+  r text NOT NULL,
+  s text NOT NULL
+);
+
+ALTER TABLE ONLY ethereum.transactions
+  ADD CONSTRAINT ethereum_transactions_block_hash_fkey FOREIGN KEY (block_hash) REFERENCES ethereum.blocks(hash);
+
+-- Table is based on eth_getTransactionReceipt from https://eth.wiki/json-rpc/API
+CREATE TABLE ethereum.receipts (
+  transaction_hash text NOT NULL,
+  transaction_index text NOT NULL,
+  block_hash text NOT NULL,
+  block_number integer NOT NULL,
+  contract_address text,
+  cumulative_gas_used text NOT NULL,
+  gas_used text NOT NULL,
+  logs_bloom text NOT NULL,
+  status text,
+  root text
+);
+
+-- Table is based on eth_getLogs from https://eth.wiki/json-rpc/API
+CREATE TABLE ethereum.logs (
+  address text NOT NULL,
+  block_hash text NOT NULL,
+  block_number integer NOT NULL,
+  data text NOT NULL,
+  log_index text NOT NULL,
+  removed boolean NOT NULL,
+  topics text NOT NULL,
+  transaction_hash text NOT NULL,
+  transaction_index text NOT NULL
+);
+
+ALTER TABLE ONLY ethereum.logs
+  ADD CONSTRAINT ethereum_logs_block_hash_fkey FOREIGN KEY (block_hash) REFERENCES ethereum.blocks(hash);
+
+CREATE TABLE ethereum.contracts (
+  address text NOT NULL,
+  block_hash text NOT NULL,
+  block_number integer NOT NULL,
+  bytecode text NOT NULL,
+  is_erc20 boolean NOT NULL DEFAULT false,
+  is_erc721 boolean NOT NULL DEFAULT false
+);
+
+CREATE TABLE ethereum.tokens (
+  address text NOT NULL,
+  block_hash text NOT NULL,
+  block_number integer NOT NULL,
+  name text NOT NULL,
+  symbol text NOT NULL,
+  decimals text NOT NULL,
+  total_supply text NOT NULL
+);
+
+CREATE TABLE ethereum.token_transfers (
+  block_number integer NOT NULL,
+  transaction_hash text NOT NULL,
+  from_address text NOT NULL,
+  to_address text NOT NULL,
+  value numeric NOT NULL
+);
+
+CREATE OR REPLACE VIEW ethereum.accounts AS
+SELECT
+  "to" AS address,
+  SUM(value) AS value
+FROM
+  ethereum.transactions
+GROUP BY
+  "to";
+
+-- The schema for Quorum is duplicated from Ethereum.
+-- TODO: This is a temporary solution, in the future we intend to generate the schema automatically to avoid duplication,
+--       but it requires changes to the whole Conseil project.
+CREATE SCHEMA quorum;
+
+-- Table is based on eth_getBlockByHash from https://eth.wiki/json-rpc/API
+CREATE TABLE quorum.blocks (
+  hash text NOT NULL PRIMARY KEY,
+  number integer NOT NULL,
+  difficulty text NOT NULL,
+  extra_data text NOT NULL,
+  gas_limit text NOT NULL,
+  gas_used text NOT NULL,
+  logs_bloom text NOT NULL,
+  miner text NOT NULL,
+  mix_hash text NOT NULL,
+  nonce text NOT NULL,
+  parent_hash text,
+  receipts_root text NOT NULL,
+  sha3_uncles text NOT NULL,
+  size text NOT NULL,
+  state_root text NOT NULL,
+  total_difficulty text NOT NULL,
+  transactions_root text NOT NULL,
+  uncles text,
+  timestamp timestamp without time zone NOT NULL
+);
+
+-- Table is based on eth_getTransactionByHash from https://eth.wiki/json-rpc/API
+CREATE TABLE quorum.transactions (
+  hash text NOT NULL PRIMARY KEY,
+  block_hash text NOT NULL,
+  block_number integer NOT NULL,
+  "from" text NOT NULL,
+  gas text NOT NULL,
+  gas_price text NOT NULL,
+  input text NOT NULL,
+  nonce text NOT NULL,
+  "to" text,
+  transaction_index text NOT NULL,
+  value numeric NOT NULL, -- value in wei
+  v text NOT NULL,
+  r text NOT NULL,
+  s text NOT NULL
+);
+
+ALTER TABLE ONLY quorum.transactions
+  ADD CONSTRAINT quorum_transactions_block_hash_fkey FOREIGN KEY (block_hash) REFERENCES quorum.blocks(hash);
+
+-- Table is based on eth_getTransactionReceipt from https://eth.wiki/json-rpc/API
+CREATE TABLE quorum.receipts (
+  transaction_hash text NOT NULL,
+  transaction_index text NOT NULL,
+  block_hash text NOT NULL,
+  block_number integer NOT NULL,
+  contract_address text,
+  cumulative_gas_used text NOT NULL,
+  gas_used text NOT NULL,
+  logs_bloom text NOT NULL,
+  status text,
+  root text
+);
+
+-- Table is based on eth_getLogs from https://eth.wiki/json-rpc/API
+CREATE TABLE quorum.logs (
+  address text NOT NULL,
+  block_hash text NOT NULL,
+  block_number integer NOT NULL,
+  data text NOT NULL,
+  log_index text NOT NULL,
+  removed boolean NOT NULL,
+  topics text NOT NULL,
+  transaction_hash text NOT NULL,
+  transaction_index text NOT NULL
+);
+
+ALTER TABLE ONLY quorum.logs
+  ADD CONSTRAINT quorum_logs_block_hash_fkey FOREIGN KEY (block_hash) REFERENCES quorum.blocks(hash);
+
+CREATE TABLE quorum.contracts (
+  address text NOT NULL,
+  block_hash text NOT NULL,
+  block_number integer NOT NULL,
+  bytecode text NOT NULL,
+  is_erc20 boolean NOT NULL DEFAULT false,
+  is_erc721 boolean NOT NULL DEFAULT false
+);
+
+CREATE TABLE quorum.tokens (
+  address text NOT NULL,
+  block_hash text NOT NULL,
+  block_number integer NOT NULL,
+  name text NOT NULL,
+  symbol text NOT NULL,
+  decimals text NOT NULL,
+  total_supply text NOT NULL
+);
+
+CREATE TABLE quorum.token_transfers (
+  block_number integer NOT NULL,
+  transaction_hash text NOT NULL,
+  from_address text NOT NULL,
+  to_address text NOT NULL,
+  value numeric NOT NULL
+);
+
+CREATE OR REPLACE VIEW quorum.accounts AS
+SELECT
+  "to" AS address,
+  SUM(value) AS value
+FROM
+  quorum.transactions
+GROUP BY
+  "to";

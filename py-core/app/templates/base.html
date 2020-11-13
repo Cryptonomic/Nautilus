@@ -6,6 +6,7 @@
         {#    STYLING LINKS    #}
         <link href="https://fonts.googleapis.com/css2?family=Raleway&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Rouge+Script&display=swap" rel="stylesheet">
+        <script src="https://code.iconify.design/1/1.0.7/iconify.min.js"></script>
         <link rel="stylesheet" href="{{ url_for('static', filename='css/stylesheet.css') }}">
 
         {#    CDN LINKS    #}
@@ -16,13 +17,13 @@
     </head>
     <body>
 
-    <a href="/" id="header-link">
-        <div id="nc-header">
-            <div class="title">
+    <div id="nc-header">
+        <div class="title">
+            <a href="/" id="header-link">
                 <span>Nautilus Core</span>
-            </div>
+            </a>
         </div>
-    </a>
+    </div>
     <div id="header-spacer">
             {# This just exists to add space underneath the header so elements don't get hidden underneath it #}
     </div>
@@ -34,6 +35,65 @@
         </div>
 
         <div id="nc-footer">
+            <span id="footer-main-text">
+                An <a href="https://github.com/Cryptonomic/Nautilus" class="footer-link">open-source</a> project by <a href="https://www.cryptonomic.tech" class="footer-link">Cryptonomic</a>
+            </span>
+            <table id="footer-links-table">
+                <thead class="footer-link-head">
+                    <td class="footer-link-element">
+                        Other Products by Cryptonomic
+                    </td>
+                    <td class="footer-link-element">
+                        Reach out to us!
+                    </td>
+                </thead>
+                <tr class="footer-link-row">
+                    <td class="footer-link-element">
+                        <a href="https://cryptonomic.tech/galleon.html" class="footer-link">
+                            Galleon Wallet
+                        </a>
+                    </td>
+                    <td class="footer-link-element">
+                        <a href="https://cryptonomic.tech/support.html" class="footer-link">
+                            Support
+                        </a>
+                    </td>
+                </tr>
+                <tr class="footer-link-row">
+                    <td class="footer-link-element">
+                        <a href="https://nautilus.cloud" class="footer-link">
+                            Nautilus Cloud
+                        </a>
+                    </td>
+                    <td class="footer-link-element">
+                        <a href="https://twitter.com/CryptonomicTech" class="footer-link">
+                            Twitter
+                        </a>
+                    </td>
+                </tr>
+                <tr class="footer-link-row">
+                    <td class="footer-link-element">
+                        <a href="https://arronax.io" class="footer-link">
+                            Arronax
+                        </a>
+                    </td>
+                    <td class="footer-link-element">
+                        <a href="https://medium.com/the-cryptonomic-aperiodical" class="footer-link">
+                            The Cryptonomic Aperiodical
+                        </a>
+                    </td>
+                </tr>
+                <tr class="footer-link-row">
+                    <td class="footer-link-element">
+                        <a href="https://github.com/Cryptonomic/Conseil" class="footer-link">
+                            Conseil
+                        </a>
+                    </td>
+                    <td class="footer-link-element">
+
+                    </td>
+                </tr>
+            </table>
         </div>
 
         {% block scripts  %}
