@@ -2,6 +2,6 @@
 
 name=$1
 
-cd "util/docker-compose/$name" || exit 1
+cd "$HOME/.nautilus-core/$name" || exit 1
 
 docker-compose up -d
