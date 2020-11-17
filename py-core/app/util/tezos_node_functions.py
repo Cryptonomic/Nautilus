@@ -30,6 +30,8 @@ MAINNET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-node_data-d
 CARTHAGENET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-data.tar.gz"
 DELPHINET_DATA_DIR = ""
 
+CONSEIL_DATABASE_URL = "https://raw.githubusercontent.com/Cryptonomic/Conseil/master/sql/conseil.sql"
+
 logging.basicConfig(filename=LOGGING_FILE_PATH,
                     format=LOGGING_FORMAT,
                     level=logging.DEBUG)
@@ -43,6 +45,9 @@ def create_node(data):
     if data["restore"]:
         filename = download_node_snapshot(data)
         load_snapshot_data(data, filename)
+
+    if data["conseil_port"] != 0:
+        download_conseil_database(DOCKER_COMPOSE_FILE_PATH + data["name"])
 
     os.system(SCRIPT_FILE_PATH +
               "start_node.sh" +
@@ -87,6 +92,10 @@ def download_node_snapshot(data):
         filename = wget.download(DELPHINET_ROLLING_SNAPSHOT, data_location)
 
     return filename
+
+
+def download_conseil_database(location):
+    wget.download(CONSEIL_DATABASE_URL, location)
 
 
 def load_snapshot_data(data, filename):

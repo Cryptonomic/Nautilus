@@ -69,7 +69,7 @@ POSTGRES_TEXT = \
     expose:
       - 5423
     volumes:
-      - ../../data/conseil.sql:/docker-entrypoint-initdb.d/conseil.sql
+      - ./conseil.sql:/docker-entrypoint-initdb.d/conseil.sql
     logging:
       driver: "json-file"
     """
