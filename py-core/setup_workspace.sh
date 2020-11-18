@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir ~/.nautilus-core
+
 # Pull Tezos Docker Image
 docker pull tezos/tezos:latest-release
 
