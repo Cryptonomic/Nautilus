@@ -10,6 +10,6 @@ pip3 install -r requirements.txt || (echo "Cannot install pip3 requirements ... 
 
 cd app/ || (echo "Cannot find root app directory ... The installation may be corrupted, you may want to try reinstalling" ; exit 1)
 
-python3 __init__.py || (echo "Cannot run main python script ... Is python3 installed? ... The installation may be corrupted, you may want to try reinstalling" ; exit 1)
+python3 __init__.py
 
 docker stop "nautilus-core-redis"

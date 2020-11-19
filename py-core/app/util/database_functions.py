@@ -2,6 +2,8 @@ from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+from util.tezos_node_functions import log_fatal_error
+
 DATABASE_PATH = "/node_database.db"
 
 # Setup code base for sqlalchemy
@@ -25,10 +27,14 @@ class Node(Base):
 
 
 def get_new_session():
-    engine = create_engine('sqlite://{}'.format(DATABASE_PATH))
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    return session
+    try:
+        engine = create_engine('sqlite://{}'.format(DATABASE_PATH))
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        return session
+    except Exception as e:
+        log_fatal_error(e, "Could not retrieve local database session.")
+        exit(1)
 
 
 def setup_database():
