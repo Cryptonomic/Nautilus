@@ -76,7 +76,7 @@ def node_start_page():
         flash("The name you have provided is already being used.", "error")
         return render_template("node_options.html")
 
-    if p_network == "dalphanet":
+    if p_network == "ebetanet":
         p_snapshot_restore = False
 
     logging.debug("Getting next available port.")
