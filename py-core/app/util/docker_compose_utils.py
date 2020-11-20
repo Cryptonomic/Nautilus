@@ -159,6 +159,9 @@ def build_docker_compose_file(data):
         yaml_object["services"]["conseil-api"]["ports"] = ["{}:1337".format(data["conseil_port"])]
         yaml_object["services"]["conseil-api"]["environment"]["CONSEIL_XTZ_NODE_PATH_PREFIX"] = ""
 
+        yaml_object["services"]["conseil-api"]["image"] = "cryptonomictech/conseil:{}".format(data["conseil_branch"])
+        yaml_object["services"]["conseil-lorre"]["image"] = "cryptonomictech/conseil:{}".format(data["conseil_branch"])
+
     if data["arronax_port"] != 0:
         yaml_object["services"]["arronax"] = get_arronax_docker_compose()
 

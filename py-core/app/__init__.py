@@ -62,6 +62,7 @@ def node_start_page():
     p_snapshot_restore = request.args.get("restore")
     p_network = str(request.args.get("network"))
     p_history_mode = str(request.args.get("mode"))
+    p_conseil_branch = str(request.args.get("conseil-branch"))
     logging.debug("Node options retrieved from user.")
 
     # Checking if there are any problems with the user input
@@ -93,6 +94,8 @@ def node_start_page():
     data["restore"] = p_snapshot_restore
     data["status"] = "starting"
 
+    data["conseil_branch"] = p_conseil_branch
+
     if not request.args.get("arronax"):
         data["arronax_port"] = 0
 
@@ -107,6 +110,13 @@ def node_start_page():
     logging.debug("Adding node to database.")
     db.add_node(data)
     logging.debug("Node added to database.")
+
+    if data["conseil_port"] != 0 and data["conseil_branch"] != "latest":
+        try:
+            node_functions.build_conseil_image(data["conseil_branch"])
+        except Exception:
+            flash("The branch given was not found in the Conseil Repository.", "error")
+            return render_template("node_options.html")
 
     logging.debug("Adding node start job to work queue.")
     job_queue.enqueue_call(func=node_functions.create_node, args=(data,), timeout=86400)

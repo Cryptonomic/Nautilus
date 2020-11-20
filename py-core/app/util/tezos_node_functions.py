@@ -16,6 +16,8 @@ LOGGING_FILE_PATH = "./logs/logs.txt"
 
 LOGGING_FORMAT = "<<%(levelname)s>> %(asctime)s | %(message)s"
 
+CONSEIL_GITHUB_URL = "https://github.com/Cryptonomic/Conseil.git"
+
 # TODO: CHANGE THESE LINKS
 # Snapshot Download URLs
 MAINNET_FULL_SNAPSHOT = "https://conseil-snapshots.s3.amazonaws.com/tezos-node_snapshot-latest.full"
@@ -174,3 +176,14 @@ def get_container_logs(data):
 
     docker_client.close()
     return output
+
+
+def build_conseil_image(branch_name):
+    docker_client = docker.from_env()
+    docker_client.images.build(
+        path=CONSEIL_GITHUB_URL + "#{}".format(branch_name),
+        tag="cryptonomictech/conseil:{}".format(branch_name),
+        rm=True,
+        quiet=True
+    )
+    docker_client.close()

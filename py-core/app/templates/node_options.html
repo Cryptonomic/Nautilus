@@ -124,6 +124,13 @@
                 </label>
                 <br>
                 <br>
+                <label>
+                    Conseil Branch
+                    <br>
+                    <input type="text" name="conseil-branch" id="conseilBranch" disabled="disabled" value="latest">
+                </label>
+                <br>
+                <br>
             </div>
         </div>
         <button type="submit" id="submit-button" class="button">Submit</button>
@@ -140,6 +147,8 @@
         var fullModeSelection = document.getElementById("fullModeSelection")
         var rollingModeSelection = document.getElementById("rollingModeSelection")
 
+        var conseilBranchName = document.getElementById("conseilBranch")
+
         var startArronax = document.getElementById("startArronax")
         var startConseil = document.getElementById("startConseil")
 
@@ -147,6 +156,7 @@
             if(archiveModeSelection.checked) {
                 startArronax.disabled = false
                 startConseil.disabled = false
+                conseilBranchName.disabled = false
                 startArronax.checked = true
                 startConseil.checked = true
             }
@@ -158,6 +168,7 @@
                 startConseil.checked = false
                 startArronax.disabled = "disabled"
                 startConseil.disabled = "disabled"
+                conseilBranchName.disabled = "disabled"
             }
         })
 
@@ -167,6 +178,7 @@
                 startConseil.checked = false
                 startArronax.disabled = "disabled"
                 startConseil.disabled = "disabled"
+                conseilBranchName.disabled = "disabled"
             }
         })
 
