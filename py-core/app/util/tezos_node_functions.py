@@ -11,14 +11,7 @@ from util.app_functions import *
 from util.docker_compose_utils import *
 
 SCRIPT_FILE_PATH = "./util/scripts/"
-<<<<<<< HEAD
-DOCKER_COMPOSE_FILE_PATH = "util/docker-compose/"
-=======
 DOCKER_COMPOSE_FILE_PATH = os.path.expanduser("~/.nautilus-core/")
-LOGGING_FILE_PATH = "./logs/logs.txt"
-
-LOGGING_FORMAT = "<<%(levelname)s>> %(asctime)s | %(message)s"
->>>>>>> master
 
 # TODO: CHANGE THESE LINKS
 # Snapshot Download URLs
@@ -44,27 +37,26 @@ logging.basicConfig(filename=LOGGING_FILE_PATH,
 
 def create_node(data):
 
-    # Start Node
+    try:
+        text = build_docker_compose_file(data)
+    except Exception as e:
+        log_fatal_error(e, "Could not build docker compose file.")
+        delete_node(data["name"])
+        return
+
+    try:
+        create_new_node_directory(data["name"], text)
+    except Exception as e:
+        log_fatal_error(e, "Could not create node directory.")
+        delete_node(data["name"])
+        return
+
     try:
         if data["restore"]:
             filename = download_node_snapshot(data)
             load_snapshot_data(data, filename)
     except Exception as e:
-        log_fatal_error(e, "Could not download snapshot data. Will not load from snapshot.")
-
-    try:
-        create_new_node_directory(data)
-    except Exception as e:
-        log_fatal_error(e, "Could not create directory for node.")
-        remove_node(data["name"])
-        return
-
-    try:
-        parse_node_docker_compose_file(data)
-    except Exception as e:
-        log_fatal_error(e, "Error in parsing docker compose file.")
-        remove_node(data["name"])
-        return
+        log_fatal_error(e, "Could not download snapshot. Continuing without snapshot restore.")
 
     try:
         os.system(SCRIPT_FILE_PATH +
@@ -74,7 +66,7 @@ def create_node(data):
                   )
     except Exception as e:
         log_fatal_error(e, "Could not run script to start node.")
-        remove_node(data["name"])
+        delete_node(data["name"])
         return
 
     update_status(data["name"], "bootstrapping")
