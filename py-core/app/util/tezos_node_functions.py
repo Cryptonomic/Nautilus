@@ -4,12 +4,21 @@ import os
 import shutil
 import logging
 import docker
+import requests
 import yaml
 
 from util.app_functions import *
+from util.docker_compose_utils import *
 
 SCRIPT_FILE_PATH = "./util/scripts/"
+<<<<<<< HEAD
 DOCKER_COMPOSE_FILE_PATH = "util/docker-compose/"
+=======
+DOCKER_COMPOSE_FILE_PATH = os.path.expanduser("~/.nautilus-core/")
+LOGGING_FILE_PATH = "./logs/logs.txt"
+
+LOGGING_FORMAT = "<<%(levelname)s>> %(asctime)s | %(message)s"
+>>>>>>> master
 
 # TODO: CHANGE THESE LINKS
 # Snapshot Download URLs
@@ -137,69 +146,10 @@ def load_snapshot_data(data, filename):
                                      )
 
 
-def create_new_node_directory(data):
-    if data["network"] == "dalphanet":
-        shutil.copytree(DOCKER_COMPOSE_FILE_PATH + "reference-dalpha", DOCKER_COMPOSE_FILE_PATH + data["name"])
-    else:
-        shutil.copytree(DOCKER_COMPOSE_FILE_PATH + "reference", DOCKER_COMPOSE_FILE_PATH + data["name"])
-
-
-def remove_node_options(data, file_text):
-    yaml_object = yaml.load(file_text, Loader=yaml.BaseLoader)
-    if data["network"] != "dalphanet":
-
-        if data["arronax_port"] == 0:
-            yaml_object["services"].pop("arronax", None)
-
-        if data["conseil_port"] == 0:
-            yaml_object["services"].pop("conseil-postgres", None)
-            yaml_object["services"].pop("conseil-lorre", None)
-            yaml_object["services"].pop("conseil-api", None)
-
-    return yaml.dump(yaml_object)
-
-
-def parse_node_docker_compose_file(data):
-    file = open(DOCKER_COMPOSE_FILE_PATH + data["name"] + "/docker-compose.yml", "r")
-    node_docker_compose_text_file = file.read()
-    file.close()
-
-    yaml_object = yaml.load(node_docker_compose_text_file, Loader=yaml.BaseLoader)
-
-    yaml_object["services"]["tezos-node"]["command"] = \
-        "tezos-node --cors-header='content-type' --cors-origin='*' --history-mode {} --network {} --rpc-addr 0.0.0.0:8732".format(
-                            data["history_mode"],
-                            data["network"]
-                        )
-
-    if data["network"] != "dalphanet":
-        yaml_object["services"]["conseil-lorre"]["environment"]["CONSEIL_XTZ_NETWORK"] = data["network"]
-        
-        yaml_object["services"]["conseil-lorre"]["environment"]["LORRE_RUNNER_NETWORK"] = data["network"]
-
-        yaml_object["services"]["conseil-api"]["environment"]["CONSEIL_XTZ_NETWORK"] = data["network"]
-
-        yaml_object["services"]["conseil-api"]["environment"]["CONSEIL_XTZ_NODE_PATH_PREFIX"] = ""
-
-        yaml_object["services"]["conseil-lorre"]["environment"]["CONSEIL_XTZ_NODE_PATH_PREFIX"] = ""
-
-        yaml_object["services"]["arronax"]["image"] = "arronax-{}".format(data["network"])
-
-        yaml_object["services"]["arronax"]["ports"] = ["{}:80".format(data["arronax_port"])]
-
-        yaml_object["services"]["conseil-api"]["ports"] = ["{}:1337".format(data["conseil_port"])]
-
-    yaml_object["services"]["tezos-node"]["ports"] = ["{}:8732".format(data["node_port"])]
-
-    if data["restore"] and data["history_mode"] == "archive":
-        yaml_object["services"]["tezos-node"]["volumes"] = ["./{}:/var/run/tezos".format("tezos-node_data-dir")]
-
-    node_docker_compose_text_file = yaml.dump(yaml_object)
-
-    node_docker_compose_text_file = remove_node_options(data, node_docker_compose_text_file)
-
-    file = open(DOCKER_COMPOSE_FILE_PATH + data["name"] + "/docker-compose.yml", "w")
-    file.write(node_docker_compose_text_file)
+def create_new_node_directory(name, contents):
+    os.mkdir(DOCKER_COMPOSE_FILE_PATH + name)
+    file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "w+")
+    file.write(contents)
     file.close()
 
 
@@ -256,7 +206,10 @@ def get_container_logs(data):
     except:
         output["arronax"] = "Loading Logs..."
 
-    output["tezos"] = str(docker_client.containers.get(name + "_tezos-node_1").logs(tail=100))
+    try:
+        output["tezos"] = str(docker_client.containers.get(name + "_tezos-node_1").logs(tail=100))
+    except:
+        output["tezos"] = "Loading Logs..."
 
     docker_client.close()
     return output
