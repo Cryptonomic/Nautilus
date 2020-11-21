@@ -1,5 +1,7 @@
 import yaml
 
+from util.database_functions import *
+
 CONSEIL_API_TEXT = \
     """
     image: cryptonomictech/conseil:latest
@@ -170,3 +172,34 @@ def build_docker_compose_file(data):
 
     return yaml.dump(yaml_object)
 
+
+def remove_conseil_from_file(file):
+    yaml_object = yaml.load(file)
+
+    yaml_object["services"].pop("conseil_api")
+    yaml_object["services"].pop("conseil_lorre")
+    yaml_object["services"].pop("conseil_postgres")
+
+    file.write(yaml.dump(yaml_object))
+
+
+def add_conseil_to_file(file, name, branch):
+    yaml_object = yaml.load(file)
+
+    data = get_node_data(name)
+
+    yaml_object["services"]["conseil-api"] = get_conseil_docker_compose()
+    yaml_object["services"]["conseil-lorre"] = get_lorre_docker_compose()
+    yaml_object["services"]["conseil-postgres"] = get_postgres_docker_compose()
+
+    yaml_object["services"]["conseil-lorre"]["environment"]["CONSEIL_XTZ_NETWORK"] = data["network"]
+    yaml_object["services"]["conseil-lorre"]["environment"]["LORRE_RUNNER_NETWORK"] = data["network"]
+    yaml_object["services"]["conseil-lorre"]["environment"]["CONSEIL_XTZ_NODE_PATH_PREFIX"] = ""
+    yaml_object["services"]["conseil-api"]["environment"]["CONSEIL_XTZ_NETWORK"] = data["network"]
+    yaml_object["services"]["conseil-api"]["ports"] = ["{}:1337".format(data["conseil_port"])]
+    yaml_object["services"]["conseil-api"]["environment"]["CONSEIL_XTZ_NODE_PATH_PREFIX"] = ""
+
+    yaml_object["services"]["conseil-api"]["image"] = "cryptonomictech/conseil:{}".format(branch)
+    yaml_object["services"]["conseil-lorre"]["image"] = "cryptonomictech/conseil:{}".format(branch)
+
+    file.write(yaml.dump(yaml_object))

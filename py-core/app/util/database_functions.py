@@ -105,3 +105,19 @@ def remove_node(name):
     s = get_new_session()
     s.query(Node).filter_by(name=name).delete()
     s.commit()
+
+
+def remove_conseil(name):
+    s = get_new_session()
+    query = s.query(Node).filter_by(name=name).first
+    query.conseil_port = 0
+    s.commit()
+    s.close()
+
+
+def add_conseil(name, port):
+    s = get_new_session()
+    query = s.query(Node).filter_by(name=name).first
+    query.conseil_port = port
+    s.commit()
+    s.close()

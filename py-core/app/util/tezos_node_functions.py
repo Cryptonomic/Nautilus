@@ -8,6 +8,7 @@ import requests
 import yaml
 
 from util.app_functions import *
+import util.database_functions as db
 from util.docker_compose_utils import *
 
 SCRIPT_FILE_PATH = "./util/scripts/"
@@ -187,3 +188,15 @@ def build_conseil_image(branch_name):
         quiet=True
     )
     docker_client.close()
+
+
+def remove_conseil(name):
+    file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "wr")
+    remove_conseil_from_file(file)
+    db.remove_conseil(name)
+
+
+def add_conseil(name, branch_name):
+    db.add_conseil(name, get_next_port(1)[0])
+    file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "wr")
+    add_conseil_to_file(file, name, branch_name)
