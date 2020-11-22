@@ -121,6 +121,31 @@
                 <br>
             </div>
         </div>
+        <div class="option-box" id="conseil-options">
+            <br>
+            <h3>Conseil Options</h3>
+            <br>
+            <div class="node-button-holder">
+                {% if node['history_mode'] == 'archive' and node['conseil_port'] != 0%}
+                    <a href="/remove_conseil?name={{node['name']}}">
+                        <div class="button">
+                            Remove Conseil
+                        </div>
+                    </a>
+                    <br>
+                    <br>
+                {% endif %}
+                {% if node['history_mode'] == 'archive' and node['conseil_port'] == 0%}
+                    <a href="/add_conseil?name={{node['name']}}">
+                        <div class="button">
+                            Add Conseil
+                        </div>
+                    </a>
+                    <br>
+                    <br>
+                {% endif %}
+            </div>
+        </div>
     </div>
 
 {% endblock %}
