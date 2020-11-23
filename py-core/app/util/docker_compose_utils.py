@@ -174,17 +174,17 @@ def build_docker_compose_file(data):
 
 
 def remove_conseil_from_file(file):
-    yaml_object = yaml.load(file)
+    yaml_object = yaml.load(file.read(), Loader=yaml.BaseLoader) or {}
 
-    yaml_object["services"].pop("conseil_api")
-    yaml_object["services"].pop("conseil_lorre")
-    yaml_object["services"].pop("conseil_postgres")
+    yaml_object["services"].pop("conseil-api")
+    yaml_object["services"].pop("conseil-lorre")
+    yaml_object["services"].pop("conseil-postgres")
 
     file.write(yaml.dump(yaml_object))
 
 
 def add_conseil_to_file(file, name, branch):
-    yaml_object = yaml.load(file)
+    yaml_object = dict(yaml.load(file.read(), Loader=yaml.BaseLoader)) or {}
 
     data = get_node_data(name)
 

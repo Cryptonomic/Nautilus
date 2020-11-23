@@ -191,12 +191,12 @@ def build_conseil_image(branch_name):
 
 
 def remove_conseil(name):
-    file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "wr")
+    file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "r+")
     remove_conseil_from_file(file)
     db.remove_conseil(name)
 
 
 def add_conseil(name, branch_name):
     db.add_conseil(name, get_next_port(1)[0])
-    file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "wr")
+    file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "r+")
     add_conseil_to_file(file, name, branch_name)

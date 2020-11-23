@@ -243,7 +243,8 @@ def remove_conseil():
     job_queue.enqueue_call(func=node_functions.stop_node, args=(p_name,), result_ttl=-1)
     node_functions.remove_conseil(p_name)
     job_queue.enqueue_call(func=node_functions.restart_node, args=(p_name,), result_ttl=-1)
-    return render_template("node.html", data=get_node_data(p_name))
+    data = get_node_data(p_name)
+    return render_template("node.html", data=data)
 
 
 @app.route("/add_conseil")
@@ -253,7 +254,8 @@ def add_conseil():
     job_queue.enqueue_call(func=node_functions.stop_node, args=(p_name,), result_ttl=-1)
     node_functions.add_conseil(p_name, p_conseil_branch)
     job_queue.enqueue_call(func=node_functions.restart_node, args=(p_name,), result_ttl=-1)
-    return render_template("node.html", data=get_node_data(p_name))
+    data = get_node_data(p_name)
+    return render_template("node.html", data=data)
 
 
 if __name__ == "__main__":
