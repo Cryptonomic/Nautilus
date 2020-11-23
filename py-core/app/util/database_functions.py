@@ -121,3 +121,19 @@ def add_conseil(name, port):
     query.conseil_port = port
     s.commit()
     s.close()
+
+
+def remove_arronax(name):
+    s = get_new_session()
+    query = s.query(Node).filter_by(name=name).first()
+    query.arronax_port = 0
+    s.commit()
+    s.close()
+
+
+def add_arronax(name, port):
+    s = get_new_session()
+    query = s.query(Node).filter_by(name=name).first()
+    query.arronax_port = port
+    s.commit()
+    s.close()

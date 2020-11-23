@@ -179,6 +179,10 @@ def remove_conseil_from_file(file):
     yaml_object["services"].pop("conseil-api")
     yaml_object["services"].pop("conseil-lorre")
     yaml_object["services"].pop("conseil-postgres")
+    try:
+        yaml_object["services"].pop("arronax")
+    except Exception as e:
+        pass
 
     file.write(yaml.dump(yaml_object))
 
@@ -201,5 +205,26 @@ def add_conseil_to_file(file, name, branch):
 
     yaml_object["services"]["conseil-api"]["image"] = "cryptonomictech/conseil:{}".format(branch)
     yaml_object["services"]["conseil-lorre"]["image"] = "cryptonomictech/conseil:{}".format(branch)
+
+    file.write(yaml.dump(yaml_object))
+
+
+def add_arronax_to_file(file, name):
+    yaml_object = dict(yaml.load(file.read(), Loader=yaml.BaseLoader)) or {}
+
+    data = get_node_data(name)
+
+    yaml_object["services"]["arronax"] = get_arronax_docker_compose()
+
+    yaml_object["services"]["arronax"]["image"] = "arronax-{}".format(data["network"])
+    yaml_object["services"]["arronax"]["ports"] = ["{}:80".format(data["arronax_port"])]
+
+    file.write(yaml.dump(yaml_object))
+
+
+def remove_arronax_from_file(file):
+    yaml_object = yaml.load(file.read(), Loader=yaml.BaseLoader) or {}
+
+    yaml_object["services"].pop("arronax")
 
     file.write(yaml.dump(yaml_object))

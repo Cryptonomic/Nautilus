@@ -257,6 +257,25 @@ def add_conseil():
     data = get_node_data(p_name)
     return render_template("node.html", data=data)
 
+@app.route("/remove_arronax")
+def remove_arronax():
+    p_name = str(request.args.get("name"))
+    job_queue.enqueue_call(func=node_functions.stop_node, args=(p_name,), result_ttl=-1)
+    node_functions.remove_arronax(p_name)
+    job_queue.enqueue_call(func=node_functions.restart_node, args=(p_name,), result_ttl=-1)
+    data = get_node_data(p_name)
+    return render_template("node.html", data=data)
+
+
+@app.route("/add_arronax")
+def add_arronax():
+    p_name = str(request.args.get("name"))
+    job_queue.enqueue_call(func=node_functions.stop_node, args=(p_name,), result_ttl=-1)
+    node_functions.add_arronax(p_name)
+    job_queue.enqueue_call(func=node_functions.restart_node, args=(p_name,), result_ttl=-1)
+    data = get_node_data(p_name)
+    return render_template("node.html", data=data)
+
 
 if __name__ == "__main__":
     # Setup sqlite database with schema
