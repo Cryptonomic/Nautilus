@@ -154,11 +154,17 @@
                     {% endif %}
                 {% endif %}
                 {% if node['history_mode'] == 'archive' and node['conseil_port'] == 0%}
-                    <a href="/add_conseil?name={{node['name']}}">
-                        <div class="button">
+                    <form action="/add_conseil" method="get" id="add_conseil_form">
+                        <div class="button" onclick="javascript:document.getElementById('add_conseil_form').submit()">
                             Add Conseil
                         </div>
-                    </a>
+                        <br>
+                        <br>
+                        <label>
+                            Conseil Branch: <input type="text" value="latest" id="conseilBranch" name="conseil_branch">
+                        </label>
+                    <input type="hidden" value="{{ node['name'] }}" name="name">
+                    </form>
                     <br>
                     <br>
                 {% endif %}

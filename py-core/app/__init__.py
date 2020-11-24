@@ -242,9 +242,12 @@ def remove_conseil():
     p_name = str(request.args.get("name"))
     job_queue.enqueue_call(func=node_functions.stop_node, args=(p_name,), result_ttl=-1)
     node_functions.remove_conseil(p_name)
+    try:
+        node_functions.remove_arronax(p_name)
+    except Exception as e:
+        pass
     job_queue.enqueue_call(func=node_functions.restart_node, args=(p_name,), result_ttl=-1)
-    data = get_node_data(p_name)
-    return render_template("node.html", data=data)
+    return redirect("/node?name={}".format(p_name))
 
 
 @app.route("/add_conseil")
@@ -254,8 +257,8 @@ def add_conseil():
     job_queue.enqueue_call(func=node_functions.stop_node, args=(p_name,), result_ttl=-1)
     node_functions.add_conseil(p_name, p_conseil_branch)
     job_queue.enqueue_call(func=node_functions.restart_node, args=(p_name,), result_ttl=-1)
-    data = get_node_data(p_name)
-    return render_template("node.html", data=data)
+    return redirect("/node?name={}".format(p_name))
+
 
 @app.route("/remove_arronax")
 def remove_arronax():
@@ -263,8 +266,7 @@ def remove_arronax():
     job_queue.enqueue_call(func=node_functions.stop_node, args=(p_name,), result_ttl=-1)
     node_functions.remove_arronax(p_name)
     job_queue.enqueue_call(func=node_functions.restart_node, args=(p_name,), result_ttl=-1)
-    data = get_node_data(p_name)
-    return render_template("node.html", data=data)
+    return redirect("/node?name={}".format(p_name))
 
 
 @app.route("/add_arronax")
@@ -273,8 +275,7 @@ def add_arronax():
     job_queue.enqueue_call(func=node_functions.stop_node, args=(p_name,), result_ttl=-1)
     node_functions.add_arronax(p_name)
     job_queue.enqueue_call(func=node_functions.restart_node, args=(p_name,), result_ttl=-1)
-    data = get_node_data(p_name)
-    return render_template("node.html", data=data)
+    return redirect("/node?name={}".format(p_name))
 
 
 if __name__ == "__main__":

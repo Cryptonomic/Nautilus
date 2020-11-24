@@ -8,6 +8,7 @@ import requests
 import yaml
 
 from util.app_functions import *
+import util.app_functions as app
 import util.database_functions as db
 from util.docker_compose_utils import *
 
@@ -197,7 +198,7 @@ def remove_conseil(name):
 
 
 def add_conseil(name, branch_name):
-    db.add_conseil(name, get_next_port(1)[0])
+    db.add_conseil(name, app.get_next_port(1)[0])
     file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "r+")
     add_conseil_to_file(file, name, branch_name)
 
@@ -209,6 +210,6 @@ def remove_arronax(name):
 
 
 def add_arronax(name):
-    db.add_conseil(name, get_next_port(1)[0])
+    db.add_conseil(name, app.get_next_port(1)[0])
     file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "r+")
     add_arronax_to_file(file, name)
