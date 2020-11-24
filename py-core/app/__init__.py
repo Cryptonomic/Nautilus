@@ -240,7 +240,12 @@ def get_ram():
 @app.route("/remove_conseil")
 def remove_conseil():
     p_name = str(request.args.get("name"))
+    db.remove_conseil(p_name)
+    db.remove_arronax(p_name)
+    job_queue.enqueue_call(func=node_functions.stop_node, args=(p_name,), result_ttl=-1)
     job_queue.enqueue_call(func=node_functions.remove_conseil, args=(p_name,), result_ttl=-1)
+    job_queue.enqueue_call(func=node_functions.remove_arronax, args=(p_name,), result_ttl=-1)
+    job_queue.enqueue_call(func=node_functions.restart_node, args=(p_name,), result_ttl=-1)
     return redirect("/node?name={}".format(p_name))
 
 
@@ -248,22 +253,30 @@ def remove_conseil():
 def add_conseil():
     p_name = str(request.args.get("name"))
     p_conseil_branch = str(request.args.get("conseil_branch"))
+    db.add_conseil(p_name, get_next_port(1)[0])
+    job_queue.enqueue_call(func=node_functions.stop_node, args=(p_name,), result_ttl=-1)
     job_queue.enqueue_call(func=node_functions.add_conseil, args=(p_name, p_conseil_branch), result_ttl=-1)
+    job_queue.enqueue_call(func=node_functions.restart_node, args=(p_name,), result_ttl=-1)
     return redirect("/node?name={}".format(p_name))
 
 
 @app.route("/remove_arronax")
 def remove_arronax():
     p_name = str(request.args.get("name"))
-    node_functions.stop_node(p_name)
+    db.remove_arronax(p_name)
+    job_queue.enqueue_call(func=node_functions.stop_node, args=(p_name,), result_ttl=-1)
     job_queue.enqueue_call(func=node_functions.remove_arronax, args=(p_name,), result_ttl=-1)
+    job_queue.enqueue_call(func=node_functions.restart_node, args=(p_name,), result_ttl=-1)
     return redirect("/node?name={}".format(p_name))
 
 
 @app.route("/add_arronax")
 def add_arronax():
     p_name = str(request.args.get("name"))
+    db.add_arronax(p_name, get_next_port(1)[0])
+    job_queue.enqueue_call(func=node_functions.stop_node, args=(p_name,), result_ttl=-1)
     job_queue.enqueue_call(func=node_functions.add_arronax, args=(p_name,), result_ttl=-1)
+    job_queue.enqueue_call(func=node_functions.restart_node, args=(p_name,), result_ttl=-1)
     return redirect("/node?name={}".format(p_name))
 
 

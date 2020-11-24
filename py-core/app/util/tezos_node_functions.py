@@ -201,38 +201,24 @@ def build_conseil_image(branch_name):
 
 
 def remove_conseil(name):
-    stop_node(name)
     file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "r+")
     remove_conseil_from_file(file)
-    db.remove_conseil(name)
-    restart_node(name)
-    try:
-        remove_arronax(name)
-    except Exception as e:
-        pass
-
+    file.close()
 
 
 def add_conseil(name, branch_name):
-    stop_node(name)
-    db.add_conseil(name, app.get_next_port(1)[0])
     file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "r+")
     add_conseil_to_file(file, name, branch_name)
-    restart_node(name)
+    file.close()
 
 
 def remove_arronax(name):
-    stop_node(name)
-    db.remove_arronax(name)
     file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "r+")
     remove_arronax_from_file(file)
-    restart_node(name)
+    file.close()
 
 
 def add_arronax(name):
-    stop_node(name)
-    db.add_conseil(name, app.get_next_port(1)[0])
     file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "r+")
     add_arronax_to_file(file, name)
-    restart_node(name)
-
+    file.close()

@@ -101,23 +101,23 @@ TEZOS_NODE_TEXT = \
 
 
 def get_conseil_docker_compose():
-    return yaml.load(CONSEIL_API_TEXT, Loader=yaml.BaseLoader)
+    return yaml.safe_load(CONSEIL_API_TEXT)
 
 
 def get_lorre_docker_compose():
-    return yaml.load(LORRE_TEXT, Loader=yaml.BaseLoader)
+    return yaml.safe_load(LORRE_TEXT)
 
 
 def get_postgres_docker_compose():
-    return yaml.load(POSTGRES_TEXT, Loader=yaml.BaseLoader)
+    return yaml.safe_load(POSTGRES_TEXT)
 
 
 def get_arronax_docker_compose():
-    return yaml.load(ARRONAX_TEXT, Loader=yaml.BaseLoader)
+    return yaml.safe_load(ARRONAX_TEXT)
 
 
 def get_tezos_node_docker_compose():
-    return yaml.load(TEZOS_NODE_TEXT, Loader=yaml.BaseLoader)
+    return yaml.safe_load(TEZOS_NODE_TEXT)
 
 
 def get_snapshot_tezos_node_docker_compose():
@@ -170,21 +170,21 @@ def build_docker_compose_file(data):
         yaml_object["services"]["arronax"]["image"] = "arronax-{}".format(data["network"])
         yaml_object["services"]["arronax"]["ports"] = ["{}:80".format(data["arronax_port"])]
 
-    return yaml.dump(yaml_object)
+    return yaml.safe_dump(yaml_object)
 
 
 def remove_conseil_from_file(file):
-    yaml_object = yaml.load(file.read(), Loader=yaml.BaseLoader) or {}
+    yaml_object = yaml.safe_load(file.read()) or {}
 
     yaml_object["services"].pop("conseil-api")
     yaml_object["services"].pop("conseil-lorre")
     yaml_object["services"].pop("conseil-postgres")
 
-    file.write(yaml.dump(yaml_object))
+    file.write(yaml.safe_dump(yaml_object))
 
 
 def add_conseil_to_file(file, name, branch):
-    yaml_object = dict(yaml.load(file.read(), Loader=yaml.BaseLoader)) or {}
+    yaml_object = yaml.safe_load(file.read()) or {}
 
     data = get_node_data(name)
 
@@ -202,11 +202,11 @@ def add_conseil_to_file(file, name, branch):
     yaml_object["services"]["conseil-api"]["image"] = "cryptonomictech/conseil:{}".format(branch)
     yaml_object["services"]["conseil-lorre"]["image"] = "cryptonomictech/conseil:{}".format(branch)
 
-    file.write(yaml.dump(yaml_object))
+    file.write(yaml.safe_dump(yaml_object))
 
 
 def add_arronax_to_file(file, name):
-    yaml_object = dict(yaml.load(file.read(), Loader=yaml.BaseLoader)) or {}
+    yaml_object = yaml.safe_load(file.read()) or {}
 
     data = get_node_data(name)
 
@@ -215,12 +215,12 @@ def add_arronax_to_file(file, name):
     yaml_object["services"]["arronax"]["image"] = "arronax-{}".format(data["network"])
     yaml_object["services"]["arronax"]["ports"] = ["{}:80".format(data["arronax_port"])]
 
-    file.write(yaml.dump(yaml_object))
+    file.write(yaml.safe_dump(yaml_object))
 
 
 def remove_arronax_from_file(file):
-    yaml_object = yaml.load(file.read(), Loader=yaml.BaseLoader) or {}
+    yaml_object = yaml.safe_load(file.read()) or {}
 
     yaml_object["services"].pop("arronax")
 
-    file.write(yaml.dump(yaml_object))
+    file.write(yaml.safe_dump(yaml_object))
