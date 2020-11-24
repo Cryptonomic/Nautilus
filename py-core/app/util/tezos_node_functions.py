@@ -19,6 +19,7 @@ LOGGING_FILE_PATH = "./logs/logs.txt"
 LOGGING_FORMAT = "<<%(levelname)s>> %(asctime)s | %(message)s"
 
 CONSEIL_GITHUB_URL = "https://github.com/Cryptonomic/Conseil.git"
+CONSEIL_SQL_URL = "https://raw.githubusercontent.com/Cryptonomic/Conseil/{}/sql/conseil.sql"
 
 # TODO: CHANGE THESE LINKS
 # Snapshot Download URLs
@@ -43,6 +44,7 @@ def create_node(data):
 
     text = build_docker_compose_file(data)
     create_new_node_directory(data["name"], text)
+    download_conseil_schema(data["name"], data["conseil_branch"])
 
     if data["restore"]:
         filename = download_node_snapshot(data)
@@ -130,6 +132,13 @@ def create_new_node_directory(name, contents):
     file.close()
 
 
+def download_conseil_schema(name, branch):
+    if branch == "latest":
+        wget.download(CONSEIL_SQL_URL.format("master"), DOCKER_COMPOSE_FILE_PATH + name)
+    else:
+        wget.download(CONSEIL_SQL_URL.format(branch), DOCKER_COMPOSE_FILE_PATH + name)
+
+
 def stop_node(name):
     os.system(SCRIPT_FILE_PATH +
               "stop_node.sh " +
@@ -192,24 +201,38 @@ def build_conseil_image(branch_name):
 
 
 def remove_conseil(name):
+    stop_node(name)
     file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "r+")
     remove_conseil_from_file(file)
     db.remove_conseil(name)
+    restart_node(name)
+    try:
+        remove_arronax(name)
+    except Exception as e:
+        pass
+
 
 
 def add_conseil(name, branch_name):
+    stop_node(name)
     db.add_conseil(name, app.get_next_port(1)[0])
     file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "r+")
     add_conseil_to_file(file, name, branch_name)
+    restart_node(name)
 
 
 def remove_arronax(name):
+    stop_node(name)
     db.remove_arronax(name)
     file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "r+")
     remove_arronax_from_file(file)
+    restart_node(name)
 
 
 def add_arronax(name):
+    stop_node(name)
     db.add_conseil(name, app.get_next_port(1)[0])
     file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "r+")
     add_arronax_to_file(file, name)
+    restart_node(name)
+
