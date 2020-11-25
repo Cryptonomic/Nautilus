@@ -244,7 +244,6 @@ def remove_conseil():
     db.remove_arronax(p_name)
     job_queue.enqueue_call(func=node_functions.stop_node, args=(p_name,), result_ttl=-1)
     job_queue.enqueue_call(func=node_functions.remove_conseil, args=(p_name,), result_ttl=-1)
-    job_queue.enqueue_call(func=node_functions.remove_arronax, args=(p_name,), result_ttl=-1)
     job_queue.enqueue_call(func=node_functions.restart_node, args=(p_name,), result_ttl=-1)
     return redirect("/node?name={}".format(p_name))
 
@@ -253,6 +252,13 @@ def remove_conseil():
 def add_conseil():
     p_name = str(request.args.get("name"))
     p_conseil_branch = str(request.args.get("conseil_branch"))
+
+    if p_conseil_branch != "latest":
+        try:
+            node_functions.build_conseil_image(p_conseil_branch)
+        except Exception as e:
+            p_conseil_branch = "latest"
+
     db.add_conseil(p_name, get_next_port(1)[0])
     job_queue.enqueue_call(func=node_functions.stop_node, args=(p_name,), result_ttl=-1)
     job_queue.enqueue_call(func=node_functions.add_conseil, args=(p_name, p_conseil_branch), result_ttl=-1)

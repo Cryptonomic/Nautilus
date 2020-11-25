@@ -180,6 +180,11 @@ def remove_conseil_from_file(file):
     yaml_object["services"].pop("conseil-lorre")
     yaml_object["services"].pop("conseil-postgres")
 
+    try:
+        yaml_object["services"].pop("arronax")
+    except Exception:
+        pass
+
     file.write(yaml.safe_dump(yaml_object))
 
 
