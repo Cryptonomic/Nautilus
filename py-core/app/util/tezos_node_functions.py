@@ -121,6 +121,10 @@ def load_snapshot_data(data, filename):
 
 def create_new_node_directory(name, contents):
     os.mkdir(DOCKER_COMPOSE_FILE_PATH + name)
+
+    wget.download(url="https://raw.githubusercontent.com/Cryptonomic/Conseil/master/sql/conseil.sql",
+                  out=DOCKER_COMPOSE_FILE_PATH + name)
+
     file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "w+")
     file.write(contents)
     file.close()
