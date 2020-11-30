@@ -8,6 +8,8 @@ import requests
 import yaml
 
 from util.app_functions import *
+import util.app_functions as app
+import util.database_functions as db
 from util.docker_compose_utils import *
 
 SCRIPT_FILE_PATH = "./util/scripts/"
@@ -15,6 +17,9 @@ DOCKER_COMPOSE_FILE_PATH = os.path.expanduser("~/.nautilus-core/")
 LOGGING_FILE_PATH = "./logs/logs.txt"
 
 LOGGING_FORMAT = "<<%(levelname)s>> %(asctime)s | %(message)s"
+
+CONSEIL_GITHUB_URL = "https://github.com/Cryptonomic/Conseil.git"
+CONSEIL_SQL_URL = "https://raw.githubusercontent.com/Cryptonomic/Conseil/{}/sql/conseil.sql"
 
 # TODO: CHANGE THESE LINKS
 # Snapshot Download URLs
@@ -39,6 +44,7 @@ def create_node(data):
 
     text = build_docker_compose_file(data)
     create_new_node_directory(data["name"], text)
+    download_conseil_schema(data["name"], data["conseil_branch"])
 
     if data["restore"]:
         filename = download_node_snapshot(data)
@@ -126,6 +132,13 @@ def create_new_node_directory(name, contents):
     file.close()
 
 
+def download_conseil_schema(name, branch):
+    if branch == "latest":
+        wget.download(CONSEIL_SQL_URL.format("master"), DOCKER_COMPOSE_FILE_PATH + name)
+    else:
+        wget.download(CONSEIL_SQL_URL.format(branch), DOCKER_COMPOSE_FILE_PATH + name)
+
+
 def stop_node(name):
     os.system(SCRIPT_FILE_PATH +
               "stop_node.sh " +
@@ -174,3 +187,38 @@ def get_container_logs(data):
 
     docker_client.close()
     return output
+
+
+def build_conseil_image(branch_name):
+    docker_client = docker.from_env()
+    docker_client.images.build(
+        path=CONSEIL_GITHUB_URL + "#{}".format(branch_name),
+        tag="cryptonomictech/conseil:{}".format(branch_name),
+        rm=True,
+        quiet=True
+    )
+    docker_client.close()
+
+
+def remove_conseil(name):
+    file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "r+")
+    remove_conseil_from_file(file)
+    file.close()
+
+
+def add_conseil(name, branch_name):
+    file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "r+")
+    add_conseil_to_file(file, name, branch_name)
+    file.close()
+
+
+def remove_arronax(name):
+    file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "r+")
+    remove_arronax_from_file(file)
+    file.close()
+
+
+def add_arronax(name):
+    file = open(DOCKER_COMPOSE_FILE_PATH + name + "/docker-compose.yml", "r+")
+    add_arronax_to_file(file, name)
+    file.close()

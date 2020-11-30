@@ -121,6 +121,55 @@
                 <br>
             </div>
         </div>
+        <div class="option-box" id="conseil-options">
+            <br>
+            <h3>Conseil Options</h3>
+            <br>
+            <div class="node-button-holder">
+                {% if node['history_mode'] == 'archive' and node['conseil_port'] != 0%}
+                    <a href="/remove_conseil?name={{node['name']}}">
+                        <div class="button">
+                            Remove Conseil
+                        </div>
+                    </a>
+                    <br>
+                    <br>
+                    {% if node['history_mode'] == 'archive' and node['arronax_port'] == 0%}
+                        <a href="/add_arronax?name={{node['name']}}">
+                            <div class="button">
+                                Add Arronax
+                            </div>
+                        </a>
+                        <br>
+                        <br>
+                    {% endif %}
+                    {% if node['history_mode'] == 'archive' and node['arronax_port'] != 0%}
+                        <a href="/remove_arronax?name={{node['name']}}">
+                            <div class="button">
+                                Remove Arronax
+                            </div>
+                        </a>
+                        <br>
+                        <br>
+                    {% endif %}
+                {% endif %}
+                {% if node['history_mode'] == 'archive' and node['conseil_port'] == 0%}
+                    <form action="/add_conseil" method="get" id="add_conseil_form">
+                        <div class="button" onclick="javascript:document.getElementById('add_conseil_form').submit()">
+                            Add Conseil
+                        </div>
+                        <br>
+                        <br>
+                        <label>
+                            Conseil Branch: <input type="text" value="latest" id="conseilBranch" name="conseil_branch">
+                        </label>
+                    <input type="hidden" value="{{ node['name'] }}" name="name">
+                    </form>
+                    <br>
+                    <br>
+                {% endif %}
+            </div>
+        </div>
     </div>
 
 {% endblock %}

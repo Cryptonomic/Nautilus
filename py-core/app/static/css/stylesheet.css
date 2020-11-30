@@ -189,6 +189,14 @@ a {
     height: 25px;
     border-radius: 5px;
 }
+#conseilBranch {
+    font-family: "Raleway", 'sans-serif';
+    text-align: center;
+    font-size: 16px;
+    width: 250px;
+    height: 18px;
+    border-radius: 5px;
+}
 .radio-button-holder {
     position: relative;
     display: block;
