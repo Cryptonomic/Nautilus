@@ -40,8 +40,10 @@ def start_page():
     logging.debug("Nodes retrieved from database.")
 
     logging.debug("Updating status of all nodes.")
-    job_queue.enqueue_call(func=update_node_status, result_ttl=-1)
-    logging.debug("Node status updated.")
+    try:
+        job_queue.enqueue_call(func=update_node_status, result_ttl=-1)
+    except Exception as e:
+        log_fatal_error(e, "Could not add function to Job Queue")
 
     return render_template("index.html", nodes=nodes)
 
@@ -80,7 +82,10 @@ def node_start_page():
         p_snapshot_restore = False
 
     logging.debug("Getting next available port.")
-    ports = get_next_port(3)
+    try:
+        ports = get_next_port(3)
+    except Exception as e:
+        log_fatal_error(e, "Could not find a new port for running the Nodes on.")
     logging.debug("Open ports retrieved.")
 
     data = dict()
@@ -109,7 +114,10 @@ def node_start_page():
     logging.debug("Node added to database.")
 
     logging.debug("Adding node start job to work queue.")
-    job_queue.enqueue_call(func=node_functions.create_node, args=(data,), timeout=86400)
+    try:
+        job_queue.enqueue_call(func=node_functions.create_node, args=(data,), timeout=86400)
+    except Exception as e:
+        log_fatal_error(e, "Could not send 'create node' function to Job Queue server.")
     logging.debug("Node start job added to work queue.")
 
     return redirect("/")

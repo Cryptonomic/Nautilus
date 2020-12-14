@@ -12,9 +12,6 @@ from util.docker_compose_utils import *
 
 SCRIPT_FILE_PATH = "./util/scripts/"
 DOCKER_COMPOSE_FILE_PATH = os.path.expanduser("~/.nautilus-core/")
-LOGGING_FILE_PATH = "./logs/logs.txt"
-
-LOGGING_FORMAT = "<<%(levelname)s>> %(asctime)s | %(message)s"
 
 # TODO: CHANGE THESE LINKS
 # Snapshot Download URLs
@@ -30,6 +27,9 @@ MAINNET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-node_data-d
 CARTHAGENET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-data.tar.gz"
 DELPHINET_DATA_DIR = ""
 
+
+LOGGING_FILE_PATH = "./logs/logs.txt"
+LOGGING_FORMAT = "<<%(levelname)s>> %(asctime)s | %(message)s"
 logging.basicConfig(filename=LOGGING_FILE_PATH,
                     format=LOGGING_FORMAT,
                     level=logging.DEBUG)
@@ -37,18 +37,37 @@ logging.basicConfig(filename=LOGGING_FILE_PATH,
 
 def create_node(data):
 
-    text = build_docker_compose_file(data)
-    create_new_node_directory(data["name"], text)
+    try:
+        text = build_docker_compose_file(data)
+    except Exception as e:
+        log_fatal_error(e, "Could not build docker compose file.")
+        delete_node(data["name"])
+        return
 
-    if data["restore"]:
-        filename = download_node_snapshot(data)
-        load_snapshot_data(data, filename)
+    try:
+        create_new_node_directory(data["name"], text)
+    except Exception as e:
+        log_fatal_error(e, "Could not create node directory.")
+        delete_node(data["name"])
+        return
 
-    os.system(SCRIPT_FILE_PATH +
-              "start_node.sh" +
-              " " +
-              data["name"]
-              )
+    try:
+        if data["restore"]:
+            filename = download_node_snapshot(data)
+            load_snapshot_data(data, filename)
+    except Exception as e:
+        log_fatal_error(e, "Could not download snapshot. Continuing without snapshot restore.")
+
+    try:
+        os.system(SCRIPT_FILE_PATH +
+                  "start_node.sh" +
+                  " " +
+                  data["name"]
+                  )
+    except Exception as e:
+        log_fatal_error(e, "Could not run script to start node.")
+        delete_node(data["name"])
+        return
 
     update_status(data["name"], "bootstrapping")
 
@@ -127,31 +146,43 @@ def create_new_node_directory(name, contents):
 
 
 def stop_node(name):
-    os.system(SCRIPT_FILE_PATH +
-              "stop_node.sh " +
-              name
-              )
+    try:
+        os.system(SCRIPT_FILE_PATH +
+                  "stop_node.sh " +
+                  name
+                  )
+    except Exception as e:
+        log_fatal_error(e, "Unable to stop node.")
 
 
 def delete_node(name):
-    os.system(SCRIPT_FILE_PATH +
-              "delete_node.sh " +
-              name
-              )
-    shutil.rmtree(DOCKER_COMPOSE_FILE_PATH + name)
+    try:
+        os.system(SCRIPT_FILE_PATH +
+                  "delete_node.sh " +
+                  name
+                  )
+        shutil.rmtree(DOCKER_COMPOSE_FILE_PATH + name)
+    except Exception as e:
+        log_fatal_error(e, "Unable to delete node.")
 
 
 def restart_node(name):
-    os.system(SCRIPT_FILE_PATH +
-              "restart_node.sh " +
-              name
-              )
+    try:
+        os.system(SCRIPT_FILE_PATH +
+                  "restart_node.sh " +
+                  name
+                  )
+    except Exception as e:
+        log_fatal_error(e, "Unable to restart node.")
 
 
 def get_container_logs(data):
-    docker_client = docker.from_env()
-    output = dict()
-    name = data["name"]
+    try:
+        docker_client = docker.from_env()
+        output = dict()
+        name = data["name"]
+    except Exception as e:
+        log_fatal_error(e, "Unable to get Docker Environment")
 
     try:
         output["conseil"] = str(docker_client.containers.get(name + "_conseil-api_1").logs(tail=100))

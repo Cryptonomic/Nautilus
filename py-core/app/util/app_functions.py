@@ -1,12 +1,19 @@
 import os
 import socket
 import docker
+import logging
 from conseil import conseil
 
 from util.database_functions import *
 from util.tezos_node_functions import get_container_logs
 
 STARTING_PORT_LOCATION = 50000
+
+LOGGING_FILE_PATH = "./logs/logs.txt"
+LOGGING_FORMAT = "<<%(levelname)s>> %(asctime)s | %(message)s"
+logging.basicConfig(filename=LOGGING_FILE_PATH,
+                    format=LOGGING_FORMAT,
+                    level=logging.DEBUG)
 
 
 def get_next_port(num_ports: int):
@@ -26,8 +33,6 @@ def get_next_port(num_ports: int):
 
 
 def setup_job_queue_server(password: str):
-    print(password)
-    setup = True
     try:
         ports = dict()
         ports["6379"] = "6379"
@@ -40,9 +45,8 @@ def setup_job_queue_server(password: str):
                                      name="nautilus-core-redis"
                                      )
     except docker.errors.APIError as e:
-        print(e)
-        setup = False
-    return setup
+        log_fatal_error(e, "Could not start Redis server on Docker.")
+        exit(1)
 
 
 def get_latest_block_level(network: str):
@@ -82,5 +86,16 @@ def validate_node_name(name: str):
         .lower()\
         .replace("-", "_")\
         .replace(" ", "_")
+
+
+def log_fatal_error(exception, message):
+    logging.error("""
+     /\  ___\ /\  __ \   /\__  _\ /\  __ \   /\ \          /\  ___\   /\  == \   /\  == \   /\  __ \   /\  == \   
+     \ \  __\ \ \  __ \  \/_/\ \/ \ \  __ \  \ \ \____     \ \  __\   \ \  __<   \ \  __<   \ \ \/\ \  \ \  __<   
+      \ \_\    \ \_\ \_\    \ \_\  \ \_\ \_\  \ \_____\     \ \_____\  \ \_\ \_\  \ \_\ \_\  \ \_____\  \ \_\ \_\ 
+       \/_/     \/_/\/_/     \/_/   \/_/\/_/   \/_____/      \/_____/   \/_/ /_/   \/_/ /_/   \/_____/   \/_/ /_/ 
+    """)
+    logging.error(message)
+    logging.error(exception)
 
 
