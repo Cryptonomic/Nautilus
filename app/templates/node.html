@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Node {{ node['name'] }}
+{% endblock %}
+
+{% block content %}
+
+    <div class="title">
+        <h1>Viewing Node: {{ node['name'] }}</h1>
+    </div>
+    <div id="node-logs">
+        <textarea readonly id="log-screen">
+            Loading Logs...
+        </textarea>
+        <div id="logging-settings">
+            <table id="log-options-container">
+                <tr>
+                    <td class="log-screen-options" id="tezos">
+                        Tezos Node Logs
+                    </td>
+                    {% if node['history_mode'] == 'archive' and node['network'] != 'dalphanet'%}
+                        {% if node['conseil_port'] != 0 %}
+                            <td class="log-screen-options" id="conseil">
+                                Conseil API Logs
+                            </td>
+                            <td class="log-screen-options" id="lorre">
+                                Conseil Lorre Logs
+                            </td>
+                            <td class="log-screen-options" id="postgres">
+                                Conseil Postgres Logs
+                            </td>
+                        {% endif %}
+                        {% if node['arronax_port'] != 0 %}
+                            <td class="log-screen-options" id="arronax">
+                                Arronax Logs
+                            </td>
+                            <td class="log-screen-options">
+
+                            </td>
+                        {% endif %}
+                    {% endif %}
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div id="node-settings-container">
+        <div class="option-box" id="node-info">
+            <br>
+            <h3>Node Info</h3>
+            <br>
+            Network : {{ node['network'] }}
+            <br>
+            <br>
+            History Mode : {{ node['history_mode'] }}
+            <br>
+            <br>
+            Status : {{ node['status'] }}
+            <br>
+            <br>
+        </div>
+        <div class="option-box" id="node-interactions">
+            <br>
+            <h3>Node Interactions</h3>
+            <br>
+            Tezos-Node RPC Port : <a href="http://localhost:{{ node['node_port'] }}">{{ node['node_port'] }}</a>
+            <br>
+            <br>
+            {% if node['history_mode'] == 'archive' and node['network'] != 'dalphanet' %}
+                {% if node['conseil_port'] != 0 %}
+                    Conseil Port : {{ node['conseil_port'] }}
+                    <br>
+                    <br>
+                    Conseil API Key : 'conseil'
+                    <br>
+                    <br>
+                {% endif %}
+                {% if node['arronax_port'] != 0 %}
+                    Arronax Port : {{ node['arronax_port'] }}
+                    <br>
+                    <br>
+                    <div class="node-button-holder">
+                        <a href="http://localhost:{{ node['arronax_port'] }}">
+                           <div class="button">
+                                Query with Arronax
+                            </div>
+                        </a>
+                    </div>
+                {% endif %}
+            {% endif %}
+            <br>
+            <br>
+        </div>
+        <div class="option-box" id="node-options">
+            <br>
+            <h3>Node Options</h3>
+            <br>
+            <div class="node-button-holder">
+                {% if node['status'] != 'stopped' %}
+                    <a href="/stop_node?name={{node['name']}}">
+                        <div class="button">
+                            Stop Node
+                        </div>
+                    </a>
+                    <br>
+                    <br>
+                {% endif %}
+                <a href="/restart_node?name={{node['name']}}">
+                    <div class="button">
+                        Restart Node
+                    </div>
+                </a>
+                <br>
+                <br>
+                <a href="/delete_node?name={{node['name']}}">
+                    <div class="button">
+                        Delete Node
+                    </div>
+                </a>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+
+        let currentLog = "tezos";
+        document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+
+        document.getElementById("tezos").addEventListener("click", function () {
+           document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+           currentLog = "tezos";
+           document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+        });
+        {% if node['history_mode'] == 'archive' and node['network'] != 'dalphanet' %}
+            {% if node['conseil_port'] != 0 %}
+                document.getElementById("conseil").addEventListener("click", function () {
+                    document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+                    currentLog = "conseil";
+                    document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+                });
+                document.getElementById("lorre").addEventListener("click", function () {
+                    document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+                    currentLog = "lorre";
+                    document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+                });
+                document.getElementById("postgres").addEventListener("click", function () {
+                    document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+                    currentLog = "postgres";
+                    document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+                });
+            {% endif %}
+            {% if node['arronax_port'] != 0 %}
+                document.getElementById("arronax").addEventListener("click", function () {
+                    document.getElementById(currentLog).style.backgroundColor = "#4F4F4F";
+                    currentLog = "arronax";
+                    document.getElementById(currentLog).style.backgroundColor = "#9B51E0";
+                });
+            {% endif %}
+        {% endif %}
+
+        let getLogs = function() {
+            $.getJSON('http://localhost:5000/get_logs', {
+                name: "{{node['name']}}",
+            }, function(data) {
+                document.getElementById("log-screen").innerHTML = data[currentLog];
+            });
+        }
+
+        setInterval(getLogs, 1000)
+    </script>
+{% endblock %}
