@@ -2,8 +2,6 @@ from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from util.tezos_node_functions import log_fatal_error
-
 DATABASE_PATH = "/node_database.db"
 
 # Setup code base for sqlalchemy
