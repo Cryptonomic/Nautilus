@@ -31,7 +31,7 @@ The app runs inside a python `venv` so it will not add anything to your system e
 
 Clone the project, and run `./setup_workspace.sh`, which will download docker images, and build Arronax docker images for the different networks.
 
-After setup, you can run `start.sh` in the root directory of the project, and visit https://localhost:4104 to see the running UI.
+After setup, you can run `start.sh` in the root directory of the project, and visit http://localhost:4104 to see the running UI.
 
 We recommend that you do NOT interact with the nodes without the UI, as this can lead to discrepancies between your system, and the script.
 
