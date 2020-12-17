@@ -243,4 +243,4 @@ if __name__ == "__main__":
     # Setup flask app config, and run
     app.debug = True
     app.config['SECRET_KEY'] = SECRET_KEY
-    app.run()
+    app.run(port="4140")
