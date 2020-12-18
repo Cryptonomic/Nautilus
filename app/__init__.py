@@ -20,6 +20,8 @@ SCRIPT_FILE_PATH = "./util/scripts/"
 DOCKER_COMPOSE_FILE_PATH = "util/docker-compose/"
 LOGGING_FILE_PATH = "./logs/logs.txt"
 
+APP_PORT = "4104"
+
 LOGGING_FORMAT = "<<%(levelname)s>> %(asctime)s | %(message)s"
 
 logging.basicConfig(filename=LOGGING_FILE_PATH,
@@ -243,4 +245,4 @@ if __name__ == "__main__":
     # Setup flask app config, and run
     app.debug = True
     app.config['SECRET_KEY'] = SECRET_KEY
-    app.run(port="4140")
+    app.run(port=APP_PORT)
