@@ -32,8 +32,8 @@ try:
     password_file = open("redis_password.txt", "r")
     password = password_file.read().strip()
     password_file.close()
-except FileNotFoundError as e:
-    log_fatal_error(e, "Could not find generated password file.")
+except Exception as e:
+    log_fatal_error(e, "Could not access password file.")
     exit(1)
 
 try:
