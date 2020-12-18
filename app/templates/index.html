@@ -134,13 +134,13 @@
         setInterval(function() {
             let cpu_data = [];
             let ram_data = [];
-            $.getJSON('http://localhost:5000/get_cpu_data', {},
+            $.getJSON('http://localhost:4104/get_cpu_data', {},
                 function(data) {
                     cpu_data = data["cpu"]
                     generateCPUGraph(cpu_data);
                 }
             );
-            $.getJSON('http://localhost:5000/get_ram_data', {},
+            $.getJSON('http://localhost:4104/get_ram_data', {},
                 function(data) {
                     ram_data = data["ram"]
                     generateRAMGraph(ram_data);
