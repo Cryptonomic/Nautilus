@@ -186,13 +186,13 @@ def delete_node():
 def node_page():
     logging.info("Loading node page.")
 
-    logging.debug("Adding node update job to work queue.")
-    job_queue.enqueue_call(func=update_node_status, result_ttl=-1)
-    logging.debug("Node update job added to work queue.")
-
     logging.debug("Retrieving node name.")
     p_name = str(request.args.get("name"))
     logging.debug("Node name retrieved.")
+
+    logging.debug("Adding node update job to work queue.")
+    job_queue.enqueue_call(func=update_node_status, args=(p_name,), result_ttl=-1)
+    logging.debug("Node update job added to work queue.")
 
     logging.debug("Retrieving node data from database.")
     data = db.get_node_data(p_name)
