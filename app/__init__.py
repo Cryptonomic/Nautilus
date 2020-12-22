@@ -20,6 +20,8 @@ SCRIPT_FILE_PATH = "./util/scripts/"
 DOCKER_COMPOSE_FILE_PATH = "util/docker-compose/"
 LOGGING_FILE_PATH = "./logs/logs.txt"
 
+APP_PORT = "4104"
+
 LOGGING_FORMAT = "<<%(levelname)s>> %(asctime)s | %(message)s"
 
 logging.basicConfig(filename=LOGGING_FILE_PATH,
@@ -40,8 +42,10 @@ def start_page():
     logging.debug("Nodes retrieved from database.")
 
     logging.debug("Updating status of all nodes.")
-    job_queue.enqueue_call(func=update_node_status, result_ttl=-1)
-    logging.debug("Node status updated.")
+    try:
+        job_queue.enqueue_call(func=update_node_status, result_ttl=-1)
+    except Exception as e:
+        log_fatal_error(e, "Could not add function to Job Queue")
 
     return render_template("index.html", nodes=nodes)
 
@@ -76,11 +80,14 @@ def node_start_page():
         flash("The name you have provided is already being used.", "error")
         return render_template("node_options.html")
 
-    if p_network == "dalphanet":
+    if p_network == "ebetanet":
         p_snapshot_restore = False
 
     logging.debug("Getting next available port.")
-    ports = get_next_port(3)
+    try:
+        ports = get_next_port(3)
+    except Exception as e:
+        log_fatal_error(e, "Could not find a new port for running the Nodes on.")
     logging.debug("Open ports retrieved.")
 
     data = dict()
@@ -109,7 +116,10 @@ def node_start_page():
     logging.debug("Node added to database.")
 
     logging.debug("Adding node start job to work queue.")
-    job_queue.enqueue_call(func=node_functions.create_node, args=(data,), timeout=86400)
+    try:
+        job_queue.enqueue_call(func=node_functions.create_node, args=(data,), timeout=86400)
+    except Exception as e:
+        log_fatal_error(e, "Could not send 'create node' function to Job Queue server.")
     logging.debug("Node start job added to work queue.")
 
     return redirect("/")
@@ -176,13 +186,13 @@ def delete_node():
 def node_page():
     logging.info("Loading node page.")
 
-    logging.debug("Adding node update job to work queue.")
-    job_queue.enqueue_call(func=update_node_status, result_ttl=-1)
-    logging.debug("Node update job added to work queue.")
-
     logging.debug("Retrieving node name.")
     p_name = str(request.args.get("name"))
     logging.debug("Node name retrieved.")
+
+    logging.debug("Adding node update job to work queue.")
+    job_queue.enqueue_call(func=update_node_status, args=(p_name,), result_ttl=-1)
+    logging.debug("Node update job added to work queue.")
 
     logging.debug("Retrieving node data from database.")
     data = db.get_node_data(p_name)
@@ -235,4 +245,4 @@ if __name__ == "__main__":
     # Setup flask app config, and run
     app.debug = True
     app.config['SECRET_KEY'] = SECRET_KEY
-    app.run()
+    app.run(port=APP_PORT)

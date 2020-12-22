@@ -1,81 +1,51 @@
-# Nautilus
+# Nautilus Core
 
-Automation tools for deploying reproducible blockchain infrastructure.
+Naultilus Core is a tool to automate running Tezos Nodes. It allows customization of the most important node features, and easily running multiple nodes, along with different integrations to simplfy node interactions.
 
-## Running Conseil for Tezos
+With each Node in Archive mode, you can also start an instance of [Conseil](https://github.com/Cryptonomic/Conseil) and [Arronax](https://arronax.io).
 
-This document assumes there is a Tezos node running and shows how to setup containers for [Conseil](https://github.com/Cryptonomic/Conseil) and Postgres respectively.
+Nautilus Core is only supported in macOS and Linux. 
 
-### Prerequisites
-1. A Linux system, we use Ubuntu LTS releases.
-1. Docker installed and a non-root user added to the docker group in order to run the docker commands.
-1. A Scala build environment which can be installed as follows:
-```sh
-sudo apt-get install -y openjdk-8-jdk-headless
-echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
-sudo apt-get update
-sudo apt-get install -y sbt
+## Prerequisites:
+
+You need to have `wget`, `git`, `python3`, `docker`, `docker-compose`, `openssl`, and `pip3` installed.
+
+The `docker` config should be set up with a `docker` user with sudo privileges, so that the app can run without running as root.
+
+These can all be installed with:
+
+```shell
+sudo apt-get install wget
+sudo apt-get install git
+sudo apt-get install python3
+sudo apt-get install openssl
+sudo apt-get install docker
+sudo apt-get install docker-compose
+sudo groupadd docker
+sudo usermod -a -G docker $MY_USER
 ```
 
-### Image creation
-1. Clone nautilus repo from github: 
-    ```sh
-    git clone https://github.com/Cryptonomic/Nautilus.git ./nautilus
-    cd nautilus
-    ```
-1.   There are two ways to configure the installation for the Conseil and Postgres containers,  there is a default config that’s provided as part of the repo and as an alternative you can provide your own installation, for the sake of this document we will use the provided installation and modify it slightly to allow it to work with the user’s infrastructure.
-1. In the `conseil.conf` [file](https://github.com/Cryptonomic/Nautilus/blob/master/docker/config/local/conseil/conseil.conf) located in the repo at path `/docker/config/local/conseil/conseil.conf`
-Some changes are required, specifically, if running mainnet, “alphanet” needs to be changed to "mainnet", also, the hostname needs to be changed to match the IP of the node running Tezos as shown below.
+The app runs inside a python `venv` so it will not add anything to your system environment.
 
-```json
-"platforms": {
-    "tezos": {
-        "mainnet": {
-            "node": {
-                "protocol": "http",
-                "hostname": "1.2.3.4",
-                "port": 8732,
-                "pathPrefix": ""
-            }
-        }
-    }
-}
-```
+## Running Instructions:
 
-If changing the Postgres username and password, it needs to be changed in the `conseil.conf` file as well as the `env.list` file in the repo. The `env.list` [file](https://github.com/Cryptonomic/Nautilus/blob/master/docker/config/local/postgres/env.list).
-Within the downloaded repo, it is in `/docker/config/local/postgres/env.list`.
+Clone the project, and run `./setup_workspace.sh`, which will download docker images, and build Arronax docker images for the different networks.
 
-`databasename`, `username`, and `password` in `conseil.conf` must match `CONSEILDB_DBNAME`, `CONSEILDB_USER`, and `CONSEILDB_PASSWORD` in `env.list`.
+After setup, you can run `./start.sh` in the root directory of the project, and visit http://localhost:4104 to see the running UI.
 
-4. Build Postgres and Conseil containers for Docker.
-```sh
-bash /path/to/repo/Nautilus/docker/nautilus.sh -c -d
-```
+We recommend that you do NOT interact with the nodes without the UI, as this can lead to discrepancies between your system, and the script.
 
-The `-c` flag builds and packages Conseil docker image. `-d` Does the same for Postgres, these flags can be applied separately as well.
-```sh
- bash /path/to/repo/Nautilus/docker/nautilus.sh -c
- bash /path/to/repo/Nautilus/docker/nautilus.sh -d
- ```
+Please only start and stop nodes from the UI.
 
-Note that the containers are named after the directories immediately inside `/docker/config/`, for example `conseil-local`.
+## Troubleshooting
 
-### Running the environment
+If there is a node which is shown to be running on the app, but is not actually running on your computer, you can click "restart" to resync the UI with your computer.
 
-While the script in step 4 will spawn the images created at the end, starting them later can be done as follows.
+Use `docker ps` to list all of the docker containers running on your computer. You should be able to see the containers started by the app. 
 
-```sh
-docker container start conseil-local
-docker container start postgres-local
-```
+## Uninstall / Cleanup:
 
-To stop the containers execute:
+Deleting the repository will delete all of the locally stored data.
 
-```sh
-docker container stop conseil-local
-docker container stop postgres-local
+Docker images will be generated, which can be removed using docker's CLI. All of the images generated have the names `conseil-api-foo`, `conseil-lorre-foo`, or `arronax-foo` where `foo` is the name of the nodes installed.
 
-```
-
-For more details visit the [Conseil repo](https://github.com/Cryptonomic/Conseil) on GitHub. [Developer documentation](https://cryptonomic.github.io/Conseil/#/) is also available with specific usage examples.

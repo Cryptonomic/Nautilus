@@ -25,10 +25,14 @@ class Node(Base):
 
 
 def get_new_session():
-    engine = create_engine('sqlite://{}'.format(DATABASE_PATH))
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    return session
+    try:
+        engine = create_engine('sqlite://{}'.format(DATABASE_PATH))
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        return session
+    except Exception as e:
+        log_fatal_error(e, "Could not retrieve local database session.")
+        exit(1)
 
 
 def setup_database():

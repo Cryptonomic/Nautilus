@@ -164,7 +164,7 @@
         {% endif %}
 
         let getLogs = function() {
-            $.getJSON('http://localhost:5000/get_logs', {
+            $.getJSON('http://localhost:4104/get_logs', {
                 name: "{{node['name']}}",
             }, function(data) {
                 document.getElementById("log-screen").innerHTML = data[currentLog];

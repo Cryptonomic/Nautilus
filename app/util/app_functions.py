@@ -1,12 +1,19 @@
 import os
 import socket
 import docker
+import logging
 from conseil import conseil
 
 from util.database_functions import *
-from util.tezos_node_functions import get_container_logs
+from util.tezos_node_functions import get_container_logs, stop_node, restart_node, delete_node, update_status
 
 STARTING_PORT_LOCATION = 50000
+
+LOGGING_FILE_PATH = "./logs/logs.txt"
+LOGGING_FORMAT = "<<%(levelname)s>> %(asctime)s | %(message)s"
+logging.basicConfig(filename=LOGGING_FILE_PATH,
+                    format=LOGGING_FORMAT,
+                    level=logging.DEBUG)
 
 
 def get_next_port(num_ports: int):
@@ -26,8 +33,6 @@ def get_next_port(num_ports: int):
 
 
 def setup_job_queue_server(password: str):
-    print(password)
-    setup = True
     try:
         ports = dict()
         ports["6379"] = "6379"
@@ -40,9 +45,8 @@ def setup_job_queue_server(password: str):
                                      name="nautilus-core-redis"
                                      )
     except docker.errors.APIError as e:
-        print(e)
-        setup = False
-    return setup
+        log_fatal_error(e, "Could not start Redis server on Docker.")
+        exit(1)
 
 
 def get_latest_block_level(network: str):
@@ -77,10 +81,41 @@ def update_node_status():
         parse_logs(node)
 
 
+def update_node_status(name):
+    docker_client = None
+    try:
+        docker_client = docker.from_env()
+    except Exception as e:
+        log_fatal_error(e, "Unable to get Docker Environment")
+        return
+    try:
+        container = docker_client.containers.get("{}_tezos-node_1".format(name))
+        if get_status(name) != container.status:
+            if container.status == "exited":
+                stop_node(name)
+            if container.status == "running":
+                restart_node(name)
+            update_status(name, "stopped" if container.status == "exited" else container.status)
+    except docker.errors.NotFound as e:
+        log_fatal_error(e, "This node's container has been removed.")
+        remove_node(name)
+
+
 def validate_node_name(name: str):
     return name\
         .lower()\
         .replace("-", "_")\
         .replace(" ", "_")
+
+
+def log_fatal_error(exception, message):
+    logging.error("""
+     /\  ___\ /\  __ \   /\__  _\ /\  __ \   /\ \          /\  ___\   /\  == \   /\  == \   /\  __ \   /\  == \   
+     \ \  __\ \ \  __ \  \/_/\ \/ \ \  __ \  \ \ \____     \ \  __\   \ \  __<   \ \  __<   \ \ \/\ \  \ \  __<   
+      \ \_\    \ \_\ \_\    \ \_\  \ \_\ \_\  \ \_____\     \ \_____\  \ \_\ \_\  \ \_\ \_\  \ \_____\  \ \_\ \_\ 
+       \/_/     \/_/\/_/     \/_/   \/_/\/_/   \/_____/      \/_____/   \/_/ /_/   \/_/ /_/   \/_____/   \/_/ /_/ 
+    """)
+    logging.error(message)
+    logging.error(exception)
 
 
