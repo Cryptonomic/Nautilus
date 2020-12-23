@@ -5,7 +5,7 @@ import logging
 from conseil import conseil
 
 from util.database_functions import *
-from util.tezos_node_functions import get_container_logs
+from util.tezos_node_functions import get_container_logs, stop_node, restart_node, delete_node, update_status
 
 STARTING_PORT_LOCATION = 50000
 
@@ -79,6 +79,26 @@ def parse_logs(name: str):
 def update_node_status():
     for node in get_node_names():
         parse_logs(node)
+
+
+def update_node_status(name):
+    docker_client = None
+    try:
+        docker_client = docker.from_env()
+    except Exception as e:
+        log_fatal_error(e, "Unable to get Docker Environment")
+        return
+    try:
+        container = docker_client.containers.get("{}_tezos-node_1".format(name))
+        if get_status(name) != container.status:
+            if container.status == "exited":
+                stop_node(name)
+            if container.status == "running":
+                restart_node(name)
+            update_status(name, "stopped" if container.status == "exited" else container.status)
+    except docker.errors.NotFound as e:
+        log_fatal_error(e, "This node's container has been removed.")
+        remove_node(name)
 
 
 def validate_node_name(name: str):
