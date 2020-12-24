@@ -4,8 +4,8 @@ import docker
 import logging
 from conseil import conseil
 
-from util.database_functions import *
-from util.tezos_node_functions import get_container_logs, stop_node, restart_node, delete_node, update_status
+from .database_functions import *
+from .tezos_node_functions import get_container_logs, stop_node, restart_node, delete_node, update_status
 
 STARTING_PORT_LOCATION = 50000
 

@@ -7,10 +7,10 @@ import docker
 import requests
 import yaml
 
-from util.app_functions import *
-from util.docker_compose_utils import *
+from .app_functions import *
+from .docker_compose_utils import *
 
-SCRIPT_FILE_PATH = "./util/scripts/"
+SCRIPT_FILE_PATH = "./app/util/scripts/"
 DOCKER_COMPOSE_FILE_PATH = os.path.expanduser("~/.nautilus-core/")
 
 # TODO: CHANGE THESE LINKS
@@ -28,7 +28,7 @@ CARTHAGENET_DATA_DIR = "https://conseil-snapshots.s3.amazonaws.com/tezos-data.ta
 DELPHINET_DATA_DIR = ""
 
 
-LOGGING_FILE_PATH = "./logs/logs.txt"
+LOGGING_FILE_PATH = "./app/logs/logs.txt"
 LOGGING_FORMAT = "<<%(levelname)s>> %(asctime)s | %(message)s"
 logging.basicConfig(filename=LOGGING_FILE_PATH,
                     format=LOGGING_FORMAT,

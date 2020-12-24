@@ -5,10 +5,10 @@ import logging
 import psutil
 import json
 
-from worker import conn
-from util.app_functions import *
-import util.tezos_node_functions as node_functions
-import util.database_functions as db
+from .worker import conn
+from .util.app_functions import *
+from .util import tezos_node_functions as node_functions
+from .util import database_functions as db
 
 SECRET_KEY = os.urandom(32)
 
@@ -237,7 +237,7 @@ def get_ram():
     return jsonify(ram=ram_data)
 
 
-if __name__ == "__main__":
+def start():
     # Setup sqlite database with schema
     logging.debug("Setting up database.")
     db.setup_database()
@@ -246,3 +246,6 @@ if __name__ == "__main__":
     app.debug = True
     app.config['SECRET_KEY'] = SECRET_KEY
     app.run(port=APP_PORT)
+
+if __name__ == "__main__":
+    start()

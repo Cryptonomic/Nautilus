@@ -1,10 +1,8 @@
 import redis
 import time
 import logging
-import secrets
-import sys
 
-from util.app_functions import setup_job_queue_server, log_fatal_error
+from .util.app_functions import setup_job_queue_server, log_fatal_error
 from rq import Worker, Queue, Connection
 
 # Imports for the job queue worker
@@ -28,6 +26,8 @@ listen = ['default']
 redis_url = 'localhost'
 port = 6379
 
+conn = None
+
 try:
     password_file = open("redis_password.txt", "r")
     password = password_file.read().strip()
@@ -46,7 +46,7 @@ except Exception as e:
     log_fatal_error(e, "Connect not connect to Redis instance started on Docker.")
     exit(1)
 
-if __name__ == '__main__':
+def main():
     setup_job_queue_server(password)
     time.sleep(1)
     with Connection(conn):
@@ -56,3 +56,6 @@ if __name__ == '__main__':
         except Exception as e:
             log_fatal_error(e, "Could not start job queue worker.")
             exit(1)
+
+if __name__ == '__main__':
+    main()
