@@ -92,24 +92,28 @@
             <br>
             <div class="radio-button-holder">
                 <label>
-                    <input type="checkbox" name="restore">
+                    <input type="checkbox" name="restore" disabled="disabled">
                     Restore Node from Snapshot
                 </label>
                 <br>
                 <br>
                     <i>
-                        NOTE: This is not recommended for archive mode, it is better to bootstrap the node from scratch.
+                        Restoring from Snapshots will be coming soon!
                     </i>
-                <br>
-                <br>
-                    <i>
-                        NOTE 2: This option is not available with Edonet
-                    </i>
-                <br>
-                <br>
-                <i>
-                    The following options can only be selected for Archive Nodes.
-                </i>
+{#                <br>#}
+{#                    <i>#}
+{#                        NOTE: This is not recommended for archive mode, it is better to bootstrap the node from scratch.#}
+{#                    </i>#}
+{#                <br>#}
+{#                <br>#}
+{#                    <i>#}
+{#                        NOTE 2: This option is not available with Edonet#}
+{#                    </i>#}
+{#                <br>#}
+{#                <br>#}
+{#                <i>#}
+{#                    The following options can only be selected for Archive Nodes.#}
+{#                </i>#}
                 <br>
                 <br>
                 <label>
@@ -122,6 +126,11 @@
                     <input type="checkbox" name="conseil" id="startConseil" disabled="disabled">
                     Install Conseil with Node
                 </label>
+                <br>
+                <br>
+                    <i>
+                        NOTE: <br> Arronax and Conseil can only be installed off of an Archive Node
+                    </i>
                 <br>
                 <br>
             </div>
