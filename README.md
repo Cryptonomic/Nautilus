@@ -37,6 +37,18 @@ sudo usermod -a -G docker $MY_USER
 
 The app runs inside a python `venv` so it will not add anything to your system environment.
 
+Officially Tested with Software Versions:
+```
+wget - 1.20.3
+git - 2.25.1
+python3 - 3.9
+python3-venv - default installed with python3
+python3-pip - 20.3.1
+openssl - 2.8.3
+docker - 20.10.2
+docker-compose - 1.27.4
+```
+
 ## Running Instructions:
 
 Clone the project, and run `./setup_workspace.sh`, which will download docker images, and build Arronax docker images for the different networks.
