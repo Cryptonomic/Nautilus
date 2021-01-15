@@ -8,6 +8,14 @@ Nautilus Core is only supported in macOS and Linux.
 
 ## Prerequisites:
 
+### System Requirements
+
+Running Tezos Nodes (particularly Archive Nodes) can take massive amounts of storage when fully synced (~300 GB).
+16GB of memory is recommended for running Tezos Nodes, along with the other processes alongside it. 
+8GB of ram should suffice, but it might not be comfortable for the containers, nor for anything else runnign on the machine.
+
+### Software Requirements
+
 You need to have `wget`, `git`, `python3`, `docker`, `docker-compose`, `openssl`, and `pip3` installed.
 
 The `docker` config should be set up with a `docker` user with sudo privileges, so that the app can run without running as root.
