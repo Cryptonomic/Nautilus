@@ -18,6 +18,8 @@ These can all be installed with:
 sudo apt-get install wget
 sudo apt-get install git
 sudo apt-get install python3
+sudo apt-get install python3-venv
+sudo apt-get install python3-pip
 sudo apt-get install openssl
 sudo apt-get install docker
 sudo apt-get install docker-compose
