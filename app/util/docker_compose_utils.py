@@ -136,8 +136,11 @@ def build_docker_compose_file(data):
     else:
         yaml_object["services"]["tezos-node"] = get_tezos_node_docker_compose()
 
-    if data["network"] == "edonet":
+    if data["network"] == "edonet" or data["network"] == "edo2net":
         yaml_object["services"]["tezos-node"]["image"] = "tezos/tezos:master"
+
+    if data["network"] == "falphanet":
+        yaml_object["services"]["tezos-node"]["image"] = "tezos/tezos:falphanet-release"
 
     yaml_object["services"]["tezos-node"]["command"] = \
         "tezos-node --cors-header='content-type' --cors-origin='*' --history-mode {} --network {} --rpc-addr 0.0.0.0:8732".format(
