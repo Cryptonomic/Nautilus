@@ -12,7 +12,7 @@ Nautilus Core is only supported in macOS and Linux.
 
 Running Tezos Nodes (particularly Archive Nodes) can take massive amounts of storage when fully synced (~300 GB).
 16GB of memory is recommended for running Tezos Nodes, along with the other processes alongside it. 
-8GB of ram should suffice, but it might not be comfortable for the containers, nor for anything else runnign on the machine.
+8GB of ram should suffice, but it might not be comfortable for the containers, nor for anything else running on the machine.
 
 ### Software Requirements
 
@@ -53,7 +53,7 @@ docker-compose - 1.27.4
 
 Clone the project, and run `./setup_workspace.sh`, which will download docker images, and build Arronax docker images for the different networks.
 
-After setup, you can run `./start.sh` in the root directory of the project, and visit http://localhost:4104 to see the running UI.
+After setup, you can run `./start.sh` in the root directory of the project, and visit `http://localhost:4104` to see the running UI.
 
 We recommend that you do NOT interact with the nodes without the UI, as this can lead to discrepancies between your system, and the script.
 

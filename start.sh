@@ -1,5 +1,7 @@
 #!/bin/bash
 
+rm -rf ./venv
+
 python3 -m venv ./venv || (echo "Python virtual environment not setup properly ... Is python3 installed?" ; exit 1)
 
 source ./venv/bin/activate || (echo "Python virtual environment not setup properly ... Is python3 installed?" ; exit 1)
